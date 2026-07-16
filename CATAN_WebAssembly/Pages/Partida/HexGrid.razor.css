@@ -1,0 +1,59 @@
+.hex-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* los indents de cada fila se miden desde la izquierda */
+    width: 100%;
+    padding: 0 5%;
+    box-sizing: border-box;
+}
+
+.hex-row {
+    display: flex;
+    /* margin-top y margin-left se setean inline desde C# */
+}
+
+.hex {
+    --hex-bg: var(--hex-default-bg, #4a7c59);
+    /* width y margin se setean inline desde C# para que escalen con el ResizeObserver */
+    aspect-ratio: 1 / 1.1547; /* 2/√3 — relación exacta de un hexágono regular */
+    flex-shrink: 0;
+    background: var(--hex-bg);
+    clip-path: polygon( 50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25% );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+    .hex:hover {
+        transform: scale(1.05);
+    }
+
+.hex--selected {
+    /* border no funciona con clip-path, usamos drop-shadow */
+    filter: drop-shadow(0 0 3px var(--hex-selected-color, #63b3ed)) drop-shadow(0 0 8px var(--hex-selected-color, #63b3ed));
+    transform: scale(1.08);
+}
+
+    .hex--selected .hex__label {
+        font-weight: 700;
+    }
+
+.hex__label {
+    font-size: calc(var(--hex-label-size, 14px)); /* sobreescribible por celda */
+    color: #fff;
+    pointer-events: none;
+    text-align: center;
+    user-select: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* dark mode */
+.dark-mode .hex {
+    --hex-default-bg: #2d4a38;
+}
+
+.dark-mode .hex--selected {
+    --hex-selected-color: #4299e1;
+}

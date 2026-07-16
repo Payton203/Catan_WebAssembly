@@ -1,0 +1,79 @@
+﻿@page "/Layout_Partida"
+@using CATAN_WebAssembly.Pages.Partida
+@using MudBlazor
+@inject Personalizacion_Pagina Config
+@implements IDisposable
+
+<HexGrid Cells="_celdas"
+         RowLayout="new[] { 3, 4, 5, 4, 3 }"
+         GapRatio="Config.Valor_Gapratio"
+         SizeScale="Config.Valor_SizeScale"
+         AutoSize="true"
+         MultiSelect="false"
+         OnCellClick="HandleCellClick" />
+
+@code {
+    // ─── Se ingresan los datos de las casillas ─────────────────────────────────────────────────
+
+    // private List<HexCell> _celdas = Enumerable.Range(1, 19)
+    //     .Select(i => new HexCell
+    //     {
+    //         Id = i.ToString(),
+    //         Label = i.ToString()
+    //     })
+    //     .ToList();
+
+    // esto es la funcion de abajo, pero mas compacta, se instancia automaticamente sin necesidad de ser llamada en OnInitialized()
+    // uso la otra porque la entiendo mas y por eso la puedo modificar con mas precision
+
+    private List<HexCell> _celdas = new List<HexCell>();
+
+    private List<HexCell> CrearCeldas()
+    {
+        List<HexCell> resultado = new List<HexCell>();
+
+        for (int i = 1; i <= 19; i++)
+        {
+            HexCell celda = new HexCell();
+            celda.Id = i.ToString();
+            celda.Label = i.ToString();
+            resultado.Add(celda);
+        }
+
+        return resultado;
+    }
+
+    // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
+    protected override void OnInitialized() //cuando se renderiza la pagina, este metodo se ejecuta
+    {
+        Config.OnChange += HandleChange;
+        //se suscribe, para que cada vez que algún valor cambie, invoque el metodo HandleChange
+
+        _celdas = CrearCeldas(); // crea celdas
+    }
+
+    private void HandleChange()
+    {
+        StateHasChanged();
+        // vuelve a renderizar el Layout
+    }
+
+    public void Dispose() 
+    {
+        Config.OnChange -= HandleChange;
+        /*se desuscribe del evento, para que Config.OnChange, para que no quede apuntando a esta pagina,
+        permitiendo que se desrenderize completamente, previniendo memory leaks*/
+    }
+    //se llama automaticamente cuando el componente se destruye, como cuando se cambia de pagina.
+    
+
+    private void HandleCellClick(HexCell cell)
+    {
+        Console.WriteLine($"Clickeaste la celda {cell.Id}");
+    }
+
+    private void HandleSelection(List<HexCell> seleccionadas)
+    {
+        Console.WriteLine($"Seleccionadas: {string.Join(", ", seleccionadas.Select(c => c.Id))}");
+    }
+}
