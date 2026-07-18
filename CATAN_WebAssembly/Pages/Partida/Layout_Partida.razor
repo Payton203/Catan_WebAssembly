@@ -4,13 +4,15 @@
 @inject Personalizacion_Pagina Config
 @implements IDisposable
 
-<HexGrid Cells="_celdas"
-         RowLayout="new[] { 3, 4, 5, 4, 3 }"
-         GapRatio="Config.Valor_Gapratio"
-         SizeScale="Config.Valor_SizeScale"
-         AutoSize="true"
-         MultiSelect="false"
-         OnCellClick="HandleCellClick" />
+<CatanBoard Cells="_celdas"
+            RowLayout="new[] { 3, 4, 5, 4, 3 }"
+            GapRatio="Config.Valor_Gapratio"
+            SizeScale="Config.Valor_SizeScale"
+            AutoSize="true"
+            MultiSelect="false"
+            OnCellClick="HandleCellClick"
+            OnVertexClick="HandleVertexClick"
+            OnEdgeClick="HandleEdgeClick" />
 
 @code {
     // ─── Se ingresan los datos de las casillas ─────────────────────────────────────────────────
@@ -75,5 +77,17 @@
     private void HandleSelection(List<HexCell> seleccionadas)
     {
         Console.WriteLine($"Seleccionadas: {string.Join(", ", seleccionadas.Select(c => c.Id))}");
+    }
+
+    private void HandleVertexClick(HexVertex vertex)
+    {
+        Console.WriteLine($"Clickeaste el vertice {vertex.Id}");
+        // por ahora vacío, después acá va la lógica de colocar asentamientos
+    }
+
+    private void HandleEdgeClick(HexEdge edge)
+    {
+        Console.WriteLine($"Clickeaste la arista {edge.Id}");
+        // por ahora vacío, después acá va la lógica de colocar carreteras
     }
 }

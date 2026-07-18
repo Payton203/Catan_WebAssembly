@@ -1,0 +1,290 @@
+@* ─────────────────────────────────────────────────────────────────────────
+   CatanBoard.razor
+   Envuelve HexGrid y superpone un SVG que dibuja:
+     · Vértices (intersecciones) → asentamientos y ciudades
+     · Aristas (lados)           → carreteras
+   La geometría (posiciones X,Y) la calcula HexGrid y la pasa via OnGeometryChanged.
+   Las formas SVG son intercambiables sin tocar nada del posicionamiento.
+───────────────────────────────────────────────────────────────────────── *@
+
+<div class="catan-board">
+
+    <HexGrid Cells="Cells"
+             RowLayout="RowLayout"
+             GapRatio="GapRatio"
+             AutoSize="AutoSize"
+             SizeScale="SizeScale"
+             MultiSelect="MultiSelect"
+             OnCellClick="OnCellClick"
+             OnSelectionChanged="OnSelectionChanged"
+             OnGeometryChanged="HandleGeometryChanged" />
+
+    @* SVG overlay — pointer-events:none en el SVG global,
+       activados individualmente en cada <g> interactivo *@
+    @if (_vertices.Count > 0)
+    {
+        <svg class="catan-overlay"
+             style="height: @($"{_gridHeight:F0}px");"
+             xmlns="http://www.w3.org/2000/svg">
+
+            @* ── Aristas (carreteras) ── *@
+            @foreach (var edge in _edges)
+            {
+                <g class="edge-group @(edge.HasRoad ? "edge-group--road" : "")"
+                   transform="translate(@F(edge.X), @F(edge.Y)) rotate(@F(edge.Angle))"
+                   @onclick="() => HandleEdgeClick(edge)">
+
+                    @* Área clickeable invisible (más ancha que el road visual) *@
+                    <rect x="@F(-_roadWidth)" y="@F(-_roadLength / 2)"
+                          width="@F(_roadWidth * 2)" height="@F(_roadLength)"
+                          fill="transparent" />
+
+                    @* Road visible (solo si hay carretera) *@
+                    @if (edge.HasRoad)
+                    {
+                        <rect x="@F(-_roadWidth / 2)" y="@F(-_roadLength / 2)"
+                              width="@F(_roadWidth)" height="@F(_roadLength)"
+                              rx="@F(_roadWidth / 2)"
+                              fill="@edge.PlayerColor"
+                              stroke="white" stroke-width="0.8" />
+                    }
+                </g>
+            }
+
+            @* ── Vértices (asentamientos / ciudades) ── *@
+            @foreach (var vertex in _vertices)
+            {
+                <g class="vertex-group @(vertex.Structure != StructureType.None ? "vertex-group--built" : "")"
+                   transform="translate(@F(vertex.X), @F(vertex.Y))"
+                   @onclick="() => HandleVertexClick(vertex)">
+
+                    @if (vertex.Structure == StructureType.None)
+                    {
+                        @* Punto vacío — indicador sutil de que es un vértice válido *@
+                        <circle r="@F(_vertexR * 0.55)"
+                                class="vertex-dot" />
+                    }
+                    else if (vertex.Structure == StructureType.Settlement)
+                    {
+                        @* ── Asentamiento: casa pentagon ──
+                           Forma: techo triangular + base rectangular
+                           Todos los valores son relativos al centro del vértice.
+                           Cambiá solo este bloque para rediseñar el asentamiento. *@
+                        <polygon points="@SettlementPoints()"
+                                 fill="@vertex.PlayerColor"
+                                 stroke="white" stroke-width="0.8"
+                                 stroke-linejoin="round" />
+                    }
+                    else if (vertex.Structure == StructureType.City)
+                    {
+                        @* ── Ciudad: torre izquierda + edificio principal ──
+                           7 puntos que forman el silueta clásica de Catan.
+                           Cambiá solo este bloque para rediseñar la ciudad. *@
+                        <polygon points="@CityPoints()"
+                                 fill="@vertex.PlayerColor"
+                                 stroke="white" stroke-width="0.8"
+                                 stroke-linejoin="round" />
+                    }
+                </g>
+            }
+
+        </svg>
+    }
+</div>
+
+@code {
+    // ─── Parámetros públicos ───────────────────────────────────────────────────
+
+    [Parameter, EditorRequired]
+    public List<HexCell> Cells { get; set; } = new();
+
+    [Parameter] public int[]  RowLayout  { get; set; } = { 3, 4, 5, 4, 3 };
+    [Parameter] public double GapRatio   { get; set; } = 0.05;
+    [Parameter] public bool   AutoSize   { get; set; } = true;
+    [Parameter] public double SizeScale  { get; set; } = 1.0;
+    [Parameter] public bool   MultiSelect{ get; set; } = false;
+
+    [Parameter] public EventCallback<HexCell>       OnCellClick        { get; set; }
+    [Parameter] public EventCallback<List<HexCell>> OnSelectionChanged { get; set; }
+    [Parameter] public EventCallback<HexVertex>     OnVertexClick      { get; set; }
+    [Parameter] public EventCallback<HexEdge>       OnEdgeClick        { get; set; }
+
+    // ─── Estado interno ────────────────────────────────────────────────────────
+
+    private List<HexVertex> _vertices = new();
+    private List<HexEdge>   _edges    = new();
+
+    // Dimensiones pre-calculadas para el SVG (evitan repetir cálculos en el template)
+    private double _hexSize    = 100;
+    private double _gridHeight = 400;
+    private double _vertexR    = 13;    // radio del indicador de vértice
+    private double _roadLength = 52;    // longitud del road (≈ lado del hex)
+    private double _roadWidth  = 5;     // ancho del road
+
+    // ─── Formato decimal (SVG no acepta coma decimal) ─────────────────────────
+
+    private static string F(double v) =>
+        v.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+
+    // ─── Callback de geometría ────────────────────────────────────────────────
+
+    private void HandleGeometryChanged(BoardGeometry geo)
+    {
+        _hexSize    = geo.HexSize;
+        _vertexR    = geo.HexSize * 0.12;
+        _roadWidth  = geo.HexSize * 0.055;
+        _roadLength = geo.HexSize * 0.52;   // ≈ lado del hex (hexSize/√3 ≈ 0.577)
+
+        // Altura total del grid = H + (filas-1) * espaciado_fila
+        // espaciado_fila = (hexSize + gap) * 0.866
+        double H          = geo.HexSize * 1.1547;
+        double rowSpacing = (geo.HexSize + geo.Gap) * 0.866;
+        _gridHeight       = H + (RowLayout.Length - 1) * rowSpacing;
+
+        _vertices = ComputeVertices(geo);
+        _edges    = ComputeEdges(geo);
+    }
+
+    // ─── Cómputo de vértices ──────────────────────────────────────────────────
+
+    private List<HexVertex> ComputeVertices(BoardGeometry geo)
+    {
+        double W = geo.HexSize;
+        double H = W * 1.1547;
+
+        // Los 6 offsets de vértice relativos al centro del hex
+        (double dx, double dy)[] offsets =
+        {
+            (  0,   -H/2 ),   // V0 — cima
+            (  W/2, -H/4 ),   // V1 — superior-derecho
+            (  W/2,  H/4 ),   // V2 — inferior-derecho
+            (  0,    H/2 ),   // V3 — base
+            ( -W/2,  H/4 ),   // V4 — inferior-izquierdo
+            ( -W/2, -H/4 ),   // V5 — superior-izquierdo
+        };
+
+        var dict = new Dictionary<string, HexVertex>();
+
+        foreach (var (cx, cy) in geo.HexCenters)
+        {
+            foreach (var (dx, dy) in offsets)
+            {
+                // Redondeamos a 1 decimal para fusionar vértices compartidos entre hexágonos
+                string key = $"{Math.Round(cx + dx, 1)},{Math.Round(cy + dy, 1)}";
+
+                if (!dict.ContainsKey(key))
+                    dict[key] = new HexVertex { Id = key, X = cx + dx, Y = cy + dy };
+            }
+        }
+
+        return dict.Values.ToList();
+    }
+
+    // ─── Cómputo de aristas ───────────────────────────────────────────────────
+
+    private List<HexEdge> ComputeEdges(BoardGeometry geo)
+    {
+        double W = geo.HexSize;
+        double H = W * 1.1547;
+
+        (double dx, double dy)[] vOffsets =
+        {
+            (  0,   -H/2 ),
+            (  W/2, -H/4 ),
+            (  W/2,  H/4 ),
+            (  0,    H/2 ),
+            ( -W/2,  H/4 ),
+            ( -W/2, -H/4 ),
+        };
+
+        // Ángulo de rotación (desde vertical) de cada arista
+        // E0,E3 = 60°  (diagonal derecha)
+        // E1,E4 = 0°   (vertical)
+        // E2,E5 = -60° (diagonal izquierda)
+        double[] angles = { -60, 0, +60, -60, 0, +60 };
+
+        var dict = new Dictionary<string, HexEdge>();
+
+        foreach (var (cx, cy) in geo.HexCenters)
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                int    j   = (i + 1) % 6;
+                double ax  = cx + vOffsets[i].dx;
+                double ay  = cy + vOffsets[i].dy;
+                double bx  = cx + vOffsets[j].dx;
+                double by  = cy + vOffsets[j].dy;
+
+                // Clave ordenada para deduplicar aristas compartidas entre hexágonos
+                string ka  = $"{Math.Round(ax, 1)},{Math.Round(ay, 1)}";
+                string kb  = $"{Math.Round(bx, 1)},{Math.Round(by, 1)}";
+                string key = string.Compare(ka, kb) < 0 ? $"{ka}|{kb}" : $"{kb}|{ka}";
+
+                if (!dict.ContainsKey(key))
+                    dict[key] = new HexEdge
+                    {
+                        Id    = key,
+                        X     = (ax + bx) / 2,
+                        Y     = (ay + by) / 2,
+                        Angle = angles[i]
+                    };
+            }
+        }
+
+        return dict.Values.ToList();
+    }
+
+    // ─── Shapes SVG ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Asentamiento — pentagon tipo casita.
+    /// Modificá solo esta función para cambiar la forma.
+    /// s = tamaño base de la estructura (fracción del hexágono)
+    /// </summary>
+    private string SettlementPoints()
+    {
+        double s = _vertexR;
+        var c = System.Globalization.CultureInfo.InvariantCulture;
+        return
+            $"0,{(-s * 1.2).ToString("F1", c)} " +
+            $"{(s).ToString("F1", c)},{(-s * 0.1).ToString("F1", c)} " +
+            $"{(s).ToString("F1", c)},{(s * 0.9).ToString("F1", c)} " +
+            $"{(-s).ToString("F1", c)},{(s * 0.9).ToString("F1", c)} " +
+            $"{(-s).ToString("F1", c)},{(-s * 0.1).ToString("F1", c)}";
+    }
+
+    /// <summary>
+    /// Ciudad — torre izquierda + edificio principal (7 puntos).
+    /// Modificá solo esta función para cambiar la forma.
+    /// </summary>
+    private string CityPoints()
+    {
+        double s = _vertexR;
+        var c = System.Globalization.CultureInfo.InvariantCulture;
+        string X(double v) => v.ToString("F1", c);
+
+        // 7 vértices que forman: torre alta a la izquierda + casa con pico a la derecha
+        return
+            $"{X(-s * 1.1)},{X(-s * 1.1)} " +  // techo-izq de la torre
+            $"{X(-s * 0.1)},{X(-s * 1.1)} " +  // techo-der de la torre
+            $"{X(-s * 0.1)},{X(-s * 0.2)} " +  // unión torre-edificio
+            $"{X(s * 0.45)},{X(-s * 1.0)} " +  // pico del edificio
+            $"{X(s * 1.1)},{X(-s * 0.2)} " +   // alero derecho del edificio
+            $"{X(s * 1.1)},{X(s * 0.9)} " +    // base derecha
+            $"{X(-s * 1.1)},{X(s * 0.9)}";     // base izquierda
+    }
+
+    // ─── Handlers de click ────────────────────────────────────────────────────
+
+    private async Task HandleVertexClick(HexVertex vertex)
+    {
+        if (OnVertexClick.HasDelegate)
+            await OnVertexClick.InvokeAsync(vertex);
+    }
+
+    private async Task HandleEdgeClick(HexEdge edge)
+    {
+        if (OnEdgeClick.HasDelegate)
+            await OnEdgeClick.InvokeAsync(edge);
+    }
+}

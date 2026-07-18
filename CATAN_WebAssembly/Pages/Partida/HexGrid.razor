@@ -28,56 +28,35 @@
 @code {
     // ─── Parámetros ────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Celdas a renderizar en orden de lectura (izquierda → derecha, arriba → abajo).
-    /// El board estándar de Catan tiene 19 celdas.
-    /// </summary>
     [Parameter, EditorRequired]
     public List<HexCell> Cells { get; set; } = new();
 
-    /// <summary>
-    /// Cantidad de hexágonos por fila, de arriba hacia abajo.
-    /// Default: layout estándar de Catan (3-4-5-4-3).
-    /// </summary>
     [Parameter]
     public int[] RowLayout { get; set; } = { 3, 4, 5, 4, 3 };
 
-    /// <summary>
-    /// Gap como fracción del tamaño del hexágono (ej: 0.05 = 5%).
-    /// Se aplica uniformemente en todas las direcciones.
-    /// </summary>
     [Parameter]
     public double GapRatio { get; set; } = 0.05;
 
-    /// <summary>
-    /// Si true, el tamaño y el gap se recalculan automáticamente con ResizeObserver.
-    /// </summary>
     [Parameter]
     public bool AutoSize { get; set; } = true;
 
-    /// <summary>
-    /// Escalado de hexagonos, modifica el tamaño de cada hexagono
-    /// Es un multiplicador que Se usa solo si Autosize = true
-    /// <summary>
-    [Parameter]
-    public double SizeScale { get; set; } = 1.0;
-
-    private double _lastContainerWidth = 0;
-
-    /// <summary>
-    /// Tamaño fijo del hexágono. Solo se usa si AutoSize = false.
-    /// </summary>
     [Parameter]
     public string HexSize { get; set; } = "100px";
 
-    /// <summary>
-    /// Si true, permite seleccionar múltiples celdas (toggle).
-    /// </summary>
+    [Parameter]
+    public double SizeScale { get; set; } = 1.0;
+
     [Parameter]
     public bool MultiSelect { get; set; } = false;
 
     [Parameter] public EventCallback<HexCell> OnCellClick { get; set; }
     [Parameter] public EventCallback<List<HexCell>> OnSelectionChanged { get; set; }
+
+    /// <summary>
+    /// Se dispara cada vez que el tamaño del grid se recalcula.
+    /// CatanBoard lo usa para recomputer vértices y aristas.
+    /// </summary>
+    [Parameter] public EventCallback<BoardGeometry> OnGeometryChanged { get; set; }
 
     // ─── Estado interno ────────────────────────────────────────────────────────
 
@@ -86,14 +65,14 @@
     private List<List<HexCell>> _rows = new();
     private readonly HashSet<string> _selectedIds = new();
 
-    // Valores numéricos necesarios para calcular indents en GetRowIndent()
     private double _hexSizePx = 100;
     private double _gapPx = 5;
+    private double _containerWidth = 0;
+    private double _lastSizeScale = 1.0;
 
-    // Strings formateados para el template
     private string _computedHexSize = "100px";
     private string _computedHalfGap = "2.50px";
-    private string _computedRowMargin = "-23.87px"; // ≈ -100 * 0.2887 + 5 * 0.866
+    private string _computedRowMargin = "-18px";
 
     // ─── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -101,13 +80,21 @@
     {
         _rows = BuildRows(Cells, RowLayout);
 
-        if (AutoSize && _lastContainerWidth > 0)
-            RecalcFromWidth(_lastContainerWidth); // re-calcula si cambia el scale
-        else if (!AutoSize)
+        // Re-calcula si el SizeScale cambió desde afuera (ej: slider)
+        bool scaleChanged = Math.Abs(SizeScale - _lastSizeScale) > 0.001;
+        if (scaleChanged && _containerWidth > 0)
+        {
+            _lastSizeScale = SizeScale;
+            RecalcFromWidth(_containerWidth);
+        }
+
+        if (!AutoSize)
+        {
             if (double.TryParse(HexSize.Replace("px", ""),
                 System.Globalization.NumberStyles.Any,
                 System.Globalization.CultureInfo.InvariantCulture, out double w))
                 ApplySizes(w * SizeScale);
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -121,38 +108,36 @@
 
     // ─── ResizeObserver callback ───────────────────────────────────────────────
 
-    /// <summary>
-    /// Llamado desde hexGrid.js cada vez que el contenedor cambia de ancho.
-    /// </summary>
     [JSInvokable]
-    public void OnContainerResized(double containerWidthPx)
+    public async Task OnContainerResized(double containerWidthPx)
     {
-        _lastContainerWidth = containerWidthPx;
+        _containerWidth = containerWidthPx;
         RecalcFromWidth(containerWidthPx);
         StateHasChanged();
+
+        if (OnGeometryChanged.HasDelegate)
+        {
+            var centers = ComputeHexCenters(containerWidthPx);
+            await OnGeometryChanged.InvokeAsync(
+                new BoardGeometry(_hexSizePx, _gapPx, containerWidthPx, centers));
+        }
     }
+
+    // ─── Cálculo de tamaños ────────────────────────────────────────────────────
 
     private void RecalcFromWidth(double containerWidthPx)
     {
         int maxCols = RowLayout.Max();
         double usable = containerWidthPx * 0.90;
         double hexSize = usable / (maxCols * (1 + GapRatio)) * SizeScale;
-        double clamped = Math.Clamp(hexSize, 30, 200);
-        ApplySizes(clamped);
+        ApplySizes(Math.Clamp(hexSize, 30, 200));
     }
-
-    // ─── Cálculo de tamaños ────────────────────────────────────────────────────
 
     private void ApplySizes(double hexSize)
     {
         _hexSizePx = hexSize;
         _gapPx = hexSize * GapRatio;
 
-        // Para que el gap perpendicular entre caras diagonales sea igual al gap horizontal G:
-        //   rowMargin = G * 0.866 - hexSize * 0.2887
-        //
-        // -hexSize * 0.2887 = -H/4: solapamiento necesario para que las filas encajen sin hueco.
-        // +G * 0.866 = +G * sin(60°): separación adicional para el gap entre caras diagonales.
         double rowMargin = _gapPx * 0.866 - hexSize * 0.2887;
 
         var fmt = System.Globalization.CultureInfo.InvariantCulture;
@@ -161,18 +146,48 @@
         _computedRowMargin = $"{rowMargin.ToString("F2", fmt)}px";
     }
 
-    // ─── Indent por fila ──────────────────────────────────────────────────────
+    // ─── Centros de los hexágonos ──────────────────────────────────────────────
 
     /// <summary>
-    /// Calcula el margin-left de cada fila para formar el rombo de Catan.
+    /// Calcula la posición (cx, cy) del centro de cada hexágono en píxeles,
+    /// relativa a la esquina superior-izquierda del elemento .hex-grid.
     ///
-    /// Fórmula: indent = (maxCols - rowCols) / 2 * (hexSize + gap)
-    ///
-    /// Ejemplo con layout 3-4-5-4-3 y maxCols=5:
-    ///   fila de 5: indent = 0           → arranca al borde
-    ///   fila de 4: indent = 0.5*(H+G)  → medio paso a la derecha (encaja entre los de arriba)
-    ///   fila de 3: indent = 1.0*(H+G)  → un paso completo a la derecha
+    /// La fórmula tiene en cuenta:
+    ///   - El padding lateral del CSS (5% de cada lado = 10% total)
+    ///   - El indent de cada fila según RowLayout
+    ///   - El gap entre hexágonos
+    ///   - El espaciado vertical entre filas
     /// </summary>
+    private List<(double X, double Y)> ComputeHexCenters(double containerWidth)
+    {
+        var centers = new List<(double X, double Y)>();
+        double H = _hexSizePx * 1.1547;
+        double pad = containerWidth * 0.05;   // coincide con padding: 0 5% del CSS
+        int maxCols = RowLayout.Max();
+
+        double cy = H / 2;   // primera fila: centro en mitad de la altura del hex
+
+        for (int r = 0; r < RowLayout.Length; r++)
+        {
+            int rowCols = RowLayout[r];
+            double indent = (maxCols - rowCols) / 2.0 * (_hexSizePx + _gapPx);
+
+            for (int c = 0; c < rowCols; c++)
+            {
+                double cx = pad + indent + _gapPx / 2 + c * (_hexSizePx + _gapPx) + _hexSizePx / 2;
+                centers.Add((cx, cy));
+            }
+
+            // El espaciado vertical entre filas = (hexSize + gap) * sin(60°) = * 0.866
+            if (r < RowLayout.Length - 1)
+                cy += (_hexSizePx + _gapPx) * 0.866;
+        }
+
+        return centers;
+    }
+
+    // ─── Indent por fila ──────────────────────────────────────────────────────
+
     private string GetRowIndent(int rowCols)
     {
         int maxCols = RowLayout.Max();
@@ -218,12 +233,9 @@
                 _selectedIds.Remove(cell.Id);
         }
 
-        if (OnCellClick.HasDelegate)
-            await OnCellClick.InvokeAsync(cell);
-
-        if (OnSelectionChanged.HasDelegate)
-            await OnSelectionChanged.InvokeAsync(
-                Cells.Where(c => _selectedIds.Contains(c.Id)).ToList());
+        if (OnCellClick.HasDelegate) await OnCellClick.InvokeAsync(cell);
+        if (OnSelectionChanged.HasDelegate) await OnSelectionChanged.InvokeAsync(
+            Cells.Where(c => _selectedIds.Contains(c.Id)).ToList());
     }
 
     // ─── Dispose ───────────────────────────────────────────────────────────────
