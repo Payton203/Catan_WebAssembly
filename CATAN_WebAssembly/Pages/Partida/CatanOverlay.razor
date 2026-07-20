@@ -1,0 +1,249 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<div class="catan-overlay-host" @ref="_ref" style="transform: translate(@F(OffsetX)px, @F(OffsetY)px);">
+    @if (_vertices.Count > 0)
+    {
+        <svg width="100%" height="@F(_svgHeight)" style="overflow:visible;">
+
+            @foreach (var edge in _edges)
+            {
+                <g class="o-edge @(edge.HasRoad ? "o-edge--road" : "")"
+                   transform="translate(@F(edge.X),@F(edge.Y)) rotate(@F(edge.Angle))"
+                   @onclick="() => ClickEdge(edge)">
+                    <rect x="@F(-_rw)" y="@F(-_rl / 2)" width="@F(_rw * 2)" height="@F(_rl)" fill="transparent" />
+                   @*  @if (edge.HasRoad)
+                    {
+                        <rect x="@F(-_rw / 2)" y="@F(-_rl / 2)" width="@F(_rw)" height="@F(_rl)"
+                              rx="@F(_rw / 2)" fill="@edge.PlayerColor" stroke="white" stroke-width="0.8" />
+                    } *@
+                    @if (true)
+                    {
+                        <rect x="@F(-_rw / 2)" y="@F(-_rl / 2)" width="@F(_rw)" height="@F(_rl)"
+                              rx="@F(_rw / 2)"
+                              fill="@(edge.HasRoad ? edge.PlayerColor : "rgba(255,255,255,0.15)")"
+                              stroke="@(edge.HasRoad ? "white" : "transparent")"
+                              stroke-width="0.8" />
+                    }
+                </g>
+            }
+
+            @foreach (var v in _vertices)
+            {
+                <g class="o-vertex @(v.Structure != StructureType.None ? "o-vertex--built" : "")"
+                   transform="translate(@F(v.X),@F(v.Y))"
+                   @onclick="() => ClickVertex(v)">
+                    @if (v.Structure == StructureType.None)
+                    {
+                        <circle r="@F(_vr * 0.55)" class="o-dot" stroke-width="0.8" />
+                    }
+                    else if (v.Structure == StructureType.Settlement)
+                    {
+                        <polygon points="@Settlement()" fill="@v.PlayerColor"
+                                 stroke="white" stroke-width="0.8" stroke-linejoin="round" />
+                    }
+                    else
+                    {
+                        <polygon points="@City()" fill="@v.PlayerColor"
+                                 stroke="white" stroke-width="0.8" stroke-linejoin="round" />
+                    }
+                </g>
+            }
+        </svg>
+    }
+</div>
+
+@code {
+    // ── Parámetros ─────────────────────────────────────────────────────────────
+    [Parameter] public int[] RowLayout { get; set; } = { 3, 4, 5, 4, 3 };
+    [Parameter] public double SizeScale { get; set; } = 1.0;   // GapRatio eliminado
+    [Parameter] public EventCallback<HexVertex> OnVertexClick { get; set; }
+    [Parameter] public EventCallback<HexEdge> OnEdgeClick { get; set; }
+
+    [Parameter] public double OffsetX { get; set; } = 0; //para ajustar manualmente la posicion del overlay
+    [Parameter] public double OffsetY { get; set; } = 0; //para ajustar manualmente la posicion del overlay
+    [Parameter] public double OverlayScale { get; set; } = 1.0; //para ajustar manualmente la escala del overlay
+
+    [Parameter] public double GapRatio { get; set; } = 0.15;
+    // ── Estado ─────────────────────────────────────────────────────────────────
+    private ElementReference _ref;
+    private DotNetObjectReference<CatanOverlay>? _selfRef;
+    private List<HexVertex> _vertices = new();
+    private List<HexEdge> _edges = new();
+    private double _containerWidth = 0;
+    private double _svgHeight = 0;
+    private double _vr = 10, _rl = 50, _rw = 5;
+
+    private static string F(double v) =>
+        v.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+
+    // ── Lifecycle ──────────────────────────────────────────────────────────────
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _selfRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("hexGridInterop.observe", _ref, _selfRef);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        OffsetY = GapRatio * (-27.5); 
+        // corrige el offset
+        //ya que cuando se aumenta el Gapratio, visualmente los hexagonos no disminuyen su tamaño manteniendo el centro,
+        //lo hacen manteniendo el vertice superior, causando que la distancia entre los hexagonos y el overlay no sea la misma para cada HexVertex y HexEdge
+        if (_containerWidth > 0) Recompute(_containerWidth);
+    }
+
+    [JSInvokable]
+    public void OnContainerResized(double widthPx)
+    {
+        _containerWidth = widthPx;
+        Recompute(widthPx);
+        StateHasChanged();
+    }
+
+    // ── Motor de cálculo — SIN GapRatio ───────────────────────────────────────
+    private void Recompute(double cw)
+    {
+        int maxCols = RowLayout.Max();
+
+        // Gap = 0: hexSize ocupa exactamente el ancho disponible dividido en columnas.
+        // No se usa GapRatio — los vértices se posicionan como si los hexágonos se tocaran.
+        double hexSize = Math.Clamp(cw * 0.90 / maxCols * SizeScale * OverlayScale, 30, 200);
+        double H = hexSize * 1.1547;
+
+        _vr = hexSize * 0.11;
+        _rl = hexSize * 0.50;   // longitud del road ≈ lado del hex (hexSize / √3 * 0.86)
+        _rw = hexSize * 0.055;
+
+        // Altura total: primera fila (H) + (n-1) filas * espaciado (H * 0.75 con gap=0)
+        _svgHeight = H + (RowLayout.Length - 1) * H * 0.75;
+
+        var centers = GetCenters(cw, hexSize, H);
+        _vertices = BuildVertices(centers, hexSize, H);
+        _edges = BuildEdges(centers, hexSize, H);
+    }
+
+    // ── Centros — gap = 0 ─────────────────────────────────────────────────────
+    private List<(double X, double Y)> GetCenters(double cw, double s, double H)
+    {
+        var list = new List<(double, double)>();
+        int maxCols = RowLayout.Max();
+        double pad = cw * 0.05;   // coincide con padding: 0 5% del CSS de HexGrid
+        double cy = H / 2;
+
+        for (int r = 0; r < RowLayout.Length; r++)
+        {
+            int cols = RowLayout[r];
+            // Con gap=0 el indent es simplemente la mitad del espacio "sobrante"
+            double indent = (maxCols - cols) / 2.0 * s;
+
+            for (int c = 0; c < cols; c++)
+                list.Add((pad + indent + c * s + s / 2, cy));
+
+            // Espaciado vertical con hexágonos tocándose = H * 0.75
+            if (r < RowLayout.Length - 1)
+                cy += H * 0.75;
+        }
+        return list;
+    }
+
+    // ── Vértices deduplicados ─────────────────────────────────────────────────
+    private List<HexVertex> BuildVertices(List<(double X, double Y)> centers, double s, double H)
+    {
+        // Con gap=0, los vértices compartidos entre hexágonos caen en exactamente
+        // el mismo punto → la deduplicación por clave de píxel entero funciona perfectamente.
+        (double dx, double dy)[] off =
+        {
+            (0,     -H/2),
+            (s/2,   -H/4),
+            (s/2,    H/4),
+            (0,      H/2),
+            (-s/2,   H/4),
+            (-s/2,  -H/4)
+        };
+
+        var dict = new Dictionary<string, HexVertex>();
+        foreach (var (cx, cy) in centers)
+            foreach (var (dx, dy) in off)
+            {
+                string key = $"{(int)Math.Round(cx + dx)},{(int)Math.Round(cy + dy)}";
+                if (!dict.ContainsKey(key))
+                    dict[key] = new HexVertex { Id = key, X = cx + dx, Y = cy + dy };
+            }
+        return dict.Values.ToList();
+    }
+
+    // ── Aristas deduplicadas ──────────────────────────────────────────────────
+    private List<HexEdge> BuildEdges(List<(double X, double Y)> centers, double s, double H)
+    {
+        (double dx, double dy)[] off =
+        {
+            (0,     -H/2),
+            (s/2,   -H/4),
+            (s/2,    H/4),
+            (0,      H/2),
+            (-s/2,   H/4),
+            (-s/2,  -H/4)
+        };
+        double[] angles = { -60, 0, +60, -60, 0, +60 };
+        var dict = new Dictionary<string, HexEdge>();
+
+        foreach (var (cx, cy) in centers)
+            for (int i = 0; i < 6; i++)
+            {
+                int j = (i + 1) % 6;
+                double ax = cx + off[i].dx, ay = cy + off[i].dy;
+                double bx = cx + off[j].dx, by = cy + off[j].dy;
+                string ka = $"{(int)Math.Round(ax)},{(int)Math.Round(ay)}";
+                string kb = $"{(int)Math.Round(bx)},{(int)Math.Round(by)}";
+                string key = string.Compare(ka, kb) < 0 ? $"{ka}|{kb}" : $"{kb}|{ka}";
+                if (!dict.ContainsKey(key))
+                    dict[key] = new HexEdge
+                    {
+                        Id = key,
+                        X = (ax + bx) / 2,
+                        Y = (ay + by) / 2,
+                        Angle = angles[i]
+                    };
+            }
+        return dict.Values.ToList();
+    }
+
+    // ── Shapes SVG — cambiá solo estas dos funciones para rediseñar ───────────
+    private string Settlement()
+    {
+        double s = _vr;
+        var ic = System.Globalization.CultureInfo.InvariantCulture;
+        string V(double v) => v.ToString("F1", ic);
+        return $"0,{V(-s * 1.2)} {V(s)},{V(-s * 0.1)} {V(s)},{V(s * 0.9)} {V(-s)},{V(s * 0.9)} {V(-s)},{V(-s * 0.1)}";
+    }
+
+    private string City()
+    {
+        double s = _vr;
+        var ic = System.Globalization.CultureInfo.InvariantCulture;
+        string V(double v) => v.ToString("F1", ic);
+        return $"{V(-s * 1.1)},{V(-s * 1.1)} {V(-s * 0.1)},{V(-s * 1.1)} {V(-s * 0.1)},{V(-s * 0.2)} " +
+               $"{V(s * 0.45)},{V(-s)} {V(s * 1.1)},{V(-s * 0.2)} {V(s * 1.1)},{V(s * 0.9)} {V(-s * 1.1)},{V(s * 0.9)}";
+    }
+
+    // ── Clicks ────────────────────────────────────────────────────────────────
+    private async Task ClickVertex(HexVertex v)
+    {
+        if (OnVertexClick.HasDelegate) await OnVertexClick.InvokeAsync(v);
+    }
+    private async Task ClickEdge(HexEdge e)
+    {
+        if (OnEdgeClick.HasDelegate) await OnEdgeClick.InvokeAsync(e);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try { await JS.InvokeVoidAsync("hexGridInterop.unobserve", _ref); }
+        catch (JSDisconnectedException) { }
+        _selfRef?.Dispose();
+    }
+}

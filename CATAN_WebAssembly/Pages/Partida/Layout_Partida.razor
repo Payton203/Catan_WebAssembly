@@ -4,15 +4,23 @@
 @inject Personalizacion_Pagina Config
 @implements IDisposable
 
-<CatanBoard Cells="_celdas"
-            RowLayout="new[] { 3, 4, 5, 4, 3 }"
-            GapRatio="Config.Valor_Gapratio"
-            SizeScale="Config.Valor_SizeScale"
-            AutoSize="true"
-            MultiSelect="false"
-            OnCellClick="HandleCellClick"
-            OnVertexClick="HandleVertexClick"
-            OnEdgeClick="HandleEdgeClick" />
+<div class="catan-board" style="position: relative;">
+    <HexGrid Cells="_celdas"
+             RowLayout="new[] { 3, 4, 5, 4, 3 }"
+             GapRatio="Config.Valor_Gapratio"
+             SizeScale="Config.Valor_SizeScale"
+             AutoSize="true"
+             OnCellClick="HandleCellClick" />
+
+    <CatanOverlay RowLayout="new[] { 3, 4, 5, 4, 3 }"
+                  SizeScale="Config.Valor_SizeScale"
+                  GapRatio="Config.Valor_Gapratio"
+                  OffsetX="Config.OffsetX"
+                  OffsetY="Config.OffsetY"
+                  OverlayScale="Config.OverlayScale"
+                  OnVertexClick="HandleVertexClick"
+                  OnEdgeClick="HandleEdgeClick" />
+</div>
 
 @code {
     // ─── Se ingresan los datos de las casillas ─────────────────────────────────────────────────

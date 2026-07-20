@@ -1,0 +1,55 @@
+.catan-overlay-host {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;           /* no ocupa espacio en el layout */
+    pointer-events: none;
+    overflow: visible;
+}
+
+/* ── Vértices ── */
+.o-vertex {
+    pointer-events: all;
+    cursor: pointer;
+}
+
+.o-dot {
+    fill: rgba(255, 0, 255, 0.10);
+    stroke: rgba(255, 0, 255, 0.25);
+    opacity: 1;
+    transition: opacity 0.15s;
+}
+
+/* Los puntos vacíos aparecen cuando hoveas el board padre */
+.catan-overlay-host:hover .o-dot {
+    opacity: 1;
+}
+
+.o-vertex:hover .o-dot {
+    fill: rgba(255, 255, 255, 0.45);
+    stroke: white;
+    opacity: 1;
+}
+
+.o-vertex--built {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55));
+}
+
+.o-vertex--built:hover polygon {
+    filter: brightness(1.15);
+}
+
+/* ── Aristas ── */
+.o-edge {
+    pointer-events: all;
+    cursor: pointer;
+}
+
+.o-edge:not(.o-edge--road):hover rect:first-child {
+    fill: rgba(255, 0, 255, 0.10);
+}
+
+.o-edge--road {
+    filter: drop-shadow(0 1px 2px rgba(255, 0, 0, 0.45));
+}

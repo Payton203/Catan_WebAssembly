@@ -52,12 +52,6 @@
     [Parameter] public EventCallback<HexCell> OnCellClick { get; set; }
     [Parameter] public EventCallback<List<HexCell>> OnSelectionChanged { get; set; }
 
-    /// <summary>
-    /// Se dispara cada vez que el tamaño del grid se recalcula.
-    /// CatanBoard lo usa para recomputer vértices y aristas.
-    /// </summary>
-    [Parameter] public EventCallback<BoardGeometry> OnGeometryChanged { get; set; }
-
     // ─── Estado interno ────────────────────────────────────────────────────────
 
     private ElementReference _gridRef;
@@ -69,6 +63,7 @@
     private double _gapPx = 5;
     private double _containerWidth = 0;
     private double _lastSizeScale = 1.0;
+    private double _lastGapRatio = 0.05;
 
     private string _computedHexSize = "100px";
     private string _computedHalfGap = "2.50px";
@@ -80,20 +75,14 @@
     {
         _rows = BuildRows(Cells, RowLayout);
 
-        // Re-calcula si el SizeScale cambió desde afuera (ej: slider)
         bool scaleChanged = Math.Abs(SizeScale - _lastSizeScale) > 0.001;
-        if (scaleChanged && _containerWidth > 0)
+        bool gapChanged = Math.Abs(GapRatio - _lastGapRatio) > 0.001;
+
+        if ((scaleChanged || gapChanged) && _containerWidth > 0)
         {
             _lastSizeScale = SizeScale;
+            _lastGapRatio = GapRatio;
             RecalcFromWidth(_containerWidth);
-        }
-
-        if (!AutoSize)
-        {
-            if (double.TryParse(HexSize.Replace("px", ""),
-                System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture, out double w))
-                ApplySizes(w * SizeScale);
         }
     }
 
@@ -114,13 +103,6 @@
         _containerWidth = containerWidthPx;
         RecalcFromWidth(containerWidthPx);
         StateHasChanged();
-
-        if (OnGeometryChanged.HasDelegate)
-        {
-            var centers = ComputeHexCenters(containerWidthPx);
-            await OnGeometryChanged.InvokeAsync(
-                new BoardGeometry(_hexSizePx, _gapPx, containerWidthPx, centers));
-        }
     }
 
     // ─── Cálculo de tamaños ────────────────────────────────────────────────────
@@ -185,6 +167,8 @@
 
         return centers;
     }
+
+    // lo de arriba es todo basura
 
     // ─── Indent por fila ──────────────────────────────────────────────────────
 

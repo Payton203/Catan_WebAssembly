@@ -39,10 +39,7 @@
             </div>
             <div class="popup-body">
 
-                <MudSwitch @bind-Value="Config.Dark_Mode" Color="Color.Dark" UncheckedColor="Color.Default"> Dark_Mode</MudSwitch>
-
-                <label>Notificaciones</label>
-                <input type="checkbox" checked />
+                @* <MudSwitch @bind-Value="Config.Dark_Mode" Color="Color.Dark" UncheckedColor="Color.Default"> Dark_Mode</MudSwitch> *@
 
                 <label>HexSize</label>
                 Value: @(Math.Round((1 - Config.Valor_Gapratio) * 100))%
@@ -58,6 +55,15 @@
                 <label>BoardScale</label>
                 <MudSlider @bind-Value="Config.Valor_SizeScale" Step="0.01" Min="0" Max="1.5" Color="Color.Info"> Value: @Config.Valor_SizeScale.ToString()</MudSlider>
                 @*  slider para el multiplicador de escalado de tamaño del  *@
+
+                <label>Offset X</label>
+                <MudSlider @bind-Value="Config.OffsetX" Step="1" Min="-1000" Max="1000" Color="Color.Info"> Value: @Config.OffsetX.ToString()</MudSlider>
+                <label>Offset Y</label>
+                <MudSlider @bind-Value="Config.OffsetY" Step="1" Min="-1000" Max="1000" Color="Color.Info"> Value: @Config.OffsetY.ToString()</MudSlider>
+                @* Offset para el CatanOverlay(los vertices y aristas)*@
+                <label>OverlayScale</label>
+                <MudSlider @bind-Value="Config.OverlayScale" Step="0.01" Min="0.1" Max="2" Color="Color.Info"> Value: @Config.OverlayScale.ToString()</MudSlider>
+                @* multiplicador de escalado de tamaño para el CatanOverlay(los vertices y aristas)*@
             </div>
         </div>
     </div>
