@@ -19,7 +19,8 @@
                   OffsetY="Config.OffsetY"
                   OverlayScale="Config.OverlayScale"
                   OnVertexClick="HandleVertexClick"
-                  OnEdgeClick="HandleEdgeClick" />
+                  OnEdgeClick="HandleEdgeClick"
+                  OnGeometryReady="HandleGeometryReady" />
 </div>
 
 @code {
@@ -51,6 +52,61 @@
         }
 
         return resultado;
+    }
+
+    // ─── Se ingresan los datos de los vertices y de los hexagonos ─────────────────────────────────────────────────
+
+    private List<HexVertex> _vertices = new();
+    private List<HexEdge> _edges = new();
+
+    private void HandleGeometryReady((List<HexVertex> Vertices, List<HexEdge> Edges) tupla)
+    {
+        _vertices = tupla.Vertices;
+        _edges = tupla.Edges;
+        //tupla contiene la info de ambas listas
+        AsignarIdsVertices();
+        AsignarIdsEdges();
+        Console.WriteLine($"Vertices asignados: {_vertices.Count}, primero: {_vertices[0].Id}, último: {_vertices[^1].Id}");
+        for (int i = 0; i < _vertices.Count; i++)
+        {
+            switch (_vertices[i].Id)
+            {
+                case 1:
+                    _vertices[i].Structure = StructureType.Settlement;
+                    _vertices[i].PlayerColor = "Yellow";
+                    break;
+                case 2:
+                    _vertices[i].Structure = StructureType.City;
+                    _vertices[i].PlayerColor = "Yellow";
+                    break;
+            }
+        }
+        for (int i = 0; i < _edges.Count; i++)
+        {
+            switch (_edges[i].Id)
+            {
+                case 1:
+                    _edges[i].HasRoad = true;
+                    _edges[i].PlayerColor = "Yellow";
+                    break;
+            }
+        }
+    }
+
+    private void AsignarIdsVertices()
+    {
+        for (int i = 0; i < _vertices.Count; i++)
+        {
+            _vertices[i].Id = i;
+        }
+    }
+
+    private void AsignarIdsEdges()
+    {
+        for (int i = 0; i < _edges.Count; i++)
+        {
+            _edges[i].Id = i;
+        }
     }
 
     // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
@@ -89,7 +145,7 @@
 
     private void HandleVertexClick(HexVertex vertex)
     {
-        Console.WriteLine($"Clickeaste el vertice {vertex.Id}");
+        Console.WriteLine($"Click - Position_Id: {vertex.Position_Id} - Id: {vertex.Id}");
         // por ahora vacío, después acá va la lógica de colocar asentamientos
     }
 

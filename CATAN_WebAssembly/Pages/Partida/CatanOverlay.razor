@@ -12,19 +12,25 @@
                    transform="translate(@F(edge.X),@F(edge.Y)) rotate(@F(edge.Angle))"
                    @onclick="() => ClickEdge(edge)">
                     <rect x="@F(-_rw)" y="@F(-_rl / 2)" width="@F(_rw * 2)" height="@F(_rl)" fill="transparent" />
-                   @*  @if (edge.HasRoad)
+                    @if (edge.HasRoad)
                     {
                         <rect x="@F(-_rw / 2)" y="@F(-_rl / 2)" width="@F(_rw)" height="@F(_rl)"
                               rx="@F(_rw / 2)" fill="@edge.PlayerColor" stroke="white" stroke-width="0.8" />
-                    } *@
+                    }
                     @if (true)
                     {
                         <rect x="@F(-_rw / 2)" y="@F(-_rl / 2)" width="@F(_rw)" height="@F(_rl)"
                               rx="@F(_rw / 2)"
-                              fill="@(edge.HasRoad ? edge.PlayerColor : "rgba(255,255,255,0.15)")"
+                              fill="@(edge.HasRoad ? edge.PlayerColor : "rgba(255,0,255,0.15)")"
                               stroke="@(edge.HasRoad ? "white" : "transparent")"
                               stroke-width="0.8" />
                     }
+                    <text font-size="@F(_rw * 1.5)"
+                          text-anchor="middle"
+                          dominant-baseline="central"
+                          fill="red"
+                          pointer-events="none"
+                          transform="rotate(@F(-edge.Angle))">@edge.Id</text>
                 </g>
             }
 
@@ -47,6 +53,11 @@
                         <polygon points="@City()" fill="@v.PlayerColor"
                                  stroke="white" stroke-width="0.8" stroke-linejoin="round" />
                     }
+                    <text font-size="@F(_vr * 0.9)"
+                          text-anchor="middle"
+                          dominant-baseline="central"
+                          fill="blue"
+                          pointer-events="none">@v.Id</text>
                 </g>
             }
         </svg>
@@ -62,9 +73,17 @@
 
     [Parameter] public double OffsetX { get; set; } = 0; //para ajustar manualmente la posicion del overlay
     [Parameter] public double OffsetY { get; set; } = 0; //para ajustar manualmente la posicion del overlay
-    [Parameter] public double OverlayScale { get; set; } = 1.0; //para ajustar manualmente la escala del overlay
+    [Parameter] public double OverlayScale { get; set; } = 0.9; //para ajustar manualmente la escala del overlay
 
-    [Parameter] public double GapRatio { get; set; } = 0.15;
+    [Parameter] public double GapRatio { get; set; } = 0.15; //no afecta al componente, se usa solo para corregir el Offset en Y
+
+    [Parameter] public EventCallback<(List<HexVertex> Vertices, List<HexEdge> Edges)> OnGeometryReady { get; set; }
+    //Se usa para pasarle la listas de los vertices y aristas generados (dos tuplas <T>)
+    // para asi poder modificar sus datos desde el Layout_Partida
+
+    //EventCallback es un evento integrado de blazor que comunica al componente hijo con el padre y lo rerenderiza automaticamente
+    // <T> un paquete de valores agrupados sin necesidad de crear una clase
+
     // ── Estado ─────────────────────────────────────────────────────────────────
     private ElementReference _ref;
     private DotNetObjectReference<CatanOverlay>? _selfRef;
@@ -73,6 +92,8 @@
     private double _containerWidth = 0;
     private double _svgHeight = 0;
     private double _vr = 10, _rl = 50, _rw = 5;
+
+    private bool _geometryInitialized = false; //sirve para chequea si la geometria esta inicializada, para evitar loops infinitos
 
     private static string F(double v) =>
         v.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
@@ -122,8 +143,24 @@
         _svgHeight = H + (RowLayout.Length - 1) * H * 0.75;
 
         var centers = GetCenters(cw, hexSize, H);
-        _vertices = BuildVertices(centers, hexSize, H);
-        _edges = BuildEdges(centers, hexSize, H);
+
+        if (_vertices.Count == 0)
+        {
+            // primera vez — creá los objetos
+            _vertices = BuildVertices(centers, hexSize, H);
+            _edges = BuildEdges(centers, hexSize, H);
+        }
+        else
+        {
+            // siguientes veces — solo actualizá posiciones, no recreés los objetos
+            UpdateVertexPositions(centers, hexSize, H);
+            UpdateEdgePositions(centers, hexSize, H);
+        }
+        if (!_geometryInitialized && OnGeometryReady.HasDelegate) //! niega el estado de la variable
+        {
+            _geometryInitialized = true;
+            InvokeAsync(() => OnGeometryReady.InvokeAsync((_vertices, _edges)));
+        }
     }
 
     // ── Centros — gap = 0 ─────────────────────────────────────────────────────
@@ -171,7 +208,7 @@
             {
                 string key = $"{(int)Math.Round(cx + dx)},{(int)Math.Round(cy + dy)}";
                 if (!dict.ContainsKey(key))
-                    dict[key] = new HexVertex { Id = key, X = cx + dx, Y = cy + dy };
+                    dict[key] = new HexVertex { Position_Id = key, X = cx + dx, Y = cy + dy };
             }
         return dict.Values.ToList();
     }
@@ -203,13 +240,83 @@
                 if (!dict.ContainsKey(key))
                     dict[key] = new HexEdge
                     {
-                        Id = key,
+                        Position_Id = key,
                         X = (ax + bx) / 2,
                         Y = (ay + by) / 2,
                         Angle = angles[i]
                     };
             }
         return dict.Values.ToList();
+    }
+
+    private void UpdateVertexPositions(List<(double X, double Y)> centers, double s, double H)
+    {
+        (double dx, double dy)[] off =
+        {
+        (0,     -H/2),
+        (s/2,   -H/4),
+        (s/2,    H/4),
+        (0,      H/2),
+        (-s/2,   H/4),
+        (-s/2,  -H/4)
+    };
+
+        // Recalcula posiciones en el mismo orden que BuildVertices
+        var seen = new HashSet<string>();
+        var positions = new List<(double X, double Y)>();
+
+        foreach (var (cx, cy) in centers)
+            foreach (var (dx, dy) in off)
+            {
+                string key = $"{(int)Math.Round(cx + dx)},{(int)Math.Round(cy + dy)}";
+                if (seen.Add(key))
+                    positions.Add((cx + dx, cy + dy));
+            }
+
+        // Actualiza X e Y de los objetos existentes sin recrearlos
+        for (int i = 0; i < Math.Min(_vertices.Count, positions.Count); i++)
+        {
+            _vertices[i].X = positions[i].X;
+            _vertices[i].Y = positions[i].Y;
+        }
+    }
+
+    private void UpdateEdgePositions(List<(double X, double Y)> centers, double s, double H)
+    {
+        (double dx, double dy)[] off =
+        {
+        (0,     -H/2),
+        (s/2,   -H/4),
+        (s/2,    H/4),
+        (0,      H/2),
+        (-s/2,   H/4),
+        (-s/2,  -H/4)
+    };
+        double[] angles = { -60, 0, +60, -60, 0, +60 };
+
+        var seen = new HashSet<string>();
+        var positions = new List<(double X, double Y, double Angle)>();
+
+        foreach (var (cx, cy) in centers)
+            for (int i = 0; i < 6; i++)
+            {
+                int j = (i + 1) % 6;
+                double ax = cx + off[i].dx, ay = cy + off[i].dy;
+                double bx = cx + off[j].dx, by = cy + off[j].dy;
+                string ka = $"{(int)Math.Round(ax)},{(int)Math.Round(ay)}";
+                string kb = $"{(int)Math.Round(bx)},{(int)Math.Round(by)}";
+                string key = string.Compare(ka, kb) < 0 ? $"{ka}|{kb}" : $"{kb}|{ka}";
+
+                if (seen.Add(key))
+                    positions.Add(((ax + bx) / 2, (ay + by) / 2, angles[i]));
+            }
+
+        for (int i = 0; i < Math.Min(_edges.Count, positions.Count); i++)
+        {
+            _edges[i].X = positions[i].X;
+            _edges[i].Y = positions[i].Y;
+            _edges[i].Angle = positions[i].Angle;
+        }
     }
 
     // ── Shapes SVG — cambiá solo estas dos funciones para rediseñar ───────────

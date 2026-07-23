@@ -4,7 +4,8 @@ public enum StructureType { None, Settlement, City }
 
 public class HexVertex
 {
-    public string        Id          { get; set; } = string.Empty;
+    public string Position_Id        { get; set; } = string.Empty;
+    public int Id                    { get; set; }  // cumple el rol de Id, pero para el back-end
     public double        X           { get; set; }
     public double        Y           { get; set; }
     public StructureType Structure   { get; set; } = StructureType.None;
