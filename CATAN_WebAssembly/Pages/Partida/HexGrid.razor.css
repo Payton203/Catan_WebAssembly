@@ -2,9 +2,10 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start; /* los indents de cada fila se miden desde la izquierda */
-    width: 100%;
-    padding: 0 5%;
+    width: fit-content;
+    padding: 0;
     box-sizing: border-box;
+    margin: 0 auto;
 }
 
 .hex-row {

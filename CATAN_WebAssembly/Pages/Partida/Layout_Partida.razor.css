@@ -1,0 +1,91 @@
+/* CSS for Layout_Partida component */
+/* ── Cambiá estos valores para ajustar tamaños ── */
+.partida-grid {
+    --col-tablero: 4fr; /* ancho columna izquierda fr = fraccion*/
+    --col-jugadores: 3fr; /* ancho columna derecha */
+    --row-top: 65vh; /* alto fila superior */
+    --row-bottom: 30vh; /* alto fila inferior */
+    --gap: 12px; /* separación entre paneles */
+    display: grid;
+    grid-template-columns: var(--col-tablero) var(--col-jugadores);
+    grid-template-rows: var(--row-top) var(--row-bottom);
+    grid-template-areas:
+        "tablero    jugadores"
+        "historial      dados";
+    gap: var(--gap);
+    padding: var(--gap);
+    height: 100vh;
+    box-sizing: border-box;
+    background-color: black;
+}
+
+/*─────────────────────────────────────────────────────────────────────Desactivado-de-Paneles────────────────────────────────────────────────────────────────────*/
+.partida-grid:not(:has(.panel-jugadores)) .panel-tablero {
+    grid-column: 1 / -1;
+}
+
+/* Cuando dados está oculto, tablero ocupa su lugar */
+.partida-grid:not(:has(.panel-historial )) .panel-tablero {
+    grid-row: 1 / -1;
+}
+
+/* Cuando dados está oculto, tablero ocupa su lugar */
+.partida-grid:not(:has(.panel-dados )) .panel-tablero {
+    grid-column: 1 / -1;
+}
+
+/*─────────────────────────────────────────────────────────────────────Panel-Tablero────────────────────────────────────────────────────────────────────*/
+
+.panel-tablero {
+    grid-area: tablero;
+}
+
+.catan-board {
+    position: relative;
+    display: flex;
+    align-items: center; /* centra verticalmente */
+    justify-content: center; /* centra horizontalmente */
+    width: 100%;
+    height: 100%;
+}
+
+.catan-inner {
+    position: relative;
+    width: fit-content;
+}
+
+/*─────────────────────────────────────────────────────────────────────Panel-Jugadores────────────────────────────────────────────────────────────────────*/
+
+.panel-jugadores {
+    grid-area: jugadores;
+}
+
+/*─────────────────────────────────────────────────────────────────────Panel-Dados────────────────────────────────────────────────────────────────────*/
+.panel-dados {
+    grid-area: dados;
+}
+
+/*─────────────────────────────────────────────────────────────────────Panel-Historial────────────────────────────────────────────────────────────────────*/
+.panel-historial {
+    grid-area: historial;
+}
+
+/* ── Estilo base de cada panel ── */
+.panel {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-title {
+    color: #888;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0 0 8px 0;
+}

@@ -52,6 +52,8 @@
     [Parameter] public EventCallback<HexCell> OnCellClick { get; set; }
     [Parameter] public EventCallback<List<HexCell>> OnSelectionChanged { get; set; }
 
+    // [Parameter] public ElementReference ContainerRef { get; set; } //referencia a class = "Catanboard"
+
     // ─── Estado interno ────────────────────────────────────────────────────────
 
     private ElementReference _gridRef;
@@ -91,7 +93,7 @@
         if (firstRender && AutoSize)
         {
             _selfRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("hexGridInterop.observe", _gridRef, _selfRef);
+            await JS.InvokeVoidAsync("hexGridInterop.observeParent", _gridRef, _selfRef);
         }
     }
 
@@ -126,6 +128,7 @@
         _computedHexSize = $"{hexSize.ToString("F2", fmt)}px";
         _computedHalfGap = $"{(_gapPx / 2).ToString("F2", fmt)}px";
         _computedRowMargin = $"{rowMargin.ToString("F2", fmt)}px";
+
     }
 
     // ─── Centros de los hexágonos ──────────────────────────────────────────────

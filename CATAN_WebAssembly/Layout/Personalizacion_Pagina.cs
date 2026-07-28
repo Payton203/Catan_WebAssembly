@@ -2,7 +2,70 @@
 {
     public class Personalizacion_Pagina
     {
+        //─────────────────────────────────────────────────────────────────────Switches────────────────────────────────────────────────────────────────────//
 
+        private bool dark_mode = false;
+
+        public bool Dark_Mode
+        {
+            get { return dark_mode; }
+            set
+            {
+                if (dark_mode != value) //si no cambia el valor, no invoca el metodo de cambio
+                {
+                    dark_mode = value;
+                    NotifyStateChanged(); // avisa que algo cambió
+                }
+            }
+        }
+        //─────────────────────────────────────────────────────────────────────Checkboxes────────────────────────────────────────────────────────────────────//
+
+        private bool player_panel = true;
+
+        public bool Player_Panel
+        {
+            get { return player_panel; }
+            set
+            {
+                if (player_panel != value) //si no cambia el valor, no invoca el metodo de cambio
+                {
+                    player_panel = value;
+                    NotifyStateChanged(); // avisa que algo cambió
+                }
+            }
+        }
+
+        private bool history_panel = true;
+
+        public bool History_Panel
+        {
+            get { return history_panel; }
+            set
+            {
+                if (history_panel != value) //si no cambia el valor, no invoca el metodo de cambio
+                {
+                    history_panel = value;
+                    NotifyStateChanged(); // avisa que algo cambió
+                }
+            }
+        }
+
+        private bool dice_panel = true;
+
+        public bool Dice_Panel
+        {
+            get { return dice_panel; }
+            set
+            {
+                if (dice_panel != value) //si no cambia el valor, no invoca el metodo de cambio
+                {
+                    dice_panel = value;
+                    NotifyStateChanged(); // avisa que algo cambió
+                }
+            }
+        }
+
+        //─────────────────────────────────────────────────────────────────────Sliders────────────────────────────────────────────────────────────────────//
         private double valor_gapratio = 0.15;
 
         /// <summary>
@@ -39,21 +102,6 @@
                 }
             }
         }
-        
-        private bool dark_mode = false;
-
-        public bool Dark_Mode
-        {
-            get { return dark_mode; }
-            set
-            {
-                if (dark_mode != value) //si no cambia el valor, no invoca el metodo de cambio
-                {
-                    dark_mode = value;
-                    NotifyStateChanged(); // avisa que algo cambió
-                }
-            }
-        }
 
         private double offsetX = 0;
 
@@ -84,7 +132,7 @@
                 }
             }
         }
-        private double overlayScale = 0.9;
+        private double overlayScale = 1;
 
         public double OverlayScale
         {

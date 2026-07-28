@@ -52,6 +52,8 @@ main {
     width: 90%;
     height: 90%;
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    max-height: 80vh; /* máximo 80% de la altura de la pantalla */
+    overflow-y: auto; /* scroll vertical cuando el contenido supera el max-height */
 }
 
 .popup-header {

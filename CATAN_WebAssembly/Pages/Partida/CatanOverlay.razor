@@ -1,7 +1,7 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
 
-<div class="catan-overlay-host" @ref="_ref" style="transform: translate(@F(OffsetX)px, @F(OffsetY)px);">
+<div class="catan-overlay-host" @ref="_ref" style="transform: translate(@F(OffsetX)px, @F(OffsetY + _autoOffsetY)px);">
     @if (_vertices.Count > 0)
     {
         <svg width="100%" height="@F(_svgHeight)" style="overflow:visible;">
@@ -56,7 +56,7 @@
                     <text font-size="@F(_vr * 0.9)"
                           text-anchor="middle"
                           dominant-baseline="central"
-                          fill="blue"
+                          fill="White"
                           pointer-events="none">@v.Id</text>
                 </g>
             }
@@ -92,6 +92,8 @@
     private double _containerWidth = 0;
     private double _svgHeight = 0;
     private double _vr = 10, _rl = 50, _rw = 5;
+    private double _autoOffsetY = 0;
+    // El offset Y compensa la diferencia visual causada por el GapRatio
 
     private bool _geometryInitialized = false; //sirve para chequea si la geometria esta inicializada, para evitar loops infinitos
 
@@ -104,13 +106,15 @@
         if (firstRender)
         {
             _selfRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("hexGridInterop.observe", _ref, _selfRef);
+            await JS.InvokeVoidAsync("hexGridInterop.observeParent", _ref, _selfRef);
         }
     }
 
     protected override void OnParametersSet()
     {
-        OffsetY = GapRatio * (-27.5); 
+        // OffsetY = GapRatio * (-40);
+        // OffsetX = (SizeScale * (25)) - 27.5;
+        // Console.WriteLine($"OffsetX: {OffsetX}");
         // corrige el offset
         //ya que cuando se aumenta el Gapratio, visualmente los hexagonos no disminuyen su tamaño manteniendo el centro,
         //lo hacen manteniendo el vertice superior, causando que la distancia entre los hexagonos y el overlay no sea la misma para cada HexVertex y HexEdge
@@ -138,6 +142,10 @@
         _vr = hexSize * 0.11;
         _rl = hexSize * 0.50;   // longitud del road ≈ lado del hex (hexSize / √3 * 0.86)
         _rw = hexSize * 0.055;
+
+        // El offset Y compensa la diferencia visual causada por el GapRatio
+        // Se escala con hexSize para que sea consistente en cualquier tamaño de pantalla
+        _autoOffsetY = GapRatio * hexSize * -0.3; // ajustá el -0.3 a ojo
 
         // Altura total: primera fila (H) + (n-1) filas * espaciado (H * 0.75 con gap=0)
         _svgHeight = H + (RowLayout.Length - 1) * H * 0.75;
@@ -168,7 +176,7 @@
     {
         var list = new List<(double, double)>();
         int maxCols = RowLayout.Max();
-        double pad = cw * 0.05;   // coincide con padding: 0 5% del CSS de HexGrid
+        double pad = 0;   // Esta centrado, no tiene padding
         double cy = H / 2;
 
         for (int r = 0; r < RowLayout.Length; r++)

@@ -30,5 +30,22 @@ window.hexGridInterop = (function () {
         }
     }
 
-    return { observe, unobserve };
+    function observeParent(element, dotnetRef) {
+        if (!element) return;
+        const parent = element.parentElement.parentElement.parentElement; // catan-inner → catan-board → panel-tablero
+
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                dotnetRef.invokeMethodAsync('OnContainerResized', entry.contentRect.width);
+            }
+        });
+
+        observer.observe(parent);
+        observers.set(element, observer);
+
+        const initialWidth = parent.getBoundingClientRect().width;
+        dotnetRef.invokeMethodAsync('OnContainerResized', initialWidth);
+    }
+
+    return { observe, unobserve, observeParent};
 })();

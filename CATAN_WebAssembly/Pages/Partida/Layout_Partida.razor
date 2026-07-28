@@ -4,26 +4,52 @@
 @inject Personalizacion_Pagina Config
 @implements IDisposable
 
-<div class="catan-board" style="position: relative;">
-    <HexGrid Cells="_celdas"
-             RowLayout="new[] { 3, 4, 5, 4, 3 }"
-             GapRatio="Config.Valor_Gapratio"
-             SizeScale="Config.Valor_SizeScale"
-             AutoSize="true"
-             OnCellClick="HandleCellClick" />
+<div class="partida-grid">
+    <div class="panel panel-tablero">
+        <h4 class="panel-title">TABLERO</h4>
+        <div class="catan-board">
+            <div class="catan-inner">
+            <HexGrid Cells="_celdas"
+                         RowLayout="new[] { 3, 4, 5, 4, 3 }"
+                         GapRatio="Config.Valor_Gapratio"
+                         SizeScale="Config.Valor_SizeScale"
+                         AutoSize="true"
+                         OnCellClick="HandleCellClick" />
 
-    <CatanOverlay RowLayout="new[] { 3, 4, 5, 4, 3 }"
-                  SizeScale="Config.Valor_SizeScale"
-                  GapRatio="Config.Valor_Gapratio"
-                  OffsetX="Config.OffsetX"
-                  OffsetY="Config.OffsetY"
-                  OverlayScale="Config.OverlayScale"
-                  OnVertexClick="HandleVertexClick"
-                  OnEdgeClick="HandleEdgeClick"
-                  OnGeometryReady="HandleGeometryReady" />
+            <CatanOverlay RowLayout="new[] { 3, 4, 5, 4, 3 }"
+                          SizeScale="Config.Valor_SizeScale"
+                          GapRatio="Config.Valor_Gapratio"
+                          OverlayScale="Config.OverlayScale"
+                          OffsetX="Config.OffsetX"
+                          OnVertexClick="HandleVertexClick"
+                          OnEdgeClick="HandleEdgeClick"
+                          OnGeometryReady="HandleGeometryReady" />
+            </div>
+        </div>
+    </div>
+    @if(Config.Player_Panel==true)
+    {
+        <div class="panel panel-jugadores">
+            <h4 class="panel-title">JUGADORES</h4>
+        </div>
+    }
+    @if (Config.History_Panel == true)
+    {
+        <div class="panel panel-historial">
+            <h4 class="panel-title">HISTORIAL</h4>
+        </div>
+    }
+    @if (Config.Dice_Panel == true)
+    {
+        <div class="panel panel-dados">
+            <h4 class="panel-title">ÚLTIMO TIRO DE DADOS</h4>
+        </div>
+    }
 </div>
 
 @code {
+
+    // private ElementReference _boardRef;
     // ─── Se ingresan los datos de las casillas ─────────────────────────────────────────────────
 
     // private List<HexCell> _celdas = Enumerable.Range(1, 19)
@@ -73,7 +99,7 @@
             {
                 case 1:
                     _vertices[i].Structure = StructureType.Settlement;
-                    _vertices[i].PlayerColor = "Yellow";
+                    _vertices[i].PlayerColor = "#00FFFF";
                     break;
                 case 2:
                     _vertices[i].Structure = StructureType.City;
@@ -109,6 +135,33 @@
         }
     }
 
+    // ─── Logica para centrar el tablero, porque si lo centro se desalinea el hexgrid ─────────────────────────────────────────────────
+
+    // private string BoardStyle => $"position: relative; width: {(_boardWidth > 0 ? $"{_boardWidth}px" : "100%")}; margin: 0 auto;";
+    /*
+    private string BoardStyle
+    {
+        get
+        {
+            string width;
+
+            if (_boardWidth > 0)
+                width = $"{_boardWidth}px";
+            else
+                width = "100%";
+
+            return $"position: relative; width: {width}; margin: 0 auto;";
+            }
+        }
+     */
+
+    // private double _boardWidth = 0;
+
+    // private void HandleBoardWidthChanged(double width)
+    // {
+    //     _boardWidth = width;
+    // }
+
     // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
     protected override void OnInitialized() //cuando se renderiza la pagina, este metodo se ejecuta
     {
@@ -131,7 +184,6 @@
         permitiendo que se desrenderize completamente, previniendo memory leaks*/
     }
     //se llama automaticamente cuando el componente se destruye, como cuando se cambia de pagina.
-    
 
     private void HandleCellClick(HexCell cell)
     {
