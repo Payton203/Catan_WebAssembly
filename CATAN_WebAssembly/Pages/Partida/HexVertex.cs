@@ -1,7 +1,6 @@
 namespace CATAN_WebAssembly.Pages.Partida;
 
 public enum StructureType { None, Settlement, City }
-
 public class HexVertex
 {
     public string Position_Id        { get; set; } = string.Empty;

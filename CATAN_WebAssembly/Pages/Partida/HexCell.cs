@@ -6,4 +6,5 @@ public class HexCell
     public string Label { get; set; } = string.Empty;
     public string? BackgroundColor { get; set; }
     public object? Data { get; set; } // para colgar lo que necesites (payload custom)
+    public bool Has_Thief { get; set; } = false;
 }

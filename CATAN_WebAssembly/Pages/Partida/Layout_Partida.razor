@@ -20,10 +20,12 @@
                           SizeScale="Config.Valor_SizeScale"
                           GapRatio="Config.Valor_Gapratio"
                           OverlayScale="Config.OverlayScale"
-                          OffsetX="Config.OffsetX"
+                          OffsetX_Debug="Config.OffsetX_Debug"
+                          OffsetY_Debug="Config.OffsetY_Debug"
                           OnVertexClick="HandleVertexClick"
                           OnEdgeClick="HandleEdgeClick"
-                          OnGeometryReady="HandleGeometryReady" />
+                          OnGeometryReady="HandleGeometryReady"
+                          OnPortsReady="HandlePortsReady" />
             </div>
         </div>
     </div>
@@ -80,6 +82,9 @@
         return resultado;
     }
 
+    private List<HexPort> _ports = new();
+    private void HandlePortsReady(List<HexPort> ports) => _ports = ports;
+
     // ─── Se ingresan los datos de los vertices y de los hexagonos ─────────────────────────────────────────────────
 
     private List<HexVertex> _vertices = new();
@@ -99,9 +104,9 @@
             {
                 case 1:
                     _vertices[i].Structure = StructureType.Settlement;
-                    _vertices[i].PlayerColor = "#00FFFF";
+                    _vertices[i].PlayerColor = "Yellow";//"#00FFFF";
                     break;
-                case 2:
+                case 3:
                     _vertices[i].Structure = StructureType.City;
                     _vertices[i].PlayerColor = "Yellow";
                     break;
@@ -112,6 +117,10 @@
             switch (_edges[i].Id)
             {
                 case 1:
+                    _edges[i].HasRoad = true;
+                    _edges[i].PlayerColor = "Yellow";
+                    break;
+                case 2:
                     _edges[i].HasRoad = true;
                     _edges[i].PlayerColor = "Yellow";
                     break;
@@ -188,6 +197,8 @@
     private void HandleCellClick(HexCell cell)
     {
         Console.WriteLine($"Clickeaste la celda {cell.Id}");
+        if (cell.Has_Thief == false) cell.Has_Thief = true;
+        // else cell.Has_Thief = false;
     }
 
     private void HandleSelection(List<HexCell> seleccionadas)
@@ -198,12 +209,14 @@
     private void HandleVertexClick(HexVertex vertex)
     {
         Console.WriteLine($"Click - Position_Id: {vertex.Position_Id} - Id: {vertex.Id}");
+        vertex.Structure = Config.Structure;
         // por ahora vacío, después acá va la lógica de colocar asentamientos
     }
 
     private void HandleEdgeClick(HexEdge edge)
     {
         Console.WriteLine($"Clickeaste la arista {edge.Id}");
+        edge.HasRoad = Config.Has_Road;
         // por ahora vacío, después acá va la lógica de colocar carreteras
     }
 }

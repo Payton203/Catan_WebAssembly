@@ -42,6 +42,7 @@
     }
 
 .hex__label {
+    position: absolute;
     font-size: calc(var(--hex-label-size, 14px)); /* sobreescribible por celda */
     color: #fff;
     pointer-events: none;

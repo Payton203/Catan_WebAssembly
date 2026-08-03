@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @using MudBlazor
+@using CATAN_WebAssembly.Pages.Partida
 @inject Personalizacion_Pagina Config
 
 <MudThemeProvider />
@@ -34,21 +35,29 @@
     <div class="popup-overlay" @onclick="CLOSE_SETTINGS">
         <div class="popup" @onclick:stopPropagation="true">
             <div class="popup-header">
-                <h3>Settings</h3>
+                <h1>Settings</h1>
                 <button class="close-btn" @onclick="CLOSE_SETTINGS">✕</button>
             </div>
             <div class="popup-body">
-
-                <h1>Configuracion</h1>
                 @* <MudSwitch @bind-Value="Config.Dark_Mode" Color="Color.Dark" UncheckedColor="Color.Default"> Dark_Mode</MudSwitch> *@
                 <div class="d-inline-flex"> @*ordena a los elementos en una linea de izquierda a derecha*@
                 <MudCheckBox @bind-Value="Config.Player_Panel" Label="Player Panel" LabelPlacement="Placement.End" Color="Color.Default"></MudCheckBox>
                 <MudCheckBox @bind-Value="Config.History_Panel" Label="History Panel" LabelPlacement="Placement.End" Color="Color.Default"></MudCheckBox>
                 <MudCheckBox @bind-Value="Config.Dice_Panel" Label="Dice Panel" LabelPlacement="Placement.End" Color="Color.Default"></MudCheckBox>
                 </div>
+                <h3>Colocar al clickear:</h3>
+                <MudRadioGroup T="StructureType" @bind-Value="Config.Structure">
+                        <MudRadio Value="StructureType.None">Nada</MudRadio>
+                        <MudRadio Value="StructureType.Settlement" Color="Color.Primary">Pueblo</MudRadio>
+                        <MudRadio Value="StructureType.City" Color="Color.Secondary">Ciudad</MudRadio>
+                </MudRadioGroup>
+                <MudRadioGroup @bind-Value="Config.Has_Road">
+                    <MudRadio Value="false">Nada</MudRadio>
+                    <MudRadio Value="true" Color="Color.Primary"> Camino</MudRadio>
+                </MudRadioGroup>
                 <label>HexSize</label>
                 Value: @(Math.Round((1 - Config.Valor_Gapratio) * 100))%
-                <div style="transform:scaleX(-1);"> @* espeja todo adentro de </div> con respecto al axis X*@
+                <div style="transform:scaleX(-1);"> @*  espeja todo adentro de </div> con respecto al axis X *@
                     <MudSlider @bind-Value="Config.Valor_Gapratio" Step="0.01" Min="0" Max="0.9" Color="Color.Info"></MudSlider>
                 </div>
                 
@@ -61,10 +70,11 @@
                 <MudSlider @bind-Value="Config.Valor_SizeScale" Step="0.01" Min="0" Max="2" Color="Color.Info"> Value: @Config.Valor_SizeScale.ToString()</MudSlider>
                 @*  slider para el multiplicador de escalado de tamaño del  *@
 
-               <label>Offset X</label>
-                <MudSlider @bind-Value="Config.OffsetX" Step="0.5" Min="-20" Max="10" Color="Color.Info"> Value: @Config.OffsetX.ToString()</MudSlider>
-               @*  <label>Offset Y</label>
-                <MudSlider @bind-Value="Config.OffsetY" Step="1" Min="-1000" Max="1000" Color="Color.Info"> Value: @Config.OffsetY.ToString()</MudSlider> *@
+                <label>Offset X</label>
+                <MudSlider @bind-Value="Config.OffsetX_Debug" Step="0.01" Min="-1" Max="2" Color="Color.Info"> Value: @Config.OffsetX_Debug.ToString()</MudSlider>
+                <label>Offset Y</label>
+                <MudSlider @bind-Value="Config.OffsetY_Debug" Step="0.01" Min="-1" Max="2" Color="Color.Info"> Value: @Config.OffsetY_Debug.ToString()</MudSlider>
+
                 @* Offset para el CatanOverlay(los vertices y aristas) *@
                 <label>OverlayScale</label>
                 <MudSlider @bind-Value="Config.OverlayScale" Step="0.01" Min="0.1" Max="2" Color="Color.Info"> Value: @Config.OverlayScale.ToString()</MudSlider>

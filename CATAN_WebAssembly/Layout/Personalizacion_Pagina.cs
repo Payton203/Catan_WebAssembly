@@ -1,4 +1,6 @@
-﻿namespace CATAN_WebAssembly.Layout
+﻿using CATAN_WebAssembly.Pages.Partida;
+
+namespace CATAN_WebAssembly.Layout
 {
     public class Personalizacion_Pagina
     {
@@ -65,11 +67,41 @@
             }
         }
 
+        private StructureType structure = StructureType.None;
+
+        public StructureType Structure
+        {
+            get { return structure; }
+            set
+            {
+                if (structure != value) //si no cambia el valor, no invoca el metodo de cambio
+                {
+                    structure = value;
+                    NotifyStateChanged(); // avisa que algo cambió
+                }
+            }
+        }
+
+        private bool has_road;
+
+        public bool Has_Road
+        {
+            get { return has_road; }
+            set
+            {
+                if (has_road != value) //si no cambia el valor, no invoca el metodo de cambio
+                {
+                    has_road = value;
+                    NotifyStateChanged(); // avisa que algo cambió
+                }
+            }
+        }
+
         //─────────────────────────────────────────────────────────────────────Sliders────────────────────────────────────────────────────────────────────//
         private double valor_gapratio = 0.15;
 
         /// <summary>
-        /// propiedad que cambia el espacion entre casillas, pero visualmente se entiende como que controla el tamaño de las casillas
+        /// propiedad, cambia el espacion entre casillas, pero visualmente se entiende como que controla el tamaño de las casillas
         /// </summary>
         public double Valor_Gapratio
         {
@@ -87,7 +119,7 @@
         private double valor_sizeScale = 0.7;
 
         /// <summary>
-        /// propiedad que cambia el escalado del tablero
+        /// Atributo, propiedad que cambia el escalado del tablero
         /// </summary>
 
         public double Valor_SizeScale
@@ -103,6 +135,9 @@
             }
         }
 
+        /// <summary>
+        ///  Atributo, Se usa para corregir la posicion del CatanOverlay y "acoplarlo" al HexGrid
+        /// </summary>
         private double offsetX = 0;
 
         public double OffsetX
@@ -118,8 +153,36 @@
             }
         }
 
+        /// <summary>
+        /// atributo, se usa para centrar pelotudeces en el eje X, por ejemplo los Iconos en los puertos, uso exclusivo de debugeo
+        /// </summary>
+        private double offsetX_debug = 0;
+
+        /// <summary>
+        /// propiedad, se usa para centrar pelotudeces en el eje X, por ejemplo los Iconos en los puertos, uso exclusivo de debugeo
+        /// </summary>
+        public double OffsetX_Debug
+        {
+            get { return offsetX_debug; }
+            set
+            {
+                if (offsetX_debug != value) //si no cambia el valor, no invoca el metodo de cambio
+                {
+                    offsetX_debug = value;
+                    NotifyStateChanged(); // avisa que algo cambió
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// atributo, se usa para corregir la discrepancia causada por el GapRate en el eje Y
+        /// </summary>
         private double offsetY = 0;
 
+        /// <summary>
+        /// propiedad, se usa para corregir la discrepancia causada por el GapRate en el eje Y
+        /// </summary>
         public double OffsetY
         {
             get { return offsetY; }
@@ -132,6 +195,25 @@
                 }
             }
         }
+
+        /// <summary>
+        /// se usa para centrar pelotudeces en el eje Y, por ejemplo los Iconos en los puertos, uso exclusivo de debugeo
+        /// </summary>
+        private double offsetY_debug = 0;
+
+        public double OffsetY_Debug
+        {
+            get { return offsetY_debug; }
+            set
+            {
+                if (offsetY_debug != value) //si no cambia el valor, no invoca el metodo de cambio
+                {
+                    offsetY_debug = value;
+                    NotifyStateChanged(); // avisa que algo cambió
+                }
+            }
+        }
+
         private double overlayScale = 1;
 
         public double OverlayScale
