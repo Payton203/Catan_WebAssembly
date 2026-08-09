@@ -67,22 +67,22 @@ namespace CATAN_WebAssembly.Pages.Partida
                     switch (num)
                     {
                         case 0 or 1 or 2 or 3:
-                            if (Cantidad_Wood < 4) { _celdas[i].Recurso = Resource_Cell.Wood; _celdas[i].BackgroundColor = "#0a4500"; Cantidad_Wood++; flag_recurso_asignado = true; }
+                            if (Cantidad_Wood < 4) { _celdas[i].Recurso = Resource_Cell.Wood; _celdas[i].BackgroundColor = "#276b34"; Cantidad_Wood++; flag_recurso_asignado = true; }
                             break;
                         case 4 or 5 or 6:
-                            if (Cantidad_Brick < 3) { _celdas[i].Recurso = Resource_Cell.Brick; _celdas[i].BackgroundColor = "#c31302"; Cantidad_Brick++; flag_recurso_asignado = true; }
+                            if (Cantidad_Brick < 3) { _celdas[i].Recurso = Resource_Cell.Brick; _celdas[i].BackgroundColor = "#e34c0b"; Cantidad_Brick++; flag_recurso_asignado = true; }
                             break;
                         case 7 or 8 or 9:
-                            if (Cantidad_Sheep < 4) { _celdas[i].Recurso = Resource_Cell.Sheep; _celdas[i].BackgroundColor = "#a3ff05"; Cantidad_Sheep++; flag_recurso_asignado = true; }
+                            if (Cantidad_Sheep < 4) { _celdas[i].Recurso = Resource_Cell.Sheep; _celdas[i].BackgroundColor = "#6bb548"; Cantidad_Sheep++; flag_recurso_asignado = true; }
                             break;
                         case 10 or 11 or 12 or 13:
-                            if (Cantidad_Wheat < 4) { _celdas[i].Recurso = Resource_Cell.Wheat; _celdas[i].BackgroundColor = "#f6cd52"; Cantidad_Wheat++; flag_recurso_asignado = true; }
+                            if (Cantidad_Wheat < 4) { _celdas[i].Recurso = Resource_Cell.Wheat; _celdas[i].BackgroundColor = "#d9a72e"; Cantidad_Wheat++; flag_recurso_asignado = true; }
                             break;
                         case 14 or 15 or 16 or 17:
-                            if (Cantidad_Rock < 3) { _celdas[i].Recurso = Resource_Cell.Rock; _celdas[i].BackgroundColor = "#201e1e"; Cantidad_Rock++; flag_recurso_asignado = true; }
+                            if (Cantidad_Rock < 3) { _celdas[i].Recurso = Resource_Cell.Rock; _celdas[i].BackgroundColor = "#7d8a7f"; Cantidad_Rock++; flag_recurso_asignado = true; }
                             break;
                         case 18:
-                            if (Cantidad_Desert < 1) { _celdas[i].Recurso = Resource_Cell.Desert; _celdas[i].BackgroundColor = "Purple"/*"#57593a"*/; Cantidad_Desert++; flag_recurso_asignado = true; }
+                            if (Cantidad_Desert < 1) { _celdas[i].Recurso = Resource_Cell.Desert; _celdas[i].BackgroundColor = "#bcae83"; Cantidad_Desert++; flag_recurso_asignado = true; }
                             break;
                     }
                 }

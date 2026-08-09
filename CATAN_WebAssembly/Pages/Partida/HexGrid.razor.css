@@ -14,6 +14,7 @@
 }
 
 .hex {
+    position: relative;
     --hex-bg: var(--hex-default-bg, #4a7c59);
     /* width y margin se setean inline desde C# para que escalen con el ResizeObserver */
     aspect-ratio: 1 / 1.1547; /* 2/√3 — relación exacta de un hexágono regular */
@@ -27,9 +28,9 @@
     transition: filter 0.15s ease, transform 0.15s ease;
 }
 
-    .hex:hover {
-        transform: scale(1.05);
-    }
+.hex:hover {
+    transform: scale(1.05);
+}
 
 .hex--selected {
     /* border no funciona con clip-path, usamos drop-shadow */
@@ -37,9 +38,43 @@
     transform: scale(1.08);
 }
 
-    .hex--selected .hex__label {
-        font-weight: 700;
-    }
+.hex--selected .hex__label {
+    font-weight: 700;
+}
+
+/* Textura para las HexCell*/
+.hex__base {
+    position: absolute;
+    inset: 0;
+    background: var(--hex-bg, #ccc);
+    clip-path: inherit;
+}
+
+.hex__noise {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: overlay;
+    opacity: 0.55;
+    clip-path: inherit;
+}
+
+.hex__light {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(255,255,255,0.25), rgba(0,0,0,0.25) 70%);
+    clip-path: inherit;
+    pointer-events: none;
+}
+
+.hex__label, .hex > span {
+    position: absolute;
+    z-index: 1;
+}
+
+.hex__icon{
+    position: absolute;
+    top: 50px;
+}
 
 .hex__label {
     position: absolute;
