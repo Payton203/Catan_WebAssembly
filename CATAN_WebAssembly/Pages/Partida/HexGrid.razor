@@ -18,7 +18,7 @@
                     margin: 0 @_computedHalfGap;
                     @(cell.BackgroundColor is not null ? $"--hex-bg: {cell.BackgroundColor};" : "")"
                      @onclick="() => SelectCell(cell)">
-                    <span class="hex__label" style=" color: @(cell.Label== "6" || cell.Label == "8" ? "#FF0000" : "#FFFFFF");">@cell.Label</span>
+                    <span class="hex__label" style=" color: @(cell.Label== 6 || cell.Label == 8 ? "#FF0000" : "#FFFFFF");">@cell.Label</span>
                     @if(cell.Has_Thief == true)
                     {
                         <span style="opacity: 0.4;"> @*el <div> es display:contents por defecto, es decir que <div> envuelve al contenido en una caja,por lo que el svg
@@ -66,7 +66,7 @@
     private ElementReference _gridRef;
     private DotNetObjectReference<HexGrid>? _selfRef;
     private List<List<HexCell>> _rows = new();
-    private readonly HashSet<string> _selectedIds = new();
+    private readonly HashSet<int> _selectedIds = new();
 
     private double _hexSizePx = 100;
     private double _gapPx = 5;

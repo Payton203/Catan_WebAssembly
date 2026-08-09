@@ -8,10 +8,248 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using static MudBlazor.FilterOperator;
+
 namespace CATAN_WebAssembly.Pages.Partida
 {
     public partial class Layout_Partida
     {
+        private void Manipular_Vertices()
+        {
+            for (int i = 0; i < _vertices.Count; i++)
+            {
+                switch (_vertices[i].Id)
+                {
+                    case 1:
+                        _vertices[i].Structure = StructureType.Settlement;
+                        _vertices[i].PlayerColor = "Yellow";//"#00FFFF";
+                        break;
+                    case 3:
+                        _vertices[i].Structure = StructureType.City;
+                        _vertices[i].PlayerColor = "Yellow";
+                        break;
+                }
+            }
+        }
 
+        private void Manipular_Aristas()
+        {
+            for (int i = 0; i < _edges.Count; i++)
+            {
+                switch (_edges[i].Id)
+                {
+                    case 1:
+                        _edges[i].HasRoad = true;
+                        _edges[i].PlayerColor = "Yellow";
+                        break;
+                    case 2:
+                        _edges[i].HasRoad = true;
+                        _edges[i].PlayerColor = "Yellow";
+                        break;
+                }
+            }
+        }
+
+        private void Asignar_Recursos_A_Casillas()
+        {
+            bool flag_recurso_asignado = false;
+            int Cantidad_Wood = 0;
+            int Cantidad_Brick = 0;
+            int Cantidad_Sheep = 0;
+            int Cantidad_Wheat = 0;
+            int Cantidad_Rock = 0;
+            int Cantidad_Desert = 0;
+            for (int i = 0; i < _celdas.Count; i++)
+            {
+                while (flag_recurso_asignado == false)
+                {
+                    int num = random.Next(0, _celdas.Count); //de 0 a 18
+                    switch (num)
+                    {
+                        case 0 or 1 or 2 or 3:
+                            if (Cantidad_Wood < 4) { _celdas[i].Recurso = Resource_Cell.Wood; _celdas[i].BackgroundColor = "#0a4500"; Cantidad_Wood++; flag_recurso_asignado = true; }
+                            break;
+                        case 4 or 5 or 6:
+                            if (Cantidad_Brick < 3) { _celdas[i].Recurso = Resource_Cell.Brick; _celdas[i].BackgroundColor = "#c31302"; Cantidad_Brick++; flag_recurso_asignado = true; }
+                            break;
+                        case 7 or 8 or 9:
+                            if (Cantidad_Sheep < 4) { _celdas[i].Recurso = Resource_Cell.Sheep; _celdas[i].BackgroundColor = "#a3ff05"; Cantidad_Sheep++; flag_recurso_asignado = true; }
+                            break;
+                        case 10 or 11 or 12 or 13:
+                            if (Cantidad_Wheat < 4) { _celdas[i].Recurso = Resource_Cell.Wheat; _celdas[i].BackgroundColor = "#f6cd52"; Cantidad_Wheat++; flag_recurso_asignado = true; }
+                            break;
+                        case 14 or 15 or 16 or 17:
+                            if (Cantidad_Rock < 3) { _celdas[i].Recurso = Resource_Cell.Rock; _celdas[i].BackgroundColor = "#201e1e"; Cantidad_Rock++; flag_recurso_asignado = true; }
+                            break;
+                        case 18:
+                            if (Cantidad_Desert < 1) { _celdas[i].Recurso = Resource_Cell.Desert; _celdas[i].BackgroundColor = "Purple"/*"#57593a"*/; Cantidad_Desert++; flag_recurso_asignado = true; }
+                            break;
+                    }
+                }
+                //Console.WriteLine($"Trigo: {Cantidad_Wheat} Ovejas: {Cantidad_Sheep} Madera: {Cantidad_Wood} Ladrillos: {Cantidad_Brick} Rocas: {Cantidad_Rock} Desiertos:{Cantidad_Desert}");
+                flag_recurso_asignado = false;
+            }
+        }
+
+        //las primeras 12 segùn el del medio son las externas
+        //celdas del exterior al interior van como 1, 2, 3, 4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 19 predeterminado
+        //                                         1, 2, 3, 7,  12, 16, 19, 18, 17, 13, 8,  4,  5,  6,  11, 15, 14, 9,  10 de externo a interno
+        //                                         1, 2, 3, 12, 13, 14, 4,  11, 18, 19, 15, 5,  10, 17, 16, 6,  9,  8,  7  de predeterminado a valores
+        /// <summary>
+        /// orden de las celdas en el cual el Id predeterminado corresponde a la alineacion normal de catan, empezando desde cell Id = 1
+        /// </summary>
+        private static readonly int[] celdas_guia =
+        {1, 2, 3, 12, 13, 14, 4, 11, 18, 19, 15, 5, 10, 17, 16, 6, 9, 8, 7};
+
+        /// <summary>
+        /// serie de numeros en los cuales aparecen los Id predeterminados que corresponden a donde van los numeros internos
+        /// </summary>
+        private static readonly int[] celdas_externas = //con respecto a Id
+        {1, 2, 3, 7, 12, 16, 19, 18, 17, 13, 8, 4};
+
+        private static readonly int[] celdas_internas =
+        {5,  6,  11, 15, 14, 9};
+        private static readonly int[] fichas_numeros =
+        { 5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11, 99 }; //si aparece el 99 hay algo mal
+        private void Asignar_Cell_Labels()
+        {
+            if(Asignacion_Numeros == Asignacion_Numeros_Catan.Modo_Clasico) Asignar_Cell_Labels_Clasico(_celdas);
+            if (Asignacion_Numeros == Asignacion_Numeros_Catan.Modo_Random) Asignar_Cell_Labels_Random(_celdas);
+        }
+
+        /// <summary>
+        /// Su funcion es la de poner las fichas A, B, C, D, ..., S del catan
+        /// </summary>
+        /// <param name="celdas"></param>
+        /// <param name="num"></param>
+        private void Asignar_Cell_Labels_Clasico(List<HexCell> celdas)
+        {
+            int num = random.Next(0, 12);
+            Console.WriteLine($"empieza por la celda id: {celdas_externas[num]}");
+            int n = celdas_externas.Length; // 12
+            int ultima_celda_externa_Id = 0;
+            for (int i = 0; i < n; i++)
+            {
+                // índice rotado: empezamos desde num
+                int idxRotado = (i + num) % n;
+                //Console.WriteLine($"idxRotado:{idxRotado}\niteracion: {i}");
+                //celda es un puntero a una celda de celdas, que a su vez es un puntero apuntando a _celdas
+                HexCell celda = celdas.First(c => c.Id == celdas_externas[idxRotado]);
+                // Buscá en celdas el primer elemento cuyo Id sea igual al valor de celdas_externas[idxRotado]
+                /* esto es como si llamase a un metodo
+                 private Hexcell (celdas)
+                 {
+                    Celda resultado = null;
+
+                    foreach (Celda c in celdas)
+                    {
+                        if (c.Id == celdas_externas[idxRotado])
+                        {
+                            resultado = c;
+                            break;
+                        }
+                    }
+                    return resultado;
+                }*/
+                //Console.WriteLine($"Id de la celda numero {i+1}: {celda.Id}");
+                celda.Alineacion = i;
+                // la celda con ese Id recibe el label i+1
+                ultima_celda_externa_Id = celda.Id;
+            }
+            Console.WriteLine($"ultima celda Id:{ultima_celda_externa_Id}");
+            switch (ultima_celda_externa_Id)
+            {
+                case 4 or 1: num = 0;   break;
+                case 2 or 3: num = 1;   break;
+                case 7 or 12: num = 2;  break;
+                case 16 or 19: num = 3; break;
+                case 18 or 17: num = 4; break;
+                case 13 or 8: num = 5; break;
+            }
+            //private static readonly int[] celdas_externas =
+            //{1, 2, 3, 7, 12, 16, 19, 18, 17, 13, 8, 4};
+            n = celdas_internas.Length; // 6
+            for (int i = 0; i < n; i++)
+            {
+                // índice rotado: empezamos desde num
+                int idxRotado = (i + num) % n;
+                //Console.WriteLine($"idxRotado:{idxRotado}\niteracion: {i}");
+                // la celda con ese Id recibe el label i+1
+                //celda es un puntero a una celda de celdas, que a su vez es un puntero apuntando a _celdas
+                HexCell celda = celdas.First(c => c.Id == celdas_internas[idxRotado]);
+                //aca celda
+                celda.Alineacion = i + 12;
+            }
+            _celdas[9].Alineacion = 18;
+            int numero = 0;
+            for (int i = 0; i <= celdas.Count; i++)
+            {
+                HexCell celda = celdas.First(c => c.Alineacion == i);
+                if (celda.Recurso == Resource_Cell.Desert) { celda.Label = null; continue; }
+                celda.Label = fichas_numeros[numero];
+                numero++;
+            }
+        }
+        /// <summary>
+        /// se asignan los numeros de las casillas a lo random, pero manteniendo cierta coherencia
+        /// </summary>
+        /// <param name="celdas"></param>
+        private void Asignar_Cell_Labels_Random(List<HexCell> celdas)
+        {
+            bool flag_recurso_asignado = false;
+            int Cantidad_2 = 0;
+            int Cantidad_3 = 0;
+            int Cantidad_4 = 0;
+            int Cantidad_5 = 0;
+            int Cantidad_6 = 0;
+            int Cantidad_8 = 0;
+            int Cantidad_9 = 0;
+            int Cantidad_10 = 0;
+            int Cantidad_11 = 0;
+            int Cantidad_12 = 0;
+            for (int i = 0; i < celdas.Count; i++)
+            {
+                while (flag_recurso_asignado == false)
+                {
+                    if (celdas[i].Recurso == Resource_Cell.Desert) { celdas[i].Label = null; break; }
+                    int num = random.Next(2, 13);
+                    switch (num)
+                    {
+                        case 2 :
+                            if (Cantidad_2 < 1) { celdas[i].Label = num; Cantidad_2++; flag_recurso_asignado = true; }
+                            break;
+                        case 3:
+                            if (Cantidad_3 < 2) { celdas[i].Label = num; Cantidad_3++; flag_recurso_asignado = true; }
+                            break;
+                        case 4:
+                            if (Cantidad_4 < 2) { celdas[i].Label = num; Cantidad_4++; flag_recurso_asignado = true; }
+                            break;
+                        case 5:
+                            if (Cantidad_5 < 2) { celdas[i].Label = num; Cantidad_5++; flag_recurso_asignado = true; }
+                            break;
+                        case 6:
+                            if (Cantidad_6 < 2) { celdas[i].Label = num; Cantidad_6++; flag_recurso_asignado = true; }
+                            break;
+                        case 8:
+                            if (Cantidad_8 < 2) { celdas[i].Label = num; Cantidad_8++; flag_recurso_asignado = true; }
+                            break;
+                        case 9:
+                            if (Cantidad_9 < 2) { celdas[i].Label = num; Cantidad_9++; flag_recurso_asignado = true; }
+                            break;
+                        case 10:
+                            if (Cantidad_10 < 2) { celdas[i].Label = num; Cantidad_10++; flag_recurso_asignado = true; }
+                            break;
+                        case 11:
+                            if (Cantidad_11 < 2) { celdas[i].Label = num; Cantidad_11++; flag_recurso_asignado = true; }
+                            break;
+                        case 12:
+                            if (Cantidad_12 < 1) { celdas[i].Label = num; Cantidad_12++; flag_recurso_asignado = true; }
+                            break;
+                    }
+                }
+                //Console.WriteLine($"Trigo: {Cantidad_Wheat} Ovejas: {Cantidad_Sheep} Madera: {Cantidad_Wood} Ladrillos: {Cantidad_Brick} Rocas: {Cantidad_Rock} Desiertos:{Cantidad_Desert}");
+                flag_recurso_asignado = false;
+            }
+        }
     }
 }

@@ -50,8 +50,12 @@
 </div>
 
 @code {
+    // ─── Parametros de la partida ─────────────────────────────────────────────────
+    public enum Asignacion_Numeros_Catan { Modo_Clasico, Modo_Random, Modo_Insano}
+    Random? random;
+    int semilla;
+    Asignacion_Numeros_Catan Asignacion_Numeros = Asignacion_Numeros_Catan.Modo_Clasico;
 
-    // private ElementReference _boardRef;
     // ─── Se ingresan los datos de las casillas ─────────────────────────────────────────────────
 
     // private List<HexCell> _celdas = Enumerable.Range(1, 19)
@@ -74,8 +78,9 @@
         for (int i = 1; i <= 19; i++)
         {
             HexCell celda = new HexCell();
-            celda.Id = i.ToString();
-            celda.Label = i.ToString();
+            celda.Id = i;
+            celda.Label = i;
+            if (celdas_externas.Contains(celda.Id)) celda.Externa = true;
             resultado.Add(celda);
         }
 
@@ -90,41 +95,23 @@
     private List<HexVertex> _vertices = new();
     private List<HexEdge> _edges = new();
 
+    private bool flag_asignacion = false;
+
     private void HandleGeometryReady((List<HexVertex> Vertices, List<HexEdge> Edges) tupla)
     {
-        _vertices = tupla.Vertices;
-        _edges = tupla.Edges;
-        //tupla contiene la info de ambas listas
-        AsignarIdsVertices();
-        AsignarIdsEdges();
-        Console.WriteLine($"Vertices asignados: {_vertices.Count}, primero: {_vertices[0].Id}, último: {_vertices[^1].Id}");
-        for (int i = 0; i < _vertices.Count; i++)
+        if(flag_asignacion == false)
         {
-            switch (_vertices[i].Id)
-            {
-                case 1:
-                    _vertices[i].Structure = StructureType.Settlement;
-                    _vertices[i].PlayerColor = "Yellow";//"#00FFFF";
-                    break;
-                case 3:
-                    _vertices[i].Structure = StructureType.City;
-                    _vertices[i].PlayerColor = "Yellow";
-                    break;
-            }
-        }
-        for (int i = 0; i < _edges.Count; i++)
-        {
-            switch (_edges[i].Id)
-            {
-                case 1:
-                    _edges[i].HasRoad = true;
-                    _edges[i].PlayerColor = "Yellow";
-                    break;
-                case 2:
-                    _edges[i].HasRoad = true;
-                    _edges[i].PlayerColor = "Yellow";
-                    break;
-            }
+            _vertices = tupla.Vertices;
+            _edges = tupla.Edges;
+            //tupla contiene la info de ambas listas
+            AsignarIdsVertices();
+            AsignarIdsEdges();
+            Console.WriteLine($"Vertices asignados: {_vertices.Count}, primero: {_vertices[0].Id}, último: {_vertices[^1].Id}");
+            Asignar_Recursos_A_Casillas();
+            Asignar_Cell_Labels();
+            Manipular_Vertices();
+            Manipular_Aristas();
+            flag_asignacion = true;
         }
     }
 
@@ -162,22 +149,25 @@
             return $"position: relative; width: {width}; margin: 0 auto;";
             }
         }
-     */
+         */
 
-    // private double _boardWidth = 0;
+        // private double _boardWidth = 0;
 
-    // private void HandleBoardWidthChanged(double width)
-    // {
-    //     _boardWidth = width;
-    // }
+        // private void HandleBoardWidthChanged(double width)
+        // {
+        //     _boardWidth = width;
+        // }
 
-    // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
+        // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
     protected override void OnInitialized() //cuando se renderiza la pagina, este metodo se ejecuta
     {
+        random = new Random();
         Config.OnChange += HandleChange;
         //se suscribe, para que cada vez que algún valor cambie, invoque el metodo HandleChange
 
         _celdas = CrearCeldas(); // crea celdas
+        // semilla = 42;
+        // random = new Random(semilla);
     }
 
     private void HandleChange()
@@ -196,9 +186,10 @@
 
     private void HandleCellClick(HexCell cell)
     {
-        Console.WriteLine($"Clickeaste la celda {cell.Id}");
+        Console.WriteLine($"Clickeaste la celda Id:{cell.Id} Alineacion: {cell.Alineacion} Recurso: {cell.Recurso}");
         if (cell.Has_Thief == false) cell.Has_Thief = true;
-        // else cell.Has_Thief = false;
+        else cell.Has_Thief = false;
+        // if (cell.Externa == true) Console.WriteLine($"La celda {cell.Id} es externa");
     }
 
     private void HandleSelection(List<HexCell> seleccionadas)
