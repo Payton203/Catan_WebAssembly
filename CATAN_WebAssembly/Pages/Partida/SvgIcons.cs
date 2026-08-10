@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using System.Reflection.Metadata.Ecma335;
 using static System.Net.WebRequestMethods;
 
 namespace CATAN_WebAssembly.Pages.Partida
@@ -44,6 +45,15 @@ namespace CATAN_WebAssembly.Pages.Partida
             svg = svg.Replace("</svg>", style + "</svg>");
 
             return new MarkupString(svg);
+        }
+
+        public static MarkupString RecursoIcono(ResourceType recurso)
+        {
+            return recurso switch
+            {
+                ResourceType.Wood => new MarkupString(SvgIcons.SVG_Wood),
+                _ => new MarkupString("")
+            };
         }
     }
 }

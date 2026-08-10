@@ -28,7 +28,10 @@
                 @foreach (var recurso in RecursosCatan.Todos)
                 {
                     <span class="recurso" title="@recurso.Nombre">
-                        <span class="recurso__icono">@recurso.Icono</span>
+                        <span class="recurso__icono">
+                            @if (recurso.Clave == ResourceType.Wood) { SvgIcons.RecursoIcono(recurso.Clave); }
+                            else {@recurso.Icono}
+                        </span>
                         <span class="recurso__cantidad">@ObtenerCantidad(jugador, recurso.Clave)</span>
                     </span>
                 }

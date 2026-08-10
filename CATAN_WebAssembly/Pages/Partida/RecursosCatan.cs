@@ -16,7 +16,7 @@ namespace CATAN_WebAssembly.Pages.Partida
         // y en JugadoresPanel.razor reemplazás el <span> del icono por un <img src="@recurso.Icono" />.
         public static readonly List<RecursoDefinicion> Todos = new()
         {
-            new(ResourceType.Wood,  "🌲", "Madera"),
+            new(ResourceType.Wood,  SvgIcons.SVG_Wood, "Madera"),
             new(ResourceType.Brick, "🧱", "Ladrillo"),
             new(ResourceType.Sheep, "🐑", "Oveja"),
             new(ResourceType.Wheat, "🌾", "Trigo"),
