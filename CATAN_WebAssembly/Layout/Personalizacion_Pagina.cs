@@ -156,7 +156,7 @@ namespace CATAN_WebAssembly.Layout
         /// <summary>
         /// atributo, se usa para centrar pelotudeces en el eje X, por ejemplo los Iconos en los puertos, uso exclusivo de debugeo
         /// </summary>
-        private double offsetX_debug = 0;
+        private double offsetX_debug = 0.45;
 
         /// <summary>
         /// propiedad, se usa para centrar pelotudeces en el eje X, por ejemplo los Iconos en los puertos, uso exclusivo de debugeo
@@ -199,7 +199,7 @@ namespace CATAN_WebAssembly.Layout
         /// <summary>
         /// se usa para centrar pelotudeces en el eje Y, por ejemplo los Iconos en los puertos, uso exclusivo de debugeo
         /// </summary>
-        private double offsetY_debug = 0;
+        private double offsetY_debug = 0.45;
 
         public double OffsetY_Debug
         {
@@ -209,6 +209,39 @@ namespace CATAN_WebAssembly.Layout
                 if (offsetY_debug != value) //si no cambia el valor, no invoca el metodo de cambio
                 {
                     offsetY_debug = value;
+                    NotifyStateChanged(); // avisa que algo cambió
+                }
+            }
+        }
+
+        /// <summary>
+        /// se usa para centrar pelotudeces en el eje Y, por ejemplo los Iconos en los puertos, uso exclusivo de debugeo
+        /// </summary>
+        private double scale_debug = 0.9;
+
+        public double Scale_Debug
+        {
+            get { return scale_debug; }
+            set
+            {
+                if (scale_debug != value) //si no cambia el valor, no invoca el metodo de cambio
+                {
+                    scale_debug = value;
+                    NotifyStateChanged(); // avisa que algo cambió
+                }
+            }
+        }
+
+        private double angle_debug = 0;
+
+        public double Angle_Debug
+        {
+            get { return angle_debug; }
+            set
+            {
+                if (angle_debug != value) //si no cambia el valor, no invoca el metodo de cambio
+                {
+                    angle_debug = value;
                     NotifyStateChanged(); // avisa que algo cambió
                 }
             }
