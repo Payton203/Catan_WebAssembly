@@ -42,6 +42,7 @@
     {
         <div class="panel panel-jugadores">
             <h4 class="panel-title">JUGADORES</h4>
+            <JugadoresPanel Jugadores="@listaJugadores" />
         </div>
     }
     @if (Config.History_Panel == true)
@@ -166,6 +167,29 @@
         // {
         //     _boardWidth = width;
         // }
+
+    // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
+    private List<Jugador> listaJugadores = new()
+    {
+        new Jugador {
+            Nombre = "Ana", EsTurno = true, PuntosVictoria = 5, Caballeros = 0,
+            Recursos = new() {
+                { ResourceType.Wood, 2 },
+                { ResourceType.Brick, 1 },
+                { ResourceType.Sheep, 3 },
+                { ResourceType.Wheat, 0 }
+            }
+        },
+        new Jugador {
+            Nombre = "Bruno", PuntosVictoria = 4, Caballeros = 3,
+            Recursos = new() {
+                { ResourceType.Wood, 1 },
+                { ResourceType.Brick, 2 },
+                { ResourceType.Sheep, 0 },
+                { ResourceType.Wheat, 3 }
+            }
+        },
+    };
 
         // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
     protected override void OnInitialized() //cuando se renderiza la pagina, este metodo se ejecuta

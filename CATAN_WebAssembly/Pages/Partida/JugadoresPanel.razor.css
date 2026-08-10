@@ -1,0 +1,78 @@
+.jugadores-panel-contenido {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 4px;
+}
+
+.jugador-card {
+    background-color: #1b1d23;
+    border: 1px solid #2b2e37;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+/* Tarjeta resaltada cuando es el turno del jugador (como "Ana" en tu mockup) */
+.jugador-card--turno {
+    border-color: #e0952f;
+    box-shadow: 0 0 0 1px rgba(224, 149, 47, 0.25);
+}
+
+.jugador-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.jugador-card__nombre {
+    color: #f2f2f2;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.jugador-card__badge {
+    background-color: #e0952f;
+    color: #1b1d23;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+
+.jugador-card__puntos {
+    color: #9a9ea8;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+}
+
+.jugador-card__recursos {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.jugador-card__ejercito {
+    display: flex;
+}
+
+.recurso {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #d5d7db;
+    font-size: 0.85rem;
+}
+
+.recurso__icono {
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.recurso__cantidad {
+    font-variant-numeric: tabular-nums;
+}

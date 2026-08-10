@@ -15,8 +15,8 @@
 }
 
 .o-dot {
-    fill: rgba(255, 0, 255, 0.10);
-    stroke: rgba(255, 0, 255, 0.25);
+    fill: rgba(255, 255, 255, 0.10);
+    stroke: rgba(255, 255, 255, 0.25);
     opacity: 1;
     transition: opacity 0.15s;
 }
