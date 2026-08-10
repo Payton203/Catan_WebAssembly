@@ -31,7 +31,7 @@
                     {
                     <svg x="@F(-_rl * 0.26)" y="@F(-_rl * 0.26)" width="@F(_rl * 0.55)" height="@F(_rl * 0.55)"
                          viewBox="0 0 32 32">
-                            @((MarkupString)SvgIcons.SVGConColor(SvgIcons.SVG_Road,"red"))
+                            @((MarkupString)SvgIcons.SVGConColor(SvgIcons.SVG_Road, "","red"))
                     </svg>
                     }
                     else
@@ -66,7 +66,7 @@
                     else if (v.Structure == StructureType.Settlement)
                     {
                         <g transform="translate(@F(_ss * -1.12), @F(_ss * -0.8)) scale(@F(_ss * 0.08))">
-                            @SvgIcons.SVGConColor(SvgIcons.SVG_Settlement, "White")
+                            @SvgIcons.SVGConColor(SvgIcons.SVG_Settlement, "","White")
                         </g>
                     }
                     else
@@ -77,7 +77,7 @@
                                  stroke="white" stroke-width="0.8" stroke-linejoin="round" /> *@
                                              //offset X, Y
                         <g transform="translate(@F(_ss * -1.02), @F(_ss * -0.93)) scale(@F(_ss * 0.07))">
-                            @SvgIcons.SVGConColor(SvgIcons.SVG_City, "White")
+                            @SvgIcons.SVGConColor(SvgIcons.SVG_City_prueba, "Outline" ,"White")
                         </g>
                     }
                     <text font-size="@F(_vr * 0.9)"
