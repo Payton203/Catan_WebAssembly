@@ -1,4 +1,4 @@
-namespace CATAN_WebAssembly.Pages.Partida;
+namespace CATAN_WebAssembly.Pages.Partida.Panel_Tablero;
 
 public enum PortType { Wood, Brick, Sheep, Wheat, Rock, ThreeToOne }
 

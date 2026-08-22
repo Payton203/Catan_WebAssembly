@@ -21,18 +21,9 @@ window.hexGridInterop = (function () {
         dotnetRef.invokeMethodAsync('OnContainerResized', initialWidth);
     }
 
-    function unobserve(element) {
-        if (!element) return;
-        const observer = observers.get(element);
-        if (observer) {
-            observer.disconnect();
-            observers.delete(element);
-        }
-    }
-
     function observeParent(element, dotnetRef) {
         if (!element) return;
-        const parent = element.parentElement.parentElement.parentElement; // catan-inner → catan-board → panel-tablero
+        const parent = element.parentElement.parentElement.parentElement; // catan-inner → catan-board → panel-hidden → panel-tablero
 
         const observer = new ResizeObserver((entries) => {
             for (const entry of entries) {
@@ -47,5 +38,30 @@ window.hexGridInterop = (function () {
         dotnetRef.invokeMethodAsync('OnContainerResized', initialWidth);
     }
 
-    return { observe, unobserve, observeParent};
+    function observeTarget(target, dotnetRef) {
+        if (!target) return;
+
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                dotnetRef.invokeMethodAsync('OnContainerResized', entry.contentRect.width);
+            }
+        });
+
+        observer.observe(target);
+        observers.set(target, observer);
+
+        const initialWidth = target.getBoundingClientRect().width;
+        dotnetRef.invokeMethodAsync('OnContainerResized', initialWidth);
+    }
+
+    function unobserve(element) {
+        if (!element) return;
+        const observer = observers.get(element);
+        if (observer) {
+            observer.disconnect();
+            observers.delete(element);
+        }
+    }
+
+    return { observe, unobserve, observeParent, observeTarget };
 })();

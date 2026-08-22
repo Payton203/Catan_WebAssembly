@@ -1,54 +1,64 @@
 ﻿@page "/Layout_Partida"
-@using CATAN_WebAssembly.Pages.Partida
+@using CATAN_WebAssembly.Pages.Partida.Panel_Historial
+@using CATAN_WebAssembly.Pages.Partida.Panel_Tablero
 @using MudBlazor
 @inject Personalizacion_Pagina Config
 @implements IDisposable
 
 <div class="partida-grid">
-    <div class="panel panel-tablero">
-        <h4 class="panel-title">TABLERO</h4>
-        <div class="catan-board">
-            <div class="catan-inner">
-            <HexGrid Cells="_celdas"
-                         RowLayout="new[] { 3, 4, 5, 4, 3 }"
-                         GapRatio="Config.Valor_Gapratio"
-                         SizeScale="Config.Valor_SizeScale"
-                         AutoSize="true"
-                         OnCellClick="HandleCellClick" />
+    <div class="panel panel-tablero" @ref="_tableroRef">
+        <div class="panel-hidden">
+            <h4 class="panel-title">TABLERO</h4>
+            <button style="justify-content: flex-end;" @onclick="TOGGLE_PANEL"> Reset </button>
+        </div>
+        @if(Mostrando_Tablero == true)
+        {
+            <div class="catan-board">
+                <div class="catan-inner">
+                    <HexGrid Cells="_celdas"
+                             RowLayout="new[] { 3, 4, 5, 4, 3 }"
+                             GapRatio="Config.Valor_Gapratio"
+                             SizeScale="Config.Valor_SizeScale"
+                             AutoSize="true"
+                             TargetRef="_tableroRef"
+                             OnCellClick="HandleCellClick" />
 
-            <CatanOverlay RowLayout="new[] { 3, 4, 5, 4, 3 }"
-                          SizeScale="Config.Valor_SizeScale"
-                          GapRatio="Config.Valor_Gapratio"
-                          OverlayScale="Config.OverlayScale"
-                          OffsetX="Config.OffsetX"
-                          OffsetY="Config.OffsetY"
-                          OffsetX_Debug="Config.OffsetX_Debug"
-                          OffsetY_Debug="Config.OffsetY_Debug"
-                          Scale_Debug="Config.Scale_Debug"
-                          Angle_Debug="Config.Angle_Debug"
-                          OnVertexClick="HandleVertexClick"
-                          OnEdgeClick="HandleEdgeClick"
-                          OnGeometryReady="HandleGeometryReady"
-                          OnPortsReady="HandlePortsReady" />
-            </div>
-             @* herramientas para debugear *@
-             @*OffsetX_Debug="Config.OffsetX_Debug"
+                    <CatanOverlay RowLayout="new[] { 3, 4, 5, 4, 3 }"
+                                  SizeScale="Config.Valor_SizeScale"
+                                  GapRatio="Config.Valor_Gapratio"
+                                  OverlayScale="Config.OverlayScale"
+                                  TargetRef="_tableroRef"
+                                  OffsetX="Config.OffsetX"
+                                  OffsetY="Config.OffsetY"
+                                  OffsetX_Debug="Config.OffsetX_Debug"
+                                  OffsetY_Debug="Config.OffsetY_Debug"
+                                  Scale_Debug="Config.Scale_Debug"
+                                  Angle_Debug="Config.Angle_Debug"
+                                  OnVertexClick="HandleVertexClick"
+                                  OnEdgeClick="HandleEdgeClick"
+                                  OnGeometryReady="HandleGeometryReady"
+                                  OnPortsReady="HandlePortsReady" />
+                </div>
+                @* herramientas para debugear *@
+                @*OffsetX_Debug="Config.OffsetX_Debug"
                OffsetY_Debug="Config.OffsetY_Debug"
                Scale_Debug="Config.Scale_Debug"
                Angle_Debug="Config.Angle_Debug" *@
-        </div>
+            </div>
+        }
     </div>
     @if(Config.Player_Panel==true)
     {
         <div class="panel panel-jugadores">
             <h4 class="panel-title">JUGADORES</h4>
-            <JugadoresPanel Jugadores="@listaJugadores" />
+            <Panel_Jugadores Jugadores="@listaJugadores" />
         </div>
     }
     @if (Config.History_Panel == true)
     {
         <div class="panel panel-historial">
             <h4 class="panel-title">HISTORIAL</h4>
+            <Panel_Historial/>
         </div>
     }
     @if (Config.Dice_Panel == true)
@@ -60,11 +70,21 @@
 </div>
 
 @code {
+    private ElementReference _tableroRef; //referencia para el correcto escalado del tablero
+
+    // ─── Logica Ocultado del panel ─────────────────────────────────────────────────
+    private bool Mostrando_Tablero = true;
+    void TOGGLE_PANEL()
+    {
+        Mostrando_Tablero = !Mostrando_Tablero;
+        //Mostrando_Settings = Mostrando_Settings negado;
+    }
+
     // ─── Parametros de la partida ─────────────────────────────────────────────────
     public enum Asignacion_Numeros_Catan { Modo_Clasico, Modo_Random, Modo_Insano}
     Random? random;
     int semilla;
-    Asignacion_Numeros_Catan Asignacion_Numeros = Asignacion_Numeros_Catan.Modo_Clasico;
+    /* [Parameter] */ public Asignacion_Numeros_Catan Asignacion_Numeros = Asignacion_Numeros_Catan.Modo_Clasico;
 
     // ─── Se ingresan los datos de las casillas ─────────────────────────────────────────────────
 
@@ -168,27 +188,23 @@
         //     _boardWidth = width;
         // }
 
-    // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
+    // ─── inicializacion de jugadores ─────────────────────────────────────────────────
     private List<Jugador> listaJugadores = new()
     {
         new Jugador {
-            Nombre = "Ana", EsTurno = true, PuntosVictoria = 5, Caballeros = 0,
-            Recursos = new() {
-                { ResourceType.Wood, 2 },
-                { ResourceType.Brick, 1 },
-                { ResourceType.Sheep, 3 },
-                { ResourceType.Wheat, 0 }
-            }
+            Nombre = "Fernandez", EsTurno = true, PuntosVictoria = 5
         },
         new Jugador {
-            Nombre = "Bruno", PuntosVictoria = 4, Caballeros = 3,
-            Recursos = new() {
-                { ResourceType.Wood, 1 },
-                { ResourceType.Brick, 2 },
-                { ResourceType.Sheep, 0 },
-                { ResourceType.Wheat, 3 }
-            }
+            Nombre = "Claudio", PuntosVictoria = 4,
         },
+        new Jugador
+        {
+            Nombre = "Nano"
+        },
+        new Jugador
+        {
+            Nombre = "Carlos"
+        }
     };
 
         // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────

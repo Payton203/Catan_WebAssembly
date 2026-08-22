@@ -8,6 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using CATAN_WebAssembly.Pages.Partida.Panel_Tablero;
 using static MudBlazor.FilterOperator;
 
 namespace CATAN_WebAssembly.Pages.Partida

@@ -1,25 +1,10 @@
-﻿using CATAN_WebAssembly.Pages.Partida;
+﻿using CATAN_WebAssembly.Pages.Partida.Panel_Tablero;
 
 namespace CATAN_WebAssembly.Layout
 {
     public class Personalizacion_Pagina
     {
         //─────────────────────────────────────────────────────────────────────Switches────────────────────────────────────────────────────────────────────//
-
-        private bool dark_mode = false;
-
-        public bool Dark_Mode
-        {
-            get { return dark_mode; }
-            set
-            {
-                if (dark_mode != value) //si no cambia el valor, no invoca el metodo de cambio
-                {
-                    dark_mode = value;
-                    NotifyStateChanged(); // avisa que algo cambió
-                }
-            }
-        }
         //─────────────────────────────────────────────────────────────────────Checkboxes────────────────────────────────────────────────────────────────────//
 
         private bool player_panel = true;

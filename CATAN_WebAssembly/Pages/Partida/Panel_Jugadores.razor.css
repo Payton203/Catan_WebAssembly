@@ -3,6 +3,7 @@
     flex-direction: column;
     gap: 10px;
     padding: 4px;
+    overflow-y: scroll;
 }
 
 .jugador-card {
@@ -21,7 +22,7 @@
 .jugador-card__header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-bottom: 4px;
 }
 
@@ -29,6 +30,7 @@
     color: #f2f2f2;
     font-weight: 600;
     font-size: 0.95rem;
+    margin-right: auto;
 }
 
 .jugador-card__badge {
@@ -41,6 +43,10 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
     white-space: nowrap;
+}
+
+.jugador-card__header button {
+    padding-left: 10px;
 }
 
 .jugador-card__puntos {
@@ -69,8 +75,7 @@
 }
 
 .recurso__icono {
-    font-size: 0.9rem;
-    line-height: 1;
+    position: relative;
 }
 
 .recurso__cantidad {

@@ -81,6 +81,12 @@
     flex-direction: column;
 }
 
+.panel-hidden {
+    display: flex;
+    align-items: center; /* Alineación vertical */
+    justify-content: space-between; /* Uno a cada extremo */
+}
+
 .panel-title {
     color: #888;
     font-size: 11px;

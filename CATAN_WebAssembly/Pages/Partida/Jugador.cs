@@ -1,6 +1,18 @@
 ﻿namespace CATAN_WebAssembly.Pages.Partida
 {
     public enum ResourceType { Wood, Brick, Sheep, Wheat, Rock }
+    public enum TiposCartasDesarrollo
+    {
+        Caballero,
+
+        Punto_Victoria,
+
+        Carreteras,
+
+        Invento,
+
+        Monopolio
+    }
     /// <summary>
     /// Representa el estado de un jugador para mostrar en el panel "JUGADORES".
     /// Un jugador nuevo se crea así:
@@ -27,9 +39,12 @@
             // Cantidad de cada recurso que tiene el jugador en mano.
             // Clave = clave del recurso (definida en RecursosCatan.Todos), Valor = cantidad.
             // No hace falta cargar todas las claves: si falta una, se muestra como 0.
-            public Dictionary<ResourceType, int> Recursos { get; set; } = new();
+            public Dictionary<ResourceType, int> Recursos { get; set; } = Enum.GetValues<ResourceType>().ToDictionary(tipo => tipo, _ => 0);
+                                                                          //inicializa todos los valores en 0
 
-            // Cantidad de caballeros jugados (para el marcador de ejército más grande)
-            public int Caballeros { get; set; }
+        // Cantidad de caballeros jugados (para el marcador de ejército más grande)
+            public Dictionary<TiposCartasDesarrollo, int> CartasDesarrollo { get; set; } = Enum.GetValues<TiposCartasDesarrollo>().ToDictionary(tipo => tipo, _ => 0);
+
+            public bool Oculto { get; set; } = true;
     }
 }

@@ -14,13 +14,13 @@ namespace CATAN_WebAssembly.Pages.Partida
         // El icono es texto (emoji) por ahora. Si más adelante querés usar tus SVG
         // propios de recursos, cambiás "Icono" por la ruta del archivo (ej: "img/madera.svg")
         // y en JugadoresPanel.razor reemplazás el <span> del icono por un <img src="@recurso.Icono" />.
-        public static readonly List<RecursoDefinicion> Todos = new()
-        {
+        public static readonly List<RecursoDefinicion> Todos =
+        [
             new(ResourceType.Wood,  SvgIcons.SVG_Wood, "Madera"),
             new(ResourceType.Brick, "🧱", "Ladrillo"),
             new(ResourceType.Sheep, "🐑", "Oveja"),
             new(ResourceType.Wheat, "🌾", "Trigo"),
             new(ResourceType.Rock,  "⛏️", "Mineral"),
-        };
+        ];
     }
 }

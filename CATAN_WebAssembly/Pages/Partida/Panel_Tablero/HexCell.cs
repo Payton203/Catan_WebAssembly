@@ -1,4 +1,4 @@
-namespace CATAN_WebAssembly.Pages.Partida;
+namespace CATAN_WebAssembly.Pages.Partida.Panel_Tablero;
 
 public enum Resource_Cell { Wood, Brick, Sheep, Wheat, Rock, Desert}
 public class HexCell
@@ -7,7 +7,6 @@ public class HexCell
     public int? Label { get; set; }
     public string? BackgroundColor { get; set; }
     public Resource_Cell Recurso { get; set; }
-    public object? Data { get; set; } // para colgar lo que necesites (payload custom)
     public bool Has_Thief { get; set; } = false;
     public bool Externa {  get; set; } = false;
     /// <summary>

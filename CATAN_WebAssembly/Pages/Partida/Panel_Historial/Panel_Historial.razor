@@ -1,0 +1,32 @@
+﻿@using CATAN_WebAssembly.Layout
+
+<div class="panel-historial-contenido">
+    Claudio hizo historia
+</div>
+@code {
+    public enum TipoEvento
+    {
+        Construccion,
+        Robo,
+        Tirada,
+        Intercambio,
+        Carta_Desarrollo,
+    }
+
+    public List<HistorialEvento> Historial = new List<HistorialEvento>();
+    public record HistorialEvento
+    {
+        public TipoEvento Tipo { get; init; }
+        public string Jugador { get; init; } = "";
+        public int Puntos { get; init; }
+        public DateTime Momento { get; init; } = DateTime.Now;
+
+        // Solo se usan cuando Tipo == TipoEvento.Intercambio
+        public string? JugadorReceptor { get; init; }
+        public Dictionary<ResourceType, int>? RecursosEntregados { get; init; }
+        public Dictionary<ResourceType, int>? RecursosRecibidos { get; init; }
+
+        //Solo se usa cuando Tipo == TipoEvento.Carta_Desarrollo, se usa solo para datos post-match
+        public TiposCartasDesarrollo? Carta_canjeada;
+    }
+}
