@@ -5,9 +5,10 @@
     que le pases: 2, 3, 4, o los que sean.
 *@
 @using CATAN_WebAssembly.Layout
-
+@using CATAN_WebAssembly.Pages.Partida
+@inject Jugador_Class Jugador_
 <div class="jugadores-panel-contenido">
-    @foreach (var jugador in Jugadores)
+    @foreach (Jugador_Class jugador in Jugador_.ListaJugadores)
     {
         <div class="jugador-card @(jugador.EsTurno ? "jugador-card--turno" : "")">
 
@@ -32,19 +33,11 @@
                 </div>
 
                 <div class="jugador-card__recursos">
-                    @foreach (var recurso in RecursosCatan.Todos)
+                    @foreach (var recurso in InventarioCatan_ReadOnly.Recursos)
                     {
                         <span class="recurso" title="@recurso.Nombre">
                             <span class="recurso__icono">
-                                @if (recurso.Clave == ResourceType.Wood)
-                                {
-                                    @SvgIcons.RecursoIcono(recurso.Clave)
-                                }
-                                else
-                                {
-
-                                    @recurso.Icono
-                                }
+                            @SvgIcons.RecursoIcono(recurso.Clave)
                             </span>
                             <span class="recurso__cantidad">@jugador.Recursos[recurso.Clave]</span>
                         </span>
@@ -64,18 +57,43 @@
 </div>
 
 @code {
-    void TOGGLE_CARD(Jugador jugador)
-    {
-         jugador.Oculto = !jugador.Oculto;
-    }
+        void TOGGLE_CARD(Jugador_Class jugador)
+        {
+            jugador.Oculto = !jugador.Oculto;
+        }
     // Se le pasa la lista de jugadores desde donde ya tenés armado el panel,
-    // por ejemplo: <JugadoresPanel Jugadores="@listaJugadores" />
-    [Parameter]
-    public List<Jugador> Jugadores { get; set; } = new();
+        // por ejemplo: <JugadoresPanel Jugadores="@listaJugadores" />
 
-    // Si el jugador no tiene cargada la clave del recurso, devuelve 0 en vez de tirar error
-    private int ObtenerCantidad(Jugador jugador, ResourceType Recurso)
+        // Si el jugador no tiene cargada la clave del recurso, devuelve 0 en vez de tirar error
+    private int ObtenerCantidad(Jugador_Class jugador, ResourceType Recurso)
     {
         return jugador.Recursos.TryGetValue(Recurso, out var cantidad) ? cantidad : 0;
     }
+    protected override void OnInitialized()
+    {
+        Jugador_.Agregar_jugador(new Jugador_Class
+            {
+                Nombre = "Fernandez",
+                EsTurno = true,
+                PuntosVictoria = 5
+            });
+        Jugador_.Agregar_jugador(new Jugador_Class
+        {
+            Nombre = "Carlos",
+            EsTurno = false,
+            PuntosVictoria = 3
+        });
+        Jugador_.Agregar_jugador(new Jugador_Class
+        {
+            Nombre = "Claudio",
+            EsTurno = false,
+            PuntosVictoria = 1
+        });
+        Jugador_.Agregar_jugador(new Jugador_Class
+        {
+            Nombre = "Nano",
+            EsTurno = false,
+            PuntosVictoria = 2
+        });
+}
 }

@@ -448,12 +448,12 @@
     // Color por tipo de puerto
     private static string PortIcon(PortType type) => type switch
     {
-        PortType.Brick => "#CC4400",
+        // PortType.Brick => "#CC4400",
         PortType.Wood => SvgIcons.SVG_Wood,
-        PortType.Sheep => "#7BC47F",
-        PortType.Wheat => "#DAA520",
-        PortType.Rock => "#708090",
-        _ => "#C8A96E",  // 3:1
+        PortType.Sheep => SvgIcons.SVG_Sheep,
+        // PortType.Wheat => "#DAA520",
+        // PortType.Rock => "#708090",
+        _ => SvgIcons.SVG_Missing_Texture,  // 3:1
     };
 
     // Etiqueta por tipo de puerto

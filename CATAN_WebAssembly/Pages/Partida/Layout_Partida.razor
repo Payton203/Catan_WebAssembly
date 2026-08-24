@@ -1,8 +1,11 @@
 ﻿@page "/Layout_Partida"
 @using CATAN_WebAssembly.Pages.Partida.Panel_Historial
 @using CATAN_WebAssembly.Pages.Partida.Panel_Tablero
+@using CATAN_WebAssembly.Pages.Partida.Panel_Jugadores
 @using MudBlazor
 @inject Personalizacion_Pagina Config
+@inject Historial_Class Historial_
+@inject Jugador_Class Jugador_
 @implements IDisposable
 
 <div class="partida-grid">
@@ -51,7 +54,7 @@
     {
         <div class="panel panel-jugadores">
             <h4 class="panel-title">JUGADORES</h4>
-            <Panel_Jugadores Jugadores="@listaJugadores" />
+            <Panel_Jugadores/>
         </div>
     }
     @if (Config.History_Panel == true)
@@ -189,25 +192,8 @@
         // }
 
     // ─── inicializacion de jugadores ─────────────────────────────────────────────────
-    private List<Jugador> listaJugadores = new()
-    {
-        new Jugador {
-            Nombre = "Fernandez", EsTurno = true, PuntosVictoria = 5
-        },
-        new Jugador {
-            Nombre = "Claudio", PuntosVictoria = 4,
-        },
-        new Jugador
-        {
-            Nombre = "Nano"
-        },
-        new Jugador
-        {
-            Nombre = "Carlos"
-        }
-    };
 
-        // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
+    // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
     protected override void OnInitialized() //cuando se renderiza la pagina, este metodo se ejecuta
     {
         random = new Random();
@@ -245,11 +231,12 @@
     {
         Console.WriteLine($"Seleccionadas: {string.Join(", ", seleccionadas.Select(c => c.Id))}");
     }
-
     private void HandleVertexClick(HexVertex vertex)
     {
         Console.WriteLine($"Click - Position_Id: {vertex.Position_Id} - Id: {vertex.Id}");
         vertex.Structure = Config.Structure;
+        Historial_.AgregarEvento(new HistorialEvento {Id_Posicion_construccion = vertex.Id, Estructura_Vertice = vertex.Structure, Jugador = Jugador_.TurnoJugador() });
+
         // por ahora vacío, después acá va la lógica de colocar asentamientos
     }
 

@@ -1,32 +1,75 @@
 ﻿@using CATAN_WebAssembly.Layout
+@using CATAN_WebAssembly.Pages.Partida
+@using CATAN_WebAssembly.Pages.Partida.Panel_Tablero
+@inject Historial_Class Historial_
 
 <div class="panel-historial-contenido">
-    Claudio hizo historia
+    @foreach( HistorialEvento evento in Historial_.Historial.AsEnumerable().Reverse() )
+    {
+        <div class="contenedor-evento">
+            <span class="texto-evento"> @Texto_evento(evento) </span>
+            <div class="contenedor-momento"> @evento.Momento</div>
+        </div>
+    }
 </div>
 @code {
-    public enum TipoEvento
+
+    protected override void OnInitialized()
     {
-        Construccion,
-        Robo,
-        Tirada,
-        Intercambio,
-        Carta_Desarrollo,
+        Historial_.AgregarEvento(new HistorialEvento
+            {
+                Tipo = TipoEvento.Construccion_Estructura,
+                Jugador = "percha",
+                Momento = DateTime.Now,
+                Id_Posicion_construccion = 10,
+                Estructura_Vertice = StructureType.Settlement
+            });
+        // Historial.Add(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Construccion_Carretera,
+        //     Jugador = "Carlos",
+        //     Momento = DateTime.Now,
+        //     Id_Posicion_construccion = 10,
+        // });
+
+        Historial_.OnAccion += HandleChange;
+        //se suscribe, para que cada vez que algún valor cambie, invoque el metodo HandleChange
+
     }
 
-    public List<HistorialEvento> Historial = new List<HistorialEvento>();
-    public record HistorialEvento
+    private void HandleChange()
     {
-        public TipoEvento Tipo { get; init; }
-        public string Jugador { get; init; } = "";
-        public int Puntos { get; init; }
-        public DateTime Momento { get; init; } = DateTime.Now;
+        StateHasChanged();
+        // vuelve a renderizar el Layout
+    }
 
-        // Solo se usan cuando Tipo == TipoEvento.Intercambio
-        public string? JugadorReceptor { get; init; }
-        public Dictionary<ResourceType, int>? RecursosEntregados { get; init; }
-        public Dictionary<ResourceType, int>? RecursosRecibidos { get; init; }
+    public void Dispose()
+    {
+        Historial_.OnAccion -= HandleChange;
+    }
 
-        //Solo se usa cuando Tipo == TipoEvento.Carta_Desarrollo, se usa solo para datos post-match
-        public TiposCartasDesarrollo? Carta_canjeada;
+    private string Texto_evento(HistorialEvento evento)
+    {
+        // Console.WriteLine($"evento.Estructura_Vertice: {evento.Estructura_Vertice}");
+        return evento.Tipo switch
+        {
+            TipoEvento.Construccion_Estructura => $"{evento.Jugador} {Texto_Estructura(evento.Estructura_Vertice)} en {evento.Id_Posicion_construccion}",
+            _ => "Error 404, no se identifico el tipo de evento"
+        };
+    }
+    private string Texto_Estructura(StructureType? structure)
+    {
+        return structure switch
+        {
+            StructureType.Settlement => "construyo un Poblado",
+            StructureType.City => "construyo una Ciudad",
+            StructureType.None => "destruyo una Estructura",
+            _ => "Error 404, no se identifico el tipo de estructura"
+        };
+    }
+    private string Texto_Carretera(bool Has_Road)
+    {
+        if (Has_Road == true) return "hola";
+        else return "no";
     }
 }

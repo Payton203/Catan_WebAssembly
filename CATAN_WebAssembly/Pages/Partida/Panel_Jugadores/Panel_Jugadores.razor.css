@@ -76,6 +76,10 @@
 
 .recurso__icono {
     position: relative;
+    background: red !important;
+}
+.recurso__icono svg {
+    background: blue !important;
 }
 
 .recurso__cantidad {

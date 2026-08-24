@@ -1,5 +1,7 @@
 using CATAN_WebAssembly;
 using CATAN_WebAssembly.Layout;
+using CATAN_WebAssembly.Pages.Partida;
+using CATAN_WebAssembly.Pages.Partida.Panel_Historial;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
@@ -11,6 +13,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 builder.Services.AddScoped<Personalizacion_Pagina>(); //registra la clase Personalizacion_pagina
+builder.Services.AddScoped<Historial_Class>();
+builder.Services.AddScoped<Jugador_Class>();
 
 builder.Services.AddMudServices();
 

@@ -27,9 +27,13 @@
     /// </summary>
 
     //   }
-    public class Jugador
+    public class Jugador_Class
     {
-            public string Nombre { get; set; } = string.Empty;
+        public List<Jugador_Class> ListaJugadores { get; private set; } =  new()
+        {
+        };
+
+        public string Nombre { get; set; } = string.Empty;
 
             // Indica si es el turno actual de este jugador (dibuja el borde y el badge naranja)
             public bool EsTurno { get; set; }
@@ -46,5 +50,17 @@
             public Dictionary<TiposCartasDesarrollo, int> CartasDesarrollo { get; set; } = Enum.GetValues<TiposCartasDesarrollo>().ToDictionary(tipo => tipo, _ => 0);
 
             public bool Oculto { get; set; } = true;
+
+        public void Agregar_jugador(Jugador_Class jugador)
+        {
+            ListaJugadores.Add(jugador);
+        }
+
+        public string TurnoJugador()
+        {
+            string? nombreJugador = ListaJugadores.FirstOrDefault(j => j.EsTurno)?.Nombre;
+            if (nombreJugador == null) { Console.WriteLine("Error, no es el turno de nadie"); return ""; }
+            else return nombreJugador;
+        }
     }
 }
