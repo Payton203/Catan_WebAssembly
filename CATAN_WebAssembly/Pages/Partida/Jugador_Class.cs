@@ -32,7 +32,6 @@
         public List<Jugador_Class> ListaJugadores { get; private set; } =  new()
         {
         };
-
         public string Nombre { get; set; } = string.Empty;
 
             // Indica si es el turno actual de este jugador (dibuja el borde y el badge naranja)
@@ -56,11 +55,27 @@
             ListaJugadores.Add(jugador);
         }
 
+        /// <summary>
+        /// devuelve de quien es el turno actualmente
+        /// </summary>
+        /// <returns></returns>
         public string TurnoJugador()
         {
             string? nombreJugador = ListaJugadores.FirstOrDefault(j => j.EsTurno)?.Nombre;
             if (nombreJugador == null) { Console.WriteLine("Error, no es el turno de nadie"); return ""; }
             else return nombreJugador;
+        }
+
+        public void Pasar_Turno()
+        {
+            int id = 0;
+            for (int i = 0; i < ListaJugadores.Count; i++)
+            {
+                if (ListaJugadores[i].EsTurno == true) { id = i; break; }
+            }
+            ListaJugadores[id].EsTurno = false;
+            if ((id + 1) < ListaJugadores.Count) ListaJugadores[id + 1].EsTurno = true;
+            else ListaJugadores[0].EsTurno = true;
         }
     }
 }

@@ -6,10 +6,13 @@
 <div class="panel-historial-contenido">
     @foreach( HistorialEvento evento in Historial_.Historial.AsEnumerable().Reverse() )
     {
-        <div class="contenedor-evento">
-            <span class="texto-evento"> @Texto_evento(evento) </span>
-            <div class="contenedor-momento"> @evento.Momento</div>
-        </div>
+        @if (evento.Mostrar_en_partida)
+        {
+            <div class="contenedor-evento">
+                <span class="texto-evento"> @Texto_evento(evento) </span>
+                <div class="contenedor-momento"> @evento.Momento</div>
+            </div>
+        }
     }
 </div>
 @code {
@@ -54,6 +57,7 @@
         return evento.Tipo switch
         {
             TipoEvento.Construccion_Estructura => $"{evento.Jugador} {Texto_Estructura(evento.Estructura_Vertice)} en {evento.Id_Posicion_construccion}",
+            TipoEvento.Tirada_Dados => $"{evento.Jugador} tiro los dados y saco: {evento.Resultado_Dados}",
             _ => "Error 404, no se identifico el tipo de evento"
         };
     }

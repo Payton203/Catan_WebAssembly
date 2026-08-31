@@ -1,0 +1,28 @@
+﻿@using CATAN_WebAssembly.Pages.Partida.Panel_Historial
+@using CATAN_WebAssembly.Pages.Partida
+@inject Historial_Class Historial_
+@inject Jugador_Class Jugador_
+
+<div class="panel-dados-contenido">
+    <div style="align-items:center; justify-content:space-evenly; display:flex; flex-direction:row; width: 100%; height: 100%; gap: 5%;">
+        <div class="display-dado"> @Dado_1 </div>
+        <div class="display-dado"> + </div>
+        <div class="display-dado"> @Dado_2 </div>
+        <div class="display-dado"> = </div>
+        <div class="display-dado"> @Suma_Dados </div>
+    </div>
+</div>
+<button class="boton-tirar-dados" @onclick=Tirar_Dados> TIRAR_DADOS</button>
+@code {
+    private int Dado_1 = 5;
+    private int Dado_2 = 4;
+    private int Suma_Dados = 9;
+    private void Tirar_Dados()
+    {
+        Random random = new Random();
+        Dado_1 = random.Next(1, 7);
+        Dado_2 = random.Next(1, 7);
+        Suma_Dados = Dado_1 + Dado_2;
+        Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Tirada_Dados, Jugador = Jugador_.TurnoJugador(), Resultado_Dados = Suma_Dados });
+    }
+}
