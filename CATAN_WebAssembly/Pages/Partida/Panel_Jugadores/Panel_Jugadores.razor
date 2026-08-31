@@ -7,6 +7,8 @@
 @using CATAN_WebAssembly.Layout
 @using CATAN_WebAssembly.Pages.Partida
 @inject Jugador_Class Jugador_
+@inject Personalizacion_Pagina Config
+
 <div class="jugadores-panel-contenido">
     @foreach (Jugador_Class jugador in Jugador_.ListaJugadores)
     {
@@ -55,6 +57,12 @@
         </div>
     }
 </div>
+<div style="margin-top:auto">
+    <div style="margin-top: 4px">
+    <button class="boton-pasar-turno" style="margin-top: @(Config.Scale_Debug)px " @onclick="Jugador_.Pasar_Turno"> PASAR </button>
+    </div>
+</div>
+
 
 @code {
         void TOGGLE_CARD(Jugador_Class jugador)

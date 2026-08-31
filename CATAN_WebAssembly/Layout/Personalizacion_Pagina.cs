@@ -202,7 +202,7 @@ namespace CATAN_WebAssembly.Layout
         /// <summary>
         /// se usa para centrar pelotudeces en el eje Y, por ejemplo los Iconos en los puertos, uso exclusivo de debugeo
         /// </summary>
-        private double scale_debug = 0.9;
+        private double scale_debug = 5;
 
         public double Scale_Debug
         {

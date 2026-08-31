@@ -2,6 +2,7 @@
 @using CATAN_WebAssembly.Pages.Partida.Panel_Historial
 @using CATAN_WebAssembly.Pages.Partida.Panel_Tablero
 @using CATAN_WebAssembly.Pages.Partida.Panel_Jugadores
+@using CATAN_WebAssembly.Pages.Partida.Panel_Dados
 @using MudBlazor
 @inject Personalizacion_Pagina Config
 @inject Historial_Class Historial_
@@ -68,6 +69,7 @@
     {
         <div class="panel panel-dados">
             <h4 class="panel-title">ÚLTIMO TIRO DE DADOS</h4>
+            <Panel_Dados/>
         </div>
     }
 </div>
