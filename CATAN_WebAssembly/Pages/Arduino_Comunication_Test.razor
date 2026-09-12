@@ -1,0 +1,99 @@
+﻿@page "/Arduino_Comunication_Test"
+@implements IDisposable
+@inject ArduinoSerialService Serial
+@using System.Text.Json
+@using CATAN_WebAssembly.Services
+
+<h3>Prueba de eco - Arduino USB</h3>
+
+<div style="margin-bottom: 1rem;">
+    <button @onclick="Conectar" disabled="@Serial.IsConnected">Conectar (USB real)</button>
+    @* <button @onclick="IniciarSimulacion" disabled="@Serial.IsConnected">Simular</button> *@
+    <button @onclick="Desconectar" disabled="@(!Serial.IsConnected)">Desconectar</button>
+    <strong> Estado: @(Serial.IsConnected ? "Conectado" : "Desconectado")</strong>
+</div>
+
+@if (!string.IsNullOrEmpty(ErrorMensaje))
+{
+    <p style="color:red">Error: @ErrorMensaje</p>
+}
+
+<div style="margin-bottom: 1rem;">
+    <input @bind="HexIdxInput" placeholder="hexIdx" style="width:80px" />
+    <input @bind="ResourceInput" placeholder="resource" />
+    <button @onclick="EnviarMensaje">Enviar</button>
+</div>
+
+<h4>Mensajes recibidos (más nuevo primero)</h4>
+<ul>
+    @foreach (var m in Mensajes)
+    {
+        <li>@m</li>
+    }
+</ul>
+
+@code {
+    private string ErrorMensaje = "";
+    private int HexIdxInput = 0;
+    private string ResourceInput = "trigo";
+    private readonly List<string> Mensajes = new();
+
+    private record MensajeRecurso(int HexIdx, string Resource);
+
+    protected override void OnInitialized()
+    {
+        Serial.OnMessageReceived += HandleMessage;
+        Serial.OnError += HandleError;
+    }
+
+    private async Task Conectar()
+    {
+        try
+        {
+            ErrorMensaje = "";
+            await Serial.ConnectAsync();
+        }
+        catch (Exception ex)
+        {
+            ErrorMensaje = ex.Message;
+        }
+    }
+
+    // private async Task IniciarSimulacion()
+    // {
+    //     await Serial.StartSimulationAsync(1000);
+    // }
+
+    private async Task Desconectar()
+    {
+        await Serial.DisconnectAsync();
+    }
+
+    private async Task EnviarMensaje()
+    {
+        var mensaje = new MensajeRecurso(HexIdxInput, ResourceInput);
+        await Serial.SendJsonAsync(mensaje);
+    }
+
+    private void HandleMessage(string json)
+    {
+        Mensajes.Insert(0, json);
+        if (Mensajes.Count > 20)
+        {
+            Mensajes.RemoveAt(Mensajes.Count - 1);
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleError(string message)
+    {
+        ErrorMensaje = message;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Serial.OnMessageReceived -= HandleMessage;
+        Serial.OnError -= HandleError;
+    }
+}

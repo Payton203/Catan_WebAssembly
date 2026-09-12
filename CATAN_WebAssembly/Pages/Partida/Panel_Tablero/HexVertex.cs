@@ -8,5 +8,5 @@ public class HexVertex
     public double        X           { get; set; }
     public double        Y           { get; set; }
     public StructureType Structure   { get; set; } = StructureType.None;
-    public string?       PlayerColor { get; set; }
+    public string? PlayerColor { get; set; } = string.Empty;
 }

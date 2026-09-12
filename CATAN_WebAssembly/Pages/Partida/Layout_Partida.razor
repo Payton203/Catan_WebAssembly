@@ -4,6 +4,7 @@
 @using CATAN_WebAssembly.Pages.Partida.Panel_Jugadores
 @using CATAN_WebAssembly.Pages.Partida.Panel_Dados
 @using MudBlazor
+@inject Parametros_Iniciales Parametros_Iniciales_
 @inject Personalizacion_Pagina Config
 @inject Historial_Class Historial_
 @inject Jugador_Class Jugador_
@@ -87,8 +88,6 @@
 
     // ─── Parametros de la partida ─────────────────────────────────────────────────
     public enum Asignacion_Numeros_Catan { Modo_Clasico, Modo_Random, Modo_Insano}
-    Random? random;
-    int semilla;
     /* [Parameter] */ public Asignacion_Numeros_Catan Asignacion_Numeros = Asignacion_Numeros_Catan.Modo_Clasico;
 
     // ─── Se ingresan los datos de las casillas ─────────────────────────────────────────────────
@@ -142,8 +141,9 @@
             AsignarIdsVertices();
             AsignarIdsEdges();
             Console.WriteLine($"Vertices asignados: {_vertices.Count}, primero: {_vertices[0].Id}, último: {_vertices[^1].Id}");
-            Asignar_Recursos_A_Casillas();
-            Asignar_Cell_Labels();
+            Random random = new Random(Parametros_Iniciales_.Seed);
+            Asignar_Recursos_A_Casillas(random);
+            Asignar_Cell_Labels(random);
             Manipular_Vertices();
             Manipular_Aristas();
             flag_asignacion = true;
@@ -198,7 +198,6 @@
     // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
     protected override void OnInitialized() //cuando se renderiza la pagina, este metodo se ejecuta
     {
-        random = new Random();
         Config.OnChange += HandleChange;
         //se suscribe, para que cada vez que algún valor cambie, invoque el metodo HandleChange
 
@@ -237,7 +236,8 @@
     {
         Console.WriteLine($"Click - Position_Id: {vertex.Position_Id} - Id: {vertex.Id}");
         vertex.Structure = Config.Structure;
-        Historial_.AgregarEvento(new HistorialEvento {Id_Posicion_construccion = vertex.Id, Estructura_Vertice = vertex.Structure, Jugador = Jugador_.TurnoJugador() });
+        vertex.PlayerColor = Jugador_.TurnoJugador().Color;
+        Historial_.AgregarEvento(new HistorialEvento {Id_Posicion_construccion = vertex.Id, Estructura_Vertice = vertex.Structure, Jugador = Jugador_.TurnoJugador().Nombre });
 
         // por ahora vacío, después acá va la lógica de colocar asentamientos
     }

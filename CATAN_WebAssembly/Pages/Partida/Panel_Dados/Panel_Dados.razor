@@ -23,6 +23,6 @@
         Dado_1 = random.Next(1, 7);
         Dado_2 = random.Next(1, 7);
         Suma_Dados = Dado_1 + Dado_2;
-        Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Tirada_Dados, Jugador = Jugador_.TurnoJugador(), Resultado_Dados = Suma_Dados });
+        Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Tirada_Dados, Jugador = Jugador_.TurnoJugador().Nombre, Resultado_Dados = Suma_Dados });
     }
 }

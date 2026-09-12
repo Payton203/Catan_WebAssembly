@@ -51,7 +51,7 @@ namespace CATAN_WebAssembly.Pages.Partida
             }
         }
 
-        private void Asignar_Recursos_A_Casillas()
+        private void Asignar_Recursos_A_Casillas(Random random)
         {
             bool flag_recurso_asignado = false;
             int Cantidad_Wood = 0;
@@ -112,10 +112,10 @@ namespace CATAN_WebAssembly.Pages.Partida
         {5,  6,  11, 15, 14, 9};
         private static readonly int[] fichas_numeros =
         { 5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11, 99 }; //si aparece el 99 hay algo mal
-        private void Asignar_Cell_Labels()
+        private void Asignar_Cell_Labels(Random random)
         {
-            if(Asignacion_Numeros == Asignacion_Numeros_Catan.Modo_Clasico) Asignar_Cell_Labels_Clasico(_celdas);
-            if (Asignacion_Numeros == Asignacion_Numeros_Catan.Modo_Random) Asignar_Cell_Labels_Random(_celdas);
+            if(Asignacion_Numeros == Asignacion_Numeros_Catan.Modo_Clasico) Asignar_Cell_Labels_Clasico(_celdas, random);
+            if (Asignacion_Numeros == Asignacion_Numeros_Catan.Modo_Random) Asignar_Cell_Labels_Random(_celdas, random);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace CATAN_WebAssembly.Pages.Partida
         /// </summary>
         /// <param name="celdas"></param>
         /// <param name="num"></param>
-        private void Asignar_Cell_Labels_Clasico(List<HexCell> celdas)
+        private void Asignar_Cell_Labels_Clasico(List<HexCell> celdas, Random random)
         {
             int num = random.Next(0, 12);
             Console.WriteLine($"empieza por la celda id: {celdas_externas[num]}");
@@ -195,7 +195,7 @@ namespace CATAN_WebAssembly.Pages.Partida
         /// se asignan los numeros de las casillas a lo random, pero manteniendo cierta coherencia
         /// </summary>
         /// <param name="celdas"></param>
-        private void Asignar_Cell_Labels_Random(List<HexCell> celdas)
+        private void Asignar_Cell_Labels_Random(List<HexCell> celdas, Random random)
         {
             bool flag_recurso_asignado = false;
             int Cantidad_2 = 0;

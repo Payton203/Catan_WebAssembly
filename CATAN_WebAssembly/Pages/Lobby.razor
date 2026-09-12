@@ -1,11 +1,42 @@
-﻿@page "/Lobby"
+﻿@using CATAN_WebAssembly.Pages.Partida
+@inject Jugador_Class Jugador_
+@inject Parametros_Iniciales Parametros_Iniciales_
+@page "/Lobby"
 <h3>Lobby</h3>
 <div class="contenedor-lobby">
+    <MudNumericField HideSpinButtons="true" @bind-Value=" Parametros_Iniciales_.Seed" Label="Standard" Variant="Variant.Text" />
     <button class="boton-empezar" @onclick="Empezar_Juego"> START </button>
 </div>
 @code {
     private void Empezar_Juego()
     {
-        
+        Jugador_.Agregar_jugador(new Jugador_Class
+        {
+            Nombre = "Fernandez",
+            EsTurno = true,
+            PuntosVictoria = 5,
+            Color = "#FF0000"
+        });
+        Jugador_.Agregar_jugador(new Jugador_Class
+        {
+            Nombre = "Carlos",
+            EsTurno = false,
+            PuntosVictoria = 3,
+            Color = "#00FF00"
+        });
+        Jugador_.Agregar_jugador(new Jugador_Class
+        {
+            Nombre = "Claudio",
+            EsTurno = false,
+            PuntosVictoria = 1,
+            Color = "#0000FF"
+        });
+        Jugador_.Agregar_jugador(new Jugador_Class
+        {
+            Nombre = "Nano",
+            EsTurno = false,
+            PuntosVictoria = 2,
+            Color = "#FF00FF"
+        });
     }
 }

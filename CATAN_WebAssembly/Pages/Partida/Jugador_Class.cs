@@ -34,21 +34,23 @@
         };
         public string Nombre { get; set; } = string.Empty;
 
-            // Indica si es el turno actual de este jugador (dibuja el borde y el badge naranja)
-            public bool EsTurno { get; set; }
+        // Indica si es el turno actual de este jugador (dibuja el borde y el badge naranja)
+        public bool EsTurno { get; set; }
 
-            public int PuntosVictoria { get; set; }
+        public string Color { get; set; } = "white";
 
-            // Cantidad de cada recurso que tiene el jugador en mano.
-            // Clave = clave del recurso (definida en RecursosCatan.Todos), Valor = cantidad.
-            // No hace falta cargar todas las claves: si falta una, se muestra como 0.
-            public Dictionary<ResourceType, int> Recursos { get; set; } = Enum.GetValues<ResourceType>().ToDictionary(tipo => tipo, _ => 0);
-                                                                          //inicializa todos los valores en 0
+        public int PuntosVictoria { get; set; }
+
+        // Cantidad de cada recurso que tiene el jugador en mano.
+        // Clave = clave del recurso (definida en RecursosCatan.Todos), Valor = cantidad.
+        // No hace falta cargar todas las claves: si falta una, se muestra como 0.
+        public Dictionary<ResourceType, int> Recursos { get; set; } = Enum.GetValues<ResourceType>().ToDictionary(tipo => tipo, _ => 0);
+                                                                        //inicializa todos los valores en 0
 
         // Cantidad de caballeros jugados (para el marcador de ejército más grande)
-            public Dictionary<TiposCartasDesarrollo, int> CartasDesarrollo { get; set; } = Enum.GetValues<TiposCartasDesarrollo>().ToDictionary(tipo => tipo, _ => 0);
+        public Dictionary<TiposCartasDesarrollo, int> CartasDesarrollo { get; set; } = Enum.GetValues<TiposCartasDesarrollo>().ToDictionary(tipo => tipo, _ => 0);
 
-            public bool Oculto { get; set; } = true;
+        public bool Oculto { get; set; } = true;
 
         public void Agregar_jugador(Jugador_Class jugador)
         {
@@ -56,14 +58,20 @@
         }
 
         /// <summary>
-        /// devuelve de quien es el turno actualmente
+        /// devuelve el objeto jugador, del cual es su turno actualmente
         /// </summary>
         /// <returns></returns>
-        public string TurnoJugador()
+        public Jugador_Class TurnoJugador()
         {
-            string? nombreJugador = ListaJugadores.FirstOrDefault(j => j.EsTurno)?.Nombre;
-            if (nombreJugador == null) { Console.WriteLine("Error, no es el turno de nadie"); return ""; }
-            else return nombreJugador;
+            Jugador_Class? jugador = ListaJugadores.FirstOrDefault(j => j.EsTurno);
+
+            if (jugador == null)
+            {
+                Console.WriteLine("Error, no es el turno de nadie");
+                throw new InvalidOperationException("No hay ningún jugador con el turno.");
+            }
+
+            return jugador;
         }
 
         public void Pasar_Turno()
