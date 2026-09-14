@@ -1,7 +1,6 @@
 using CATAN_WebAssembly;
 using CATAN_WebAssembly.Layout;
 using CATAN_WebAssembly.Pages.Partida;
-using CATAN_WebAssembly.Pages.Partida.Panel_Historial;
 using CATAN_WebAssembly.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;

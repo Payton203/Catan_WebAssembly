@@ -36,7 +36,7 @@ public record HistorialEvento
     public int Resultado_Dados { get; init; }
 }
 
-namespace CATAN_WebAssembly.Pages.Partida.Panel_Historial
+namespace CATAN_WebAssembly.Services
 {
     public class Historial_Class
     {

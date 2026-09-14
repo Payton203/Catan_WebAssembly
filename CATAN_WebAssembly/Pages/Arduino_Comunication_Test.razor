@@ -1,8 +1,10 @@
 ﻿@page "/Arduino_Comunication_Test"
-@implements IDisposable
-@inject ArduinoSerialService Serial
 @using System.Text.Json
 @using CATAN_WebAssembly.Services
+@using CATAN_WebAssembly.Pages.Partida.Panel_Historial
+@implements IDisposable
+@inject ArduinoSerialService Serial
+@inject Historial_Class Historial_
 
 <h3>Prueba de eco - Arduino USB</h3>
 
