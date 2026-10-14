@@ -1,42 +1,211 @@
-﻿@using CATAN_WebAssembly.Pages.Partida
-@inject Jugador_Class Jugador_
+@page "/lobby"
+@implements IDisposable
+@using System.Reflection
+@using CATAN_WebAssembly.Pages.Partida
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using CATAN_WebAssembly.Services
+@inject ArduinoSerialService Serial
 @inject Parametros_Iniciales Parametros_Iniciales_
-@page "/Lobby"
-<h3>Lobby</h3>
-<div class="contenedor-lobby">
-    <MudNumericField HideSpinButtons="true" @bind-Value=" Parametros_Iniciales_.Seed" Label="Standard" Variant="Variant.Text" />
-    <button class="boton-empezar" @onclick="Empezar_Juego"> START </button>
+@inject NavigationManager Nav
+
+<PageTitle>Catan - Lobby</PageTitle>
+
+<div class="lobby">
+    <div class="lobby-contenido">
+
+        <div class="lobby-grid">
+
+            <section class="panel">
+                <h2 class="panel-titulo">CONFIGURACIÓN</h2>
+
+                <div class="campo">
+                    @for (int i = -1; i < Parametros_Iniciales_.Nombre_Jugadores.Count; i++)
+                    {
+                        <MudTextField @bind-Value=Parametros_Iniciales_.Nombre_Jugadores Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    }
+                </div>
+
+                <div class="campo">
+                    <span class="campo-etiqueta">Asignación de números</span>
+                    <MudRadioGroup @bind-Value="Parametros_Iniciales_.Asignacion_Numeros">
+                        <div class="opciones">
+                            @foreach (var modo in Enum.GetValues<Asignacion_Numeros_Catan>())
+                            {
+                                <MudRadio Value="@modo"
+                                          Color="Color.Warning"
+                                          Disabled="@Bloqueado(nameof(Parametros_Iniciales.Asignacion_Numeros))">
+                                    @Etiqueta(modo)
+                                </MudRadio>
+                            }
+                        </div>
+                    </MudRadioGroup>
+                    @if (Bloqueado(nameof(Parametros_Iniciales.Asignacion_Numeros)))
+                    {
+                        <span class="campo-ayuda">Definido por el Arduino</span>
+                    }
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2 class="panel-titulo">ARDUINO</h2>
+
+                <div class="estado">
+                    <span class="punto @(Serial.IsConnected ? "on" : "off")"></span>
+                    <span>@(Serial.IsConnected ? "Conectado" : "Sin conexión")</span>
+                </div>
+
+                @if (Serial.IsConnected)
+                {
+                    <MudButton Variant="Variant.Outlined" FullWidth="true" Class="boton-arduino" OnClick="Desconectar">
+                        DESCONECTAR
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Outlined" FullWidth="true" Class="boton-arduino" OnClick="Conectar">
+                        CONECTAR ARDUINO
+                    </MudButton>
+                }
+
+                @if (!string.IsNullOrEmpty(_error))
+                {
+                    <p class="error">@_error</p>
+                }
+
+                <p class="pista">
+                    Con el Arduino conectado, los valores que mande por USB se aplican solos y bloquean su campo.
+                    Ejemplo: <code>{"seed":42,"asignacion_numeros":"Modo_Random"}</code>
+                </p>
+            </section>
+
+        </div>
+
+        <MudButton Variant="Variant.Filled" FullWidth="true" Class="boton-inicio" OnClick="IniciarPartida">
+            INICIAR PARTIDA
+        </MudButton>
+
+    </div>
 </div>
+
 @code {
-    private void Empezar_Juego()
+    // Ruta de la página de la partida: ajustala a la tuya.
+    private const string RutaPartida = "/Partida";
+
+    private static readonly Type _tipoParametros = typeof(Parametros_Iniciales);
+
+    private static readonly JsonSerializerOptions _opciones = new()
     {
-        Jugador_.Agregar_jugador(new Jugador_Class
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() } // el enum entra como nombre ("Modo_Random") o como número (1)
+    };
+
+    // Nombres de los atributos que llegaron por USB: su campo manual queda deshabilitado.
+    private readonly HashSet<string> _bloqueados = new();
+    private string _error = "";
+
+    protected override void OnInitialized()
+    {
+        Serial.OnMessageReceived += HandleMessage;
+        Serial.OnError += HandleError;
+    }
+
+    private bool Bloqueado(string atributo) => _bloqueados.Contains(atributo);
+
+    private string? TextoAyuda(string atributo) => Bloqueado(atributo) ? "Definido por el Arduino" : null;
+
+    private static string Etiqueta(Asignacion_Numeros_Catan modo) => modo.ToString().Replace('_', ' ');
+
+    private async Task Conectar()
+    {
+        try
         {
-            Nombre = "Fernandez",
-            EsTurno = true,
-            PuntosVictoria = 5,
-            Color = "#FF0000"
-        });
-        Jugador_.Agregar_jugador(new Jugador_Class
+            _error = "";
+            await Serial.ConnectAsync();
+        }
+        catch (Exception ex)
         {
-            Nombre = "Carlos",
-            EsTurno = false,
-            PuntosVictoria = 3,
-            Color = "#00FF00"
-        });
-        Jugador_.Agregar_jugador(new Jugador_Class
+            _error = ex.Message;
+        }
+    }
+
+    private async Task Desconectar()
+    {
+        await Serial.DisconnectAsync();
+        _bloqueados.Clear(); // sin Arduino, los campos vuelven a ser editables a mano
+    }
+
+    private void IniciarPartida() => Nav.NavigateTo(RutaPartida);
+
+    private void HandleMessage(string json)
+    {
+        AplicarDesdeArduino(json);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleError(string message)
+    {
+        _error = message;
+        _bloqueados.Clear();
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Recorre las claves del JSON recibido y, por cada una que coincida (sin importar mayúsculas)
+    /// con un campo o propiedad de Parametros_Iniciales, le asigna el valor y bloquea su control.
+    /// Las claves que no existen en la clase, o con un valor inválido, se ignoran.
+    /// Al ser por reflexión, un atributo nuevo en Parametros_Iniciales ya funciona sin tocar esto.
+    /// </summary>
+    private void AplicarDesdeArduino(string json)
+    {
+        try
         {
-            Nombre = "Claudio",
-            EsTurno = false,
-            PuntosVictoria = 1,
-            Color = "#0000FF"
-        });
-        Jugador_.Agregar_jugador(new Jugador_Class
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.ValueKind != JsonValueKind.Object) return;
+
+            foreach (var clave in doc.RootElement.EnumerateObject())
+            {
+                if (clave.Value.ValueKind == JsonValueKind.Null) continue;
+
+                var miembro = _tipoParametros
+                    .GetMember(clave.Name,
+                               MemberTypes.Field | MemberTypes.Property,
+                               BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
+                    .FirstOrDefault();
+                if (miembro is null) continue;
+
+                try
+                {
+                    switch (miembro)
+                    {
+                        case FieldInfo campo:
+                            campo.SetValue(Parametros_Iniciales_,
+                                JsonSerializer.Deserialize(clave.Value, campo.FieldType, _opciones));
+                            break;
+                        case PropertyInfo propiedad when propiedad.CanWrite:
+                            propiedad.SetValue(Parametros_Iniciales_,
+                                JsonSerializer.Deserialize(clave.Value, propiedad.PropertyType, _opciones));
+                            break;
+                        default:
+                            continue;
+                    }
+                    _bloqueados.Add(miembro.Name);
+                }
+                catch (JsonException)
+                {
+                    // El valor no es válido para ese atributo (ej. un modo que no existe): se ignora.
+                }
+            }
+        }
+        catch (JsonException)
         {
-            Nombre = "Nano",
-            EsTurno = false,
-            PuntosVictoria = 2,
-            Color = "#FF00FF"
-        });
+            // La línea recibida no era JSON válido: se ignora.
+        }
+    }
+
+    public void Dispose()
+    {
+        Serial.OnMessageReceived -= HandleMessage;
+        Serial.OnError -= HandleError;
     }
 }

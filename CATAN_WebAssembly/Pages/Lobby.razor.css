@@ -1,20 +1,186 @@
-/* CSS for Lobby component */
-.contenedor-lobby{
-    display: flex;
-    flex-direction: row;
-    align-items:center;
-    justify-content:center;
-    width: 70vw;
-    height: 70vh;
-}
-.boton-empezar{
-    width: 50%;
-    height: 50%;
+/* Paleta tomada de la pantalla de partida. Si ya tenés variables CSS globales
+   para estos colores, reemplazá estos valores por esas variables. */
+.lobby {
+    --fondo: #121214;
+    --panel: #1a1b1f;
+    --borde: #2a2b31;
+    --texto: #e8e8eb;
+    --texto-suave: #8b8c93;
+    --acento: #e0952e;
+    --acento-hover: #eca540;
+    --acento-texto: #1a1206;
+    --ok: #4caf6a;
+    --error: #e5736a;
 
-    background-color: rgb(255 255 255);
-    border: dashed 5px rgb(255, 0, 0)
+    min-height: 100vh;
+    padding: 24px;
+    background: var(--fondo);
+    color: var(--texto);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.boton-empezar:hover {
-    scale: 0.5;
-    transition: scale 1s;
+
+.lobby-contenido {
+    width: 100%;
+    max-width: 920px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lobby-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Panel: mismo tratamiento que Tablero / Jugadores / Historial */
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.panel-titulo {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--texto-suave);
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.campo-etiqueta {
+    font-size: 12px;
+    color: var(--texto-suave);
+}
+
+.campo-ayuda {
+    font-size: 12px;
+    color: var(--acento);
+}
+
+.opciones {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estado de la conexión */
+.estado {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.punto {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.punto.on {
+    background: var(--ok);
+    box-shadow: 0 0 6px var(--ok);
+}
+
+.punto.off {
+    background: #5a5b62;
+}
+
+.pista {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--texto-suave);
+}
+
+.pista code {
+    color: var(--texto);
+    word-break: break-all;
+}
+
+.error {
+    margin: 0;
+    font-size: 13px;
+    color: var(--error);
+}
+
+/* Controles de MudBlazor: ::deep para llegar a los elementos que renderiza cada componente */
+.lobby ::deep .mud-input-label {
+    color: var(--texto-suave);
+}
+
+.lobby ::deep input.mud-input-root {
+    color: var(--texto);
+}
+
+.lobby ::deep .mud-input-underline:before {
+    border-bottom-color: var(--borde);
+}
+
+.lobby ::deep .mud-input-underline:after {
+    border-bottom-color: var(--acento);
+}
+
+.lobby ::deep .mud-input-helper-text {
+    color: var(--acento);
+}
+
+.lobby ::deep .mud-radio .mud-typography {
+    color: var(--texto);
+}
+
+/* Conectar / desconectar: botón secundario, borde ámbar como el turno activo */
+.lobby ::deep .boton-arduino {
+    border: 1px solid var(--acento);
+    color: var(--acento);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+}
+
+.lobby ::deep .boton-arduino:hover {
+    background: rgba(224, 149, 46, 0.1);
+}
+
+/* Iniciar partida: lo más grande y lo único relleno de la página */
+.lobby ::deep .boton-inicio {
+    height: 76px;
+    border-radius: 10px;
+    background: var(--acento);
+    color: var(--acento-texto);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+}
+
+.lobby ::deep .boton-inicio:hover {
+    background: var(--acento-hover);
+}
+
+.lobby ::deep .boton-inicio:focus-visible,
+.lobby ::deep .boton-arduino:focus-visible {
+    outline: 2px solid var(--texto);
+    outline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+    .lobby {
+        padding: 16px;
+        align-items: flex-start;
+    }
+
+    .lobby-grid {
+        grid-template-columns: 1fr;
+    }
 }

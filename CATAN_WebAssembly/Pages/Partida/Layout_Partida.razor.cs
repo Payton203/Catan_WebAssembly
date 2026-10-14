@@ -114,8 +114,8 @@ namespace CATAN_WebAssembly.Pages.Partida
         { 5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11, 99 }; //si aparece el 99 hay algo mal
         private void Asignar_Cell_Labels(Random random)
         {
-            if(Asignacion_Numeros == Asignacion_Numeros_Catan.Modo_Clasico) Asignar_Cell_Labels_Clasico(_celdas, random);
-            if (Asignacion_Numeros == Asignacion_Numeros_Catan.Modo_Random) Asignar_Cell_Labels_Random(_celdas, random);
+            if(Parametros_Iniciales_.Asignacion_Numeros == Asignacion_Numeros_Catan.Modo_Clasico) Asignar_Cell_Labels_Clasico(_celdas, random);
+            if (Parametros_Iniciales_.Asignacion_Numeros == Asignacion_Numeros_Catan.Modo_Random) Asignar_Cell_Labels_Random(_celdas, random);
         }
 
         /// <summary>

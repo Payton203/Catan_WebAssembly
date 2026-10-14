@@ -1,0 +1,20 @@
+/* CSS for Lobby component */
+.contenedor-lobby{
+    display: flex;
+    flex-direction: row;
+    align-items:center;
+    justify-content:center;
+    width: 70vw;
+    height: 70vh;
+}
+.boton-empezar{
+    width: 50%;
+    height: 50%;
+
+    background-color: rgb(255 255 255);
+    border: dashed 5px rgb(255, 0, 0)
+}
+.boton-empezar:hover {
+    scale: 0.5;
+    transition: scale 1s;
+}
