@@ -8,6 +8,7 @@
 @inject ArduinoSerialService Serial
 @inject Parametros_Iniciales Parametros_Iniciales_
 @inject NavigationManager Nav
+@inject Jugador_Class Jugador_
 
 <PageTitle>Catan - Lobby</PageTitle>
 
@@ -20,9 +21,13 @@
                 <h2 class="panel-titulo">CONFIGURACIÓN</h2>
 
                 <div class="campo">
-                    @for (int i = -1; i < Parametros_Iniciales_.Nombre_Jugadores.Count; i++)
+                    @for (int i = 0; i < 4; i++)
                     {
-                        <MudTextField @bind-Value=Parametros_Iniciales_.Nombre_Jugadores Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                        int jugador = i;
+                        if (jugador < 1 || ((Jugador_.ListaJugadores[jugador - 1].Nombre) != ""))
+                        {
+                            <MudTextField @bind-Value="Jugador_.ListaJugadores[jugador].Nombre" Label="@($"Jugador {jugador + 1}")" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                        }
                     }
                 </div>
 
@@ -89,6 +94,41 @@
 </div>
 
 @code {
+    private bool flag_Jugadores_inicializados = false;
+    private void Jugadores_Innit()
+    {
+        Jugador_.Insertar_jugador(new Jugador_Class
+        {
+            Nombre = "",
+            EsTurno = true,
+            PuntosVictoria = 5,
+            Color = "#FF0000"
+        }, 0);
+        Jugador_.Insertar_jugador(new Jugador_Class
+        {
+            Nombre = "",
+            EsTurno = false,
+            PuntosVictoria = 3,
+            Color = "#00FF00"
+        }, 1);
+        Jugador_.Insertar_jugador(new Jugador_Class
+        {
+            Nombre = "",
+            EsTurno = false,
+            PuntosVictoria = 1,
+            Color = "#0000FF"
+        }, 2);
+        Jugador_.Insertar_jugador(new Jugador_Class
+        {
+            Nombre = "",
+            EsTurno = false,
+            PuntosVictoria = 2,
+            Color = "#FF00FF"
+        }, 3);
+        if (flag_Jugadores_inicializados == false)
+        { Console.WriteLine("se inserto el jugador 0"); }
+        flag_Jugadores_inicializados = true;
+    }
     // Ruta de la página de la partida: ajustala a la tuya.
     private const string RutaPartida = "/Partida";
 
@@ -108,6 +148,7 @@
     {
         Serial.OnMessageReceived += HandleMessage;
         Serial.OnError += HandleError;
+        if(flag_Jugadores_inicializados != true) Jugadores_Innit();
     }
 
     private bool Bloqueado(string atributo) => _bloqueados.Contains(atributo);
@@ -135,7 +176,19 @@
         _bloqueados.Clear(); // sin Arduino, los campos vuelven a ser editables a mano
     }
 
-    private void IniciarPartida() => Nav.NavigateTo(RutaPartida);
+    private void IniciarPartida() 
+    {
+        flag_Jugadores_inicializados = false;
+        Jugador_.ListaJugadores.RemoveAll(j => string.IsNullOrWhiteSpace(j.Nombre));
+
+        // 2. Validar que al menos queden jugadores suficientes para jugar (por ejemplo, mínimo 2)
+        // if (Jugador_.ListaJugadores.Count < 2)
+        // {
+        //     // Mostrar mensaje de alerta o no avanzar
+        //     return;
+        // }
+        Nav.NavigateTo(RutaPartida);
+    }
 
     private void HandleMessage(string json)
     {

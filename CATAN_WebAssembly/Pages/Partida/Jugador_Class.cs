@@ -1,4 +1,6 @@
-﻿namespace CATAN_WebAssembly.Pages.Partida
+﻿using System.ComponentModel;
+
+namespace CATAN_WebAssembly.Pages.Partida
 {
     public enum ResourceType { Wood, Brick, Sheep, Wheat, Rock }
     public enum TiposCartasDesarrollo
@@ -52,9 +54,14 @@
 
         public bool Oculto { get; set; } = true;
 
-        public void Agregar_jugador(Jugador_Class jugador)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="jugador"></param>
+        /// <param name="numero_jugador"> 0,1,2,3</param>
+        public void Insertar_jugador(Jugador_Class jugador, int numero_jugador)
         {
-            ListaJugadores.Add(jugador);
+            ListaJugadores.Insert(numero_jugador, jugador);
         }
 
         /// <summary>

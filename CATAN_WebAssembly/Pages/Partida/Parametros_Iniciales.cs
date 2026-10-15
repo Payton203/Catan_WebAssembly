@@ -6,6 +6,6 @@
         public Asignacion_Numeros_Catan Asignacion_Numeros = Asignacion_Numeros_Catan.Modo_Clasico;
         public int Seed { get; set; } = 10;
 
-        public List<string> Nombre_Jugadores { get; set; } = new List<string>();
+        //public List<string> Nombre_Jugadores { get; set; } = ["","","",""];
     }
 }
