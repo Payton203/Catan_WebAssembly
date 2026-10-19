@@ -53,5 +53,9 @@ namespace CATAN_WebAssembly.Services
             Historial.Add(evento);
             OnAccion?.Invoke();
         }
+        public void EliminarHistorial()
+        {
+            Historial.RemoveRange(0, Historial.Count);
+        }
     }
 }

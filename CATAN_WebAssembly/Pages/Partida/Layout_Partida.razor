@@ -13,7 +13,7 @@
 @inject CATAN_WebAssembly.Services.CatanBoardState BoardState
 @implements IDisposable
 
-<MudFabMenu StartIcon="@Icons.Material.Filled.FormatListBulleted" Color="Color.Primary" OpenOnMouseHover="false" CloseOnMenuItemClicked="false" Fixed="false" Direction="Direction.Bottom">
+<MudFabMenu StartIcon="@Icons.Material.Filled.FormatListBulleted" Color="Color.Primary" OpenOnMouseHover="false" CloseOnMenuItemClicked="false" Fixed="false" Direction="Direction.Bottom" Style="z-index: 0;">
     <MudFabMenuItem StartIcon="@Icons.Material.Filled.Logout" Label="VOLVER" IconColor="Color.Error" Color="Color.Error" OnClick="CONFIRMAR_SALIDA" />
 </MudFabMenu>
 
@@ -105,7 +105,9 @@
     private void VOLVER_AL_LOBBY()
     {
         Jugador_.Eliminar_todos_los_jugadores();
+        Historial_.EliminarHistorial();
         Config.Flag_partida_activa = false;
+        BoardState.Inicializado = false;
         Nav.NavigateTo(RutaLobby);
     }
     // ─── Logica Ocultado del panel ─────────────────────────────────────────────────
@@ -229,11 +231,12 @@
     protected override void OnInitialized() //cuando se renderiza la pagina, este metodo se ejecuta
     {
         Config.OnChange += HandleChange;
+        Jugador_.ListaJugadores.RemoveAll(j => string.IsNullOrWhiteSpace(j.Nombre));
         //se suscribe, para que cada vez que algún valor cambie, invoque el metodo HandleChange
         if (!BoardState.Inicializado)
         {
-            Jugador_.ListaJugadores.RemoveAll(j => string.IsNullOrWhiteSpace(j.Nombre));
             _celdas = CrearCeldas(); // crea celdas
+            BoardState.Celdas = _celdas;
         }
         else
         {
@@ -250,6 +253,9 @@
     {
         if (firstRender && BoardState.Inicializado)
         {
+            _vertices = BoardState.Vertices;
+            _edges = BoardState.Edges;
+            _ports = BoardState.Ports;
             StateHasChanged();
         }
     }
