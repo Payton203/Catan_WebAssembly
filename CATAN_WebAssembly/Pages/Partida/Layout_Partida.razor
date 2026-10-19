@@ -13,9 +13,32 @@
 @inject CATAN_WebAssembly.Services.CatanBoardState BoardState
 @implements IDisposable
 
-<MudFabMenu StartIcon="@Icons.Material.Filled.FormatListBulleted" Color="Color.Primary" OpenOnMouseHover="false" CloseOnMenuItemClicked="false" Fixed="false" Direction="Direction.Bottom" Style="z-index: 0;">
-    <MudFabMenuItem StartIcon="@Icons.Material.Filled.Logout" Label="VOLVER" IconColor="Color.Error" Color="Color.Error" OnClick="CONFIRMAR_SALIDA" />
-</MudFabMenu>
+<MudMenu Icon="@Icons.Material.Filled.FormatListBulleted" AriaLabel="Open user menu" Color="Color.Primary">
+    <MudMenuItem Label="VOLVER" Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error" OnClick="CONFIRMAR_SALIDA" />
+
+    <!-- Submenú anidado definiendo el ActivatorContent -->
+    <MudMenu Direction="Direction.Right" OffsetX="true">
+        <ActivatorContent>
+            <MudMenuItem Icon="@Icons.Material.Filled.VisibilityOff" IconColor="Color.Info">
+                Ocultar Paneles
+            </MudMenuItem>
+        </ActivatorContent>
+        <ChildContent>
+            <MudMenuItem Icon="@Icons.Material.Outlined.History" Label="Historial" IconColor="Color.Info" OnClick="@(() => TOGGLE_PANEL(Tipo_Panel.Historial))" />
+            <MudMenuItem Icon="@Icons.Material.Outlined.Person" Label="Jugadores" IconColor="Color.Info" OnClick="@(() => TOGGLE_PANEL(Tipo_Panel.Jugadores))" />
+            <MudMenuItem Icon="@Icons.Material.Outlined.Casino" Label="Dados" IconColor="Color.Info" OnClick="@(() => TOGGLE_PANEL(Tipo_Panel.Dados))" />
+        </ChildContent>
+    </MudMenu>
+</MudMenu>
+
+@* <MudMenu Icon="@Icons.Material.Filled.FormatListBulleted" AriaLabel="Open user menu" Color="Color.Primary">
+    <MudMenuItem Label="VOLVER" Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error" OnClick="CONFIRMAR_SALIDA"/>
+    <MudMenu Label="Ocultar Paneles" Icon="@Icons.Material.Filled.VisibilityOff" IconColor="Color.Info">
+        <MudMenuItem Icon="@Icons.Material.Outlined.History" Label="Historial" IconColor="Color.Info" OnClick="@(() => TOGGLE_PANEL(Tipo_Panel.Historial))" />
+        <MudMenuItem Icon="@Icons.Material.Outlined.Person" Label="Jugadores" IconColor="Color.Info" OnClick="@(() => TOGGLE_PANEL(Tipo_Panel.Jugadores))" />
+        <MudMenuItem Icon="@Icons.Material.Outlined.Casino" Label="Dados" IconColor="Color.Info" OnClick="@(() => TOGGLE_PANEL(Tipo_Panel.Dados))" />
+    </MudMenu>
+</MudMenu> *@
 
 <MudMessageBox @ref="_mudMessageBox" Title="Warning" CancelText="Cancelar">
     <MessageContent>
@@ -30,10 +53,8 @@
     <div class="panel panel-tablero" @ref="_tableroRef">
         <div class="panel-hidden">
             <h4 class="panel-title">TABLERO</h4>
-            <button style="justify-content: flex-end;" @onclick="TOGGLE_PANEL"> Reset </button>
+            @* <button style="justify-content: flex-end;" @onclick="TOGGLE_PANEL"> Reset </button> *@
         </div>
-        @if(Mostrando_Tablero == true)
-        {
             <div class="catan-board">
                 <div class="catan-inner">
                     <HexGrid Cells="_celdas"
@@ -66,7 +87,6 @@
                Scale_Debug="Config.Scale_Debug"
                Angle_Debug="Config.Angle_Debug" *@
             </div>
-        }
     </div>
     @if(Config.Player_Panel==true)
     {
@@ -110,11 +130,22 @@
         BoardState.Inicializado = false;
         Nav.NavigateTo(RutaLobby);
     }
-    // ─── Logica Ocultado del panel ─────────────────────────────────────────────────
-    private bool Mostrando_Tablero = true;
-    void TOGGLE_PANEL()
+    // ─── Logica Ocultado de los paneles ─────────────────────────────────────────────────
+    private enum Tipo_Panel {Historial , Jugadores, Dados }
+    void TOGGLE_PANEL(Tipo_Panel panel)
     {
-        Mostrando_Tablero = !Mostrando_Tablero;
+        switch(panel)
+        {
+            case Tipo_Panel.Dados:
+                Config.Dice_Panel = !Config.Dice_Panel;
+                break;
+            case Tipo_Panel.Historial:
+                Config.History_Panel = !Config.History_Panel;
+                break;
+            case Tipo_Panel.Jugadores:
+                Config.Player_Panel = !Config.Player_Panel;
+                break;
+        }
         //Mostrando_Settings = Mostrando_Settings negado;
     }
 
