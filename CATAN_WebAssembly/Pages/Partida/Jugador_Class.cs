@@ -64,6 +64,11 @@ namespace CATAN_WebAssembly.Pages.Partida
             ListaJugadores.Insert(numero_jugador, jugador);
         }
 
+        public void Eliminar_todos_los_jugadores()
+        {
+            ListaJugadores.RemoveRange(0, ListaJugadores.Count());
+        }
+
         /// <summary>
         /// devuelve el objeto jugador, del cual es su turno actualmente
         /// </summary>

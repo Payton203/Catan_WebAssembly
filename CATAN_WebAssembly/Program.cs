@@ -19,6 +19,7 @@ builder.Services.AddScoped<Parametros_Iniciales>();
 
 builder.Services.AddScoped<ArduinoSerialService>();
 
+builder.Services.AddSingleton<CatanBoardState>();
 builder.Services.AddMudServices();
 
 await builder.Build().RunAsync();

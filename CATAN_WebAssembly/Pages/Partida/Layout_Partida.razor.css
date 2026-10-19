@@ -1,5 +1,28 @@
 /* CSS for Layout_Partida component */
 /* ── Cambiá estos valores para ajustar tamaños ── */
+
+.boton-return {
+    justify-content: center;
+    align-content: center;
+    background: border-box #e0952f;
+    width: 100%;
+    height: 100%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+.texto-message-box {
+    color: #ff0000;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0 0 8px 0;
+}
 .partida-grid {
     --col-tablero: 4fr; /* ancho columna izquierda fr = fraccion*/
     --col-jugadores: 3fr; /* ancho columna derecha */

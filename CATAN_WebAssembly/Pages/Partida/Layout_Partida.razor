@@ -9,7 +9,22 @@
 @inject Personalizacion_Pagina Config
 @inject Historial_Class Historial_
 @inject Jugador_Class Jugador_
+@inject NavigationManager Nav
+@inject CATAN_WebAssembly.Services.CatanBoardState BoardState
 @implements IDisposable
+
+<MudFabMenu StartIcon="@Icons.Material.Filled.FormatListBulleted" Color="Color.Primary" OpenOnMouseHover="false" CloseOnMenuItemClicked="false" Fixed="false" Direction="Direction.Bottom">
+    <MudFabMenuItem StartIcon="@Icons.Material.Filled.Logout" Label="VOLVER" IconColor="Color.Error" Color="Color.Error" OnClick="CONFIRMAR_SALIDA" />
+</MudFabMenu>
+
+<MudMessageBox @ref="_mudMessageBox" Title="Warning" CancelText="Cancelar">
+    <MessageContent>
+        <div style="align-content:center; justify-content:center; width: fit-content; height: fit-content;" class="texto-message-box">Si sales, perderas la partida actual</div>
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Logout" OnClick="VOLVER_AL_LOBBY">Salir</MudButton>
+    </YesButton>
+</MudMessageBox>
 
 <div class="partida-grid">
     <div class="panel panel-tablero" @ref="_tableroRef">
@@ -78,7 +93,21 @@
 
 @code {
     private ElementReference _tableroRef; //referencia para el correcto escalado del tablero
+    private const string RutaLobby = "/Lobby";
 
+    // ─── Logica Message box (popup de confirmacion al salir) ─────────────────────────────────────────────────
+    private MudMessageBox _mudMessageBox;
+    private async Task CONFIRMAR_SALIDA()
+    {
+        bool? result = await _mudMessageBox.ShowAsync();
+        StateHasChanged();
+    }
+    private void VOLVER_AL_LOBBY()
+    {
+        Jugador_.Eliminar_todos_los_jugadores();
+        Config.Flag_partida_activa = false;
+        Nav.NavigateTo(RutaLobby);
+    }
     // ─── Logica Ocultado del panel ─────────────────────────────────────────────────
     private bool Mostrando_Tablero = true;
     void TOGGLE_PANEL()
@@ -148,6 +177,7 @@
             Manipular_Aristas();
             flag_asignacion = true;
         }
+        Console.WriteLine($"HandleGeometryReady llamado - vertices: {tupla.Vertices.Count}");
     }
 
     private void AsignarIdsVertices()
@@ -200,10 +230,28 @@
     {
         Config.OnChange += HandleChange;
         //se suscribe, para que cada vez que algún valor cambie, invoque el metodo HandleChange
-
-        _celdas = CrearCeldas(); // crea celdas
+        if (!BoardState.Inicializado)
+        {
+            Jugador_.ListaJugadores.RemoveAll(j => string.IsNullOrWhiteSpace(j.Nombre));
+            _celdas = CrearCeldas(); // crea celdas
+        }
+        else
+        {
+            _celdas = BoardState.Celdas;
+            _vertices = BoardState.Vertices;
+            _edges = BoardState.Edges;
+            _ports = BoardState.Ports;
+        }
         // semilla = 42;
         // random = new Random(semilla);
+        Console.WriteLine($"OnInitialized - Inicializado: {BoardState.Inicializado} - vertices: {_vertices.Count}");
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && BoardState.Inicializado)
+        {
+            StateHasChanged();
+        }
     }
 
     private void HandleChange()

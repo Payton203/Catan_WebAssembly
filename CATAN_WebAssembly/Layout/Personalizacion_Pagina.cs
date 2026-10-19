@@ -247,6 +247,20 @@ namespace CATAN_WebAssembly.Layout
             }
         }
 
+        private bool flag_partida_activa = false;
+        public bool Flag_partida_activa
+        {
+            get { return flag_partida_activa; }
+            set
+            {
+                if (flag_partida_activa != value) //si no cambia el valor, no invoca el metodo de cambio
+                {
+                    flag_partida_activa = value;
+                    NotifyStateChanged(); // avisa que algo cambió
+                }
+            }
+        }
+
         public event Action? OnChange;
         /// <summary>
         /// Metodo que notifica que algún valor cambio en los parametros de configuracion del tablero

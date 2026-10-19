@@ -1,6 +1,7 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
 @inject Jugador_Class Jugador_
+@inject CATAN_WebAssembly.Services.CatanBoardState BoardState
 
 <div class="catan-overlay-host" @ref="_ref"
      style="transform: translate(@F(OffsetX)px, @F(OffsetY + _autoOffsetY)px);">
@@ -222,26 +223,35 @@
 
         var centers = GetCenters(cw, hexSize, H);
 
-        if (!_geometryInitialized)
+        if (!BoardState.Inicializado)
         {
             _vertices = BuildVertices(centers, hexSize, H);
             _edges = BuildEdges(centers, hexSize, H);
             _ports = BuildPorts(centers, hexSize, H);
+
+            BoardState.Vertices = _vertices;
+            BoardState.Edges = _edges;
+            BoardState.Ports = _ports;
+            BoardState.Inicializado = true;
 
             if (OnGeometryReady.HasDelegate)
                 InvokeAsync(() => OnGeometryReady.InvokeAsync((_vertices, _edges)));
 
             if (OnPortsReady.HasDelegate)
                 InvokeAsync(() => OnPortsReady.InvokeAsync(_ports));
-
-            _geometryInitialized = true;
         }
         else
         {
-            UpdateVertexPositions(centers, hexSize, H);
-            UpdateEdgePositions(centers, hexSize, H);
-            UpdatePortPositions(centers, hexSize, H);
+            _vertices = BoardState.Vertices;
+            _edges = BoardState.Edges;
+            _ports = BoardState.Ports;
+            StateHasChanged();
         }
+        // recalcula posiciones para el tamaño actual de pantalla
+        UpdateVertexPositions(centers, hexSize, H);
+        UpdateEdgePositions(centers, hexSize, H);
+        UpdatePortPositions(centers, hexSize, H);
+        Console.WriteLine($"Recompute - Inicializado: {BoardState.Inicializado} - vertices: {_vertices.Count}");
     }
 
     // ── Centros — gap = 0 ─────────────────────────────────────────────────────

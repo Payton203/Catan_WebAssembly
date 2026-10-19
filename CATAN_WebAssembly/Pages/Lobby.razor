@@ -9,6 +9,7 @@
 @inject Parametros_Iniciales Parametros_Iniciales_
 @inject NavigationManager Nav
 @inject Jugador_Class Jugador_
+@inject Personalizacion_Pagina Config
 
 <PageTitle>Catan - Lobby</PageTitle>
 
@@ -146,6 +147,7 @@
 
     protected override void OnInitialized()
     {
+        Config.OnChange += HandleChange;
         Serial.OnMessageReceived += HandleMessage;
         Serial.OnError += HandleError;
         if(flag_Jugadores_inicializados != true) Jugadores_Innit();
@@ -179,7 +181,6 @@
     private void IniciarPartida() 
     {
         flag_Jugadores_inicializados = false;
-        Jugador_.ListaJugadores.RemoveAll(j => string.IsNullOrWhiteSpace(j.Nombre));
 
         // 2. Validar que al menos queden jugadores suficientes para jugar (por ejemplo, mínimo 2)
         // if (Jugador_.ListaJugadores.Count < 2)
@@ -187,6 +188,7 @@
         //     // Mostrar mensaje de alerta o no avanzar
         //     return;
         // }
+        Config.Flag_partida_activa = true;
         Nav.NavigateTo(RutaPartida);
     }
 
@@ -258,7 +260,14 @@
 
     public void Dispose()
     {
+        Config.OnChange += HandleChange;
         Serial.OnMessageReceived -= HandleMessage;
         Serial.OnError -= HandleError;
+    }
+
+    private void HandleChange()
+    {
+        StateHasChanged();
+        // vuelve a renderizar el Layout
     }
 }

@@ -1,4 +1,5 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject Personalizacion_Pagina Config
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">CATAN_WebAssembly</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -20,9 +21,19 @@
             </NavLink>
         </div> *@
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Lobby">
-                <span class="bi bi-hexagon-half-nav-menu" aria-hidden="true"></span> Lobby
-            </NavLink>
+            @if(Config.Flag_partida_activa == false)
+            {
+                <NavLink class="nav-link" href="Lobby">
+                    <span class="bi bi-house-gear-nav-menu" aria-hidden="true"></span> Lobby
+                </NavLink>
+            }
+            else
+            {
+                <NavLink class="nav-link" href="Partida">
+                    <span class="bi bi-hexagon-half-nav-menu" aria-hidden="true"></span> Partida
+                </NavLink>
+            }
+
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="Arduino_Comunication_Test">
@@ -44,6 +55,23 @@
 */
     private void ToggleNavMenu()
     {
-        collapseNavMenu = !collapseNavMenu;
+    collapseNavMenu = !collapseNavMenu;
     }
+        protected override void OnInitialized() //cuando se renderiza la pagina, este metodo se ejecuta
+        {
+            Config.OnChange += HandleChange;
+            //se suscribe, para que cada vez que algún valor cambie, invoque el metodo HandleChange
+        }
+        private void HandleChange()
+        {
+            StateHasChanged();
+            // vuelve a renderizar el Layout
+        }
+
+        public void Dispose()
+        {
+            Config.OnChange -= HandleChange;
+            /*se desuscribe del evento, para que Config.OnChange, para que no quede apuntando a esta pagina,
+            permitiendo que se desrenderize completamente, previniendo memory leaks*/
+        }
 }

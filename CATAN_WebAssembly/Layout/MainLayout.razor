@@ -4,7 +4,7 @@
 @using CATAN_WebAssembly.Pages.Partida.Panel_Tablero
 @inject Personalizacion_Pagina Config
 
-<MudThemeProvider />
+<MudThemeProvider Theme="_customTheme" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -95,6 +95,15 @@
 
 @code
 {
+    //color para botones mudblazor
+    private MudTheme _customTheme = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#e0952f", // Ahora 'Primary' usará tu color personalizado
+        }
+    };
+    //color para botones mudblazor
     /*----------Pop-up-----------*/
     private bool Mostrando_Settings;
     void TOGGLE_SETTINGS()
