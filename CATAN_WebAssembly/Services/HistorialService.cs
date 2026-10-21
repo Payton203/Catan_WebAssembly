@@ -53,7 +53,7 @@ public record HistorialEvento
 }
 namespace CATAN_WebAssembly.Services
 {
-    public class Historial_Class
+    public class HistorialService
     {
 
         public List<HistorialEvento> Historial { get; private set; } = new List<HistorialEvento>();

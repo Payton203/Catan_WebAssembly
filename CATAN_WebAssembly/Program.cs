@@ -13,7 +13,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 builder.Services.AddScoped<Personalizacion_Pagina>(); //registra la clase Personalizacion_pagina
-builder.Services.AddScoped<Historial_Class>();
+builder.Services.AddScoped<HistorialService>();
 builder.Services.AddScoped<Jugador_Class>();
 builder.Services.AddScoped<Parametros_Iniciales>();
 
@@ -21,6 +21,10 @@ builder.Services.AddScoped<ArduinoSerialService>();
 
 builder.Services.AddSingleton<CatanBoardState>();
 builder.Services.AddMudServices();
-
+builder.Services.AddSingleton<ArduinoReceptor>();
+// ...
+var host = builder.Build();
+host.Services.GetRequiredService<ArduinoReceptor>();
+await host.RunAsync();
 await builder.Build().RunAsync();
 
