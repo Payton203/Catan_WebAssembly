@@ -3,39 +3,54 @@ using CATAN_WebAssembly.Pages.Partida.Panel_Tablero;
 
 public enum TipoEvento
 {
+    // Construcciones
     Construccion_Estructura,
     Construccion_Carretera,
-    Robo,
+
+    // Dados y Fases
     Tirada_Dados,
-    Intercambio,
-    Carta_Desarrollo,
+    Fin_De_Turno,
+
+    // Comercio
+    Comercio_Banca,
+    Comercio_Jugadores,
+
+    // Ladrón y Descarte
+    Mover_Ladron,
+    Robar_Recurso,
+    Descarte_Por_Siete,
+
+    // Cartas de Desarrollo
+    Comprar_Carta_Desarrollo,
+    Jugar_Carta_Desarrollo,
+
+    // Títulos y Fin de Juego
+    Obtener_Gran_Ruta,
+    Obtener_Ejercito,
+    Victoria
 }
 
 public record HistorialEvento
 {
-    //Datos generales
-    public TipoEvento Tipo { get; init; }
-    public string Jugador { get; init; } = "";
-    public int Puntos { get; init; }
+    public required TipoEvento Tipo { get; init; }
+    public required string Jugador { get; init; }
+
+    // Evalúa DateTime.Now automáticamente al instanciar
     public DateTime Momento { get; init; } = DateTime.Now;
-
     public bool Mostrar_en_partida { get; init; } = true;
-    //Se usan cuando Tipo == TipoEvento.Intercambio
-    public string? JugadorReceptor { get; init; }
-    public Dictionary<ResourceType, int>? RecursosEntregados { get; init; }
-    public Dictionary<ResourceType, int>? RecursosRecibidos { get; init; }
 
-    //Se usa cuando Tipo == TipoEvento.Carta_Desarrollo, se usa solo para datos post-match
-    public TiposCartasDesarrollo? Carta_canjeada;
-
-    //Se usa cuando Tipo == TipoEvento.Construccion_Estructura || TipoEvento.Construccion_Camino
+    // Campos opcionales
+    public int? Resultado_Dados { get; init; }
     public int? Id_Posicion_construccion { get; init; }
     public StructureType? Estructura_Vertice { get; init; }
-    public bool Estructura_Camino { get; init; }
-    //Se usa cuando Tipo == TipoEvento.Tirada_Dados
-    public int Resultado_Dados { get; init; }
+    public string? Jugador_Objetivo { get; init; }
+    public ResourceType? Recurso_Ofrecido { get; init; }
+    public ResourceType? Recurso_Recibido { get; init; }
+    public int? Cantidad_Ofrecida { get; init; }
+    public int? Cantidad_Recibida { get; init; }
+    public TiposCartasDesarrollo? Tipo_Carta_Desarrollo { get; init; }
+    public int? Puntos_Victoria { get; init; }
 }
-
 namespace CATAN_WebAssembly.Services
 {
     public class Historial_Class

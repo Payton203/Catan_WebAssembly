@@ -54,27 +54,72 @@
 
     private string Texto_evento(HistorialEvento evento)
     {
-        // Console.WriteLine($"evento.Estructura_Vertice: {evento.Estructura_Vertice}");
         return evento.Tipo switch
         {
-            TipoEvento.Construccion_Estructura => $"{evento.Jugador} {Texto_Estructura(evento.Estructura_Vertice)} en {evento.Id_Posicion_construccion}",
-            TipoEvento.Tirada_Dados => $"{evento.Jugador} tiro los dados y saco: {evento.Resultado_Dados}",
-            _ => "Error 404, no se identifico el tipo de evento"
+            // Construcción
+            TipoEvento.Construccion_Estructura => $"{evento.Jugador} {Texto_Estructura(evento.Estructura_Vertice)} en la posición {evento.Id_Posicion_construccion}",
+            TipoEvento.Construccion_Carretera => $"{evento.Jugador} construyó una Carretera en la arista {evento.Id_Posicion_construccion}",
+
+            // Turno / Dados
+            TipoEvento.Tirada_Dados => $"{evento.Jugador} tiró los dados y sacó: {evento.Resultado_Dados}",
+            TipoEvento.Fin_De_Turno => $"{evento.Jugador} finalizó su turno",
+
+            // Comercio
+            TipoEvento.Comercio_Banca => $"{evento.Jugador} entregó {evento.Cantidad_Ofrecida}x {Texto_Recurso(evento.Recurso_Ofrecido)} a cambio de {evento.Cantidad_Recibida}x {Texto_Recurso(evento.Recurso_Recibido)}",
+            TipoEvento.Comercio_Jugadores => $"{evento.Jugador} realizó un intercambio comercial con {evento.Jugador_Objetivo}",
+
+            // Ladrón
+            TipoEvento.Mover_Ladron => $"{evento.Jugador} movió al Ladrón al hexágono {evento.Id_Posicion_construccion}",
+            TipoEvento.Robar_Recurso => $"{evento.Jugador} le robó una carta de recurso a {evento.Jugador_Objetivo}",
+            TipoEvento.Descarte_Por_Siete => $"{evento.Jugador} tuvo que descartar {evento.Cantidad_Ofrecida} recursos por el 7",
+
+            // Cartas de Desarrollo
+            TipoEvento.Comprar_Carta_Desarrollo => $"{evento.Jugador} compró una carta de desarrollo",
+            TipoEvento.Jugar_Carta_Desarrollo => $"{evento.Jugador} jugó la carta {Texto_Carta_Desarrollo(evento.Tipo_Carta_Desarrollo)}",
+
+            // Logros / Final
+            TipoEvento.Obtener_Gran_Ruta => $"{evento.Jugador} reclamó el título de La Ruta Más Larga",
+            TipoEvento.Obtener_Ejercito => $"{evento.Jugador} reclamó el título de El Gran Ejército",
+            TipoEvento.Victoria => $"¡{evento.Jugador} alcanzó los {evento.Puntos_Victoria} puntos y ganó la partida!",
+
+            _ => "Error 404, no se identificó el tipo de evento"
         };
     }
+
     private string Texto_Estructura(StructureType? structure)
     {
         return structure switch
         {
-            StructureType.Settlement => "construyo un Poblado",
-            StructureType.City => "construyo una Ciudad",
-            StructureType.None => "destruyo una Estructura",
-            _ => "Error 404, no se identifico el tipo de estructura"
+            StructureType.Settlement => "construyó un Poblado",
+            StructureType.City => "construyó una Ciudad",
+            StructureType.None => "destruyó una Estructura",
+            _ => "Error 404, no se identificó el tipo de estructura"
         };
     }
-    private string Texto_Carretera(bool Has_Road)
+
+    private string Texto_Recurso(ResourceType? recurso)
     {
-        if (Has_Road == true) return "hola";
-        else return "no";
+        return recurso switch
+        {
+            ResourceType.Wood => "Madera",
+            ResourceType.Brick => "Ladrillo",
+            ResourceType.Sheep => "Lana",
+            ResourceType.Wheat => "Trigo",
+            ResourceType.Rock => "Mineral",
+            _ => "Recurso no identificado"
+        };
+    }
+
+    private string Texto_Carta_Desarrollo(TiposCartasDesarrollo? carta)
+    {
+        return carta switch
+        {
+            TiposCartasDesarrollo.Caballero => "Caballero",
+            TiposCartasDesarrollo.Carreteras => "Construcción de Carreteras",
+            TiposCartasDesarrollo.Invento => "Año de la Abundancia",
+            TiposCartasDesarrollo.Monopolio => "Monopolio",
+            TiposCartasDesarrollo.Punto_Victoria => "Punto de Victoria",
+            _ => "Carta no identificada"
+        };
     }
 }

@@ -5,12 +5,15 @@
 @using CATAN_WebAssembly.Pages.Partida.Panel_Dados
 @using CATAN_WebAssembly.Services
 @using MudBlazor
+@using System.Text.Json
+@using System.Text.Json.Serialization
 @inject Parametros_Iniciales Parametros_Iniciales_
 @inject Personalizacion_Pagina Config
 @inject Historial_Class Historial_
 @inject Jugador_Class Jugador_
 @inject NavigationManager Nav
 @inject CATAN_WebAssembly.Services.CatanBoardState BoardState
+@inject ArduinoSerialService Serial
 @implements IDisposable
 
 <MudMenu Icon="@Icons.Material.Filled.FormatListBulleted" AriaLabel="Open user menu" Color="Color.Primary">
@@ -261,6 +264,8 @@
     // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
     protected override void OnInitialized() //cuando se renderiza la pagina, este metodo se ejecuta
     {
+        Serial.OnMessageReceived += HandleMessage;
+        Serial.OnError += HandleError;
         Config.OnChange += HandleChange;
         Jugador_.ListaJugadores.RemoveAll(j => string.IsNullOrWhiteSpace(j.Nombre));
         //se suscribe, para que cada vez que algún valor cambie, invoque el metodo HandleChange
@@ -305,6 +310,38 @@
     }
     //se llama automaticamente cuando el componente se destruye, como cuando se cambia de pagina.
 
+    // ─── Comunicacion Arduino ─────────────────────────────────────────────────
+    private static readonly JsonSerializerOptions _opciones = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() } // el enum entra como nombre ("Modo_Random") o como número (1)
+    };
+
+    private void HandleMessage(string json)
+    {
+        Parsear_JSON(json);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleError(string message)
+    {
+    }
+
+    private void Parsear_JSON(string json)
+    {
+        try
+        {
+            var evento = JsonSerializer.Deserialize<HistorialEvento>(json, _opciones);
+            if (evento is null) return;
+
+            Historial_.AgregarEvento(evento); // ← poné acá el método de tu servicio que agrega un evento
+        }
+        catch (JsonException)
+        {
+            // JSON inválido, falta "tipo" o "jugador" (son required), o un enum con un nombre que no existe: se ignora.
+        }
+    }
+
     private void HandleCellClick(HexCell cell)
     {
         Console.WriteLine($"Clickeaste la celda Id:{cell.Id} Alineacion: {cell.Alineacion} Recurso: {cell.Recurso}");
@@ -322,7 +359,7 @@
         Console.WriteLine($"Click - Position_Id: {vertex.Position_Id} - Id: {vertex.Id}");
         vertex.Structure = Config.Structure;
         vertex.PlayerColor = Jugador_.TurnoJugador().Color;
-        Historial_.AgregarEvento(new HistorialEvento {Id_Posicion_construccion = vertex.Id, Estructura_Vertice = vertex.Structure, Jugador = Jugador_.TurnoJugador().Nombre });
+        Historial_.AgregarEvento(new HistorialEvento {Tipo = TipoEvento.Construccion_Estructura,Id_Posicion_construccion = vertex.Id, Estructura_Vertice = vertex.Structure, Jugador = Jugador_.TurnoJugador().Nombre });
 
         // por ahora vacío, después acá va la lógica de colocar asentamientos
     }

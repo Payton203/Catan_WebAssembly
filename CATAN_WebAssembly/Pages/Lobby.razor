@@ -27,7 +27,7 @@
                         int jugador = i;
                         if (jugador < 1 || ((Jugador_.ListaJugadores[jugador - 1].Nombre) != ""))
                         {
-                            <MudTextField @bind-Value="Jugador_.ListaJugadores[jugador].Nombre" Label="@($"Jugador {jugador + 1}")" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                            <MudTextField @bind-Value="Jugador_.ListaJugadores[jugador].Nombre" Label="@($"Jugador {jugador + 1}")" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@Bloqueado(nameof(Parametros_Iniciales.Asignacion_Numeros))"/>
                         }
                     }
                 </div>
