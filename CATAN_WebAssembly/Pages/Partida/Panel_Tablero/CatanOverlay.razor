@@ -68,7 +68,7 @@
                     else if (v.Structure == StructureType.Settlement)
                     {
                         <g transform="translate(@F(_ss * -1.12), @F(_ss * -0.8)) scale(@F(_ss * 0.08))">
-                            @SvgIcons.SVGConColor(SvgIcons.SVG_Settlement, "","White")
+                            @((MarkupString)SvgIcons.SVGConColor_Multiples_instancias(SvgIcons.SVG_Settlement, "Outline", v.PlayerColor, v.Id.ToString()));
                         </g>
                     }
                     else

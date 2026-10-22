@@ -47,11 +47,31 @@ namespace CATAN_WebAssembly.Pages.Partida
         // Clave = clave del recurso (definida en RecursosCatan.Todos), Valor = cantidad.
         // No hace falta cargar todas las claves: si falta una, se muestra como 0.
         public Dictionary<ResourceType, int> Recursos { get; set; } = Enum.GetValues<ResourceType>().ToDictionary(tipo => tipo, _ => 0);
-                                                                        //inicializa todos los valores en 0
+        //inicializa todos los valores en 0
 
         // Cantidad de caballeros jugados (para el marcador de ejército más grande)
-        public Dictionary<TiposCartasDesarrollo, int> CartasDesarrollo { get; set; } = Enum.GetValues<TiposCartasDesarrollo>().ToDictionary(tipo => tipo, _ => 0);
+        // Cartas de desarrollo que el jugador tiene en mano (todavía sin jugar).
+        // Para los rivales, el tipo es información privada.
+        public Dictionary<TiposCartasDesarrollo, int> CartasEnMano { get; set; } =
+            Enum.GetValues<TiposCartasDesarrollo>().ToDictionary(tipo => tipo, _ => 0);
 
+        // Cartas de desarrollo ya jugadas (públicas para todos).
+        // Los caballeros jugados cuentan para el ejército más grande.
+        public Dictionary<TiposCartasDesarrollo, int> CartasJugadas { get; set; } =
+            Enum.GetValues<TiposCartasDesarrollo>().ToDictionary(tipo => tipo, _ => 0);
+
+        // Helpers para el panel
+        public int TotalCartasEnMano => CartasEnMano.Values.Sum();
+        public int CaballerosJugados => CartasJugadas[TiposCartasDesarrollo.Caballero];
+
+        // Jugar una carta: pasa de "en mano" a "jugada"
+        public bool JugarCarta(TiposCartasDesarrollo tipo)
+        {
+            if (CartasEnMano[tipo] <= 0) return false;
+            CartasEnMano[tipo]--;
+            CartasJugadas[tipo]++;
+            return true;
+        }
         public bool Oculto { get; set; } = true;
 
         /// <summary>

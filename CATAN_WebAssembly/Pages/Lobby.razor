@@ -10,6 +10,7 @@
 @inject NavigationManager Nav
 @inject Jugador_Class Jugador_
 @inject Personalizacion_Pagina Config
+@inject CatanBoardState BoardState
 
 <PageTitle>Catan - Lobby</PageTitle>
 
@@ -32,7 +33,15 @@
                     }
                 </div>
                 <div class="campo">
-                    <MudNumericField HideSpinButtons="true" @bind-Value=" Parametros_Iniciales_.Seed" Label="Seed" Variant="Variant.Text" />
+                    <MudNumericField HideSpinButtons="true" @bind-Value=" Parametros_Iniciales_.Seed" Label="Seed" Variant="Variant.Text" Disabled="@Bloqueado(nameof(Parametros_Iniciales.Seed))" />
+                </div>
+                <div class="campo">
+                    <MudSwitch T="bool"
+                               Color="Color.Primary"
+                               UncheckedColor="Color.Default"
+                               Label="Replay"
+                               @bind-Value="BoardState.Replay"
+                               Disabled="@Bloqueado(nameof(CatanBoardState.Replay))" />
                 </div>
 
                 <div class="campo">
