@@ -2,39 +2,168 @@
 @using CATAN_WebAssembly.Services
 @using CATAN_WebAssembly.Pages.Partida
 @using CATAN_WebAssembly.Pages.Partida.Panel_Tablero
-@inject Historial_Class Historial_
+@inject HistorialService Historial_
+@inject CatanBoardState BoardState
 
 <div class="panel-historial-contenido">
     @foreach( HistorialEvento evento in Historial_.Historial.AsEnumerable().Reverse() )
     {
-        @if (evento.Mostrar_en_partida)
-        {
-            <div class="contenedor-evento">
-                <span class="texto-evento"> @Texto_evento(evento) </span>
-                <div class="contenedor-momento"> @evento.Momento</div>
-            </div>
-        }
+        <div class="contenedor-evento">
+            <span class="texto-evento"> @Texto_evento(evento) </span>
+            <div class="contenedor-momento"> @evento.Momento</div>
+        </div>
     }
 </div>
 @code {
 
     protected override void OnInitialized()
     {
-        // Historial_.AgregarEvento(new HistorialEvento
-        //     {
-        //         Tipo = TipoEvento.Construccion_Estructura,
-        //         Jugador = "percha",
-        //         Momento = DateTime.Now,
-        //         Id_Posicion_construccion = 10,
-        //         Estructura_Vertice = StructureType.Settlement
-        //     });
-        // Historial.Add(new HistorialEvento
-        // {
-        //     Tipo = TipoEvento.Construccion_Carretera,
-        //     Jugador = "Carlos",
-        //     Momento = DateTime.Now,
-        //     Id_Posicion_construccion = 10,
-        // });
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Construccion_Estructura,
+            Jugador = "percha",
+            Id_Posicion_construccion = 10,
+            Estructura_Vertice = StructureType.Settlement
+        });
+
+        // 2. Construcción de Carretera
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Construccion_Carretera,
+            Jugador = "Carlos",
+            Id_Posicion_construccion = 14
+        });
+
+        // 3. Tirada de Dados
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Tirada_Dados,
+            Jugador = "Santiago",
+            Resultado_Dados = 8
+        });
+
+        // 4. Producción de Recursos
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Produccion_Recursos,
+            Jugador = "percha",
+            Recursos_Recibidos = new Dictionary<ResourceType, int>
+    {
+        { ResourceType.Wood, 1 },
+        { ResourceType.Wheat, 2 }
+    }
+        });
+
+        // 5. Fin de Turno
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Fin_De_Turno,
+            Jugador = "Carlos"
+        });
+
+        // 6. Comercio con la Banca / Puerto
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Comercio_Banca,
+            Jugador = "Santiago",
+            Recursos_Ofrecidos = new Dictionary<ResourceType, int>
+    {
+        { ResourceType.Wood, 4 }
+    },
+            Recursos_Recibidos = new Dictionary<ResourceType, int>
+    {
+        { ResourceType.Rock, 1 }
+    }
+        });
+
+        // 7. Comercio entre Jugadores
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Comercio_Jugadores,
+            Jugador = "Santiago",
+            Jugador_Objetivo = "percha",
+            Recursos_Ofrecidos = new Dictionary<ResourceType, int>
+    {
+        { ResourceType.Brick, 2 },
+        { ResourceType.Sheep, 1 }
+    },
+            Recursos_Recibidos = new Dictionary<ResourceType, int>
+    {
+        { ResourceType.Rock, 1 }
+    }
+        });
+
+        // 8. Mover el Ladrón
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Mover_Ladron,
+            Jugador = "Carlos",
+            Id_Posicion_construccion = 5 // ID del hexágono
+        });
+
+        // 9. Robar Recurso a un Jugador
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Robar_Recurso,
+            Jugador = "Carlos",
+            Jugador_Objetivo = "Santiago",
+            Recursos_Recibidos = new Dictionary<ResourceType, int>
+    {
+        { ResourceType.Wood, 1 }
+    }
+        });
+
+        // 10. Descarte por un 7
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Descarte_Por_Siete,
+            Jugador = "percha",
+            Recursos_Ofrecidos = new Dictionary<ResourceType, int>
+    {
+        { ResourceType.Wood, 1 },
+        { ResourceType.Brick, 1 },
+        { ResourceType.Sheep, 1 },
+        { ResourceType.Wheat, 1 },
+        { ResourceType.Rock, 1 }
+    }
+        });
+
+        // 11. Comprar Carta de Desarrollo
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Comprar_Carta_Desarrollo,
+            Jugador = "Santiago"
+        });
+
+        // 12. Jugar Carta de Desarrollo
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Jugar_Carta_Desarrollo,
+            Jugador = "Santiago",
+            Tipo_Carta_Desarrollo = TiposCartasDesarrollo.Caballero
+        });
+
+        // 13. Obtener Gran Ruta (Ruta Más Larga)
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Obtener_Gran_Ruta,
+            Jugador = "Carlos"
+        });
+
+        // 14. Obtener Ejército (Ejército Más Grande)
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Obtener_Ejercito,
+            Jugador = "Santiago"
+        });
+
+        // 15. Victoria
+        Historial_.AgregarEvento(new HistorialEvento
+        {
+            Tipo = TipoEvento.Victoria,
+            Jugador = "Santiago",
+            Puntos_Victoria = 10
+        });
 
         Historial_.OnAccion += HandleChange;
         //se suscribe, para que cada vez que algún valor cambie, invoque el metodo HandleChange
@@ -54,38 +183,108 @@
 
     private string Texto_evento(HistorialEvento evento)
     {
-        return evento.Tipo switch
+        string textoResultado;
+
+        switch (evento.Tipo) //textos generales, se ven iguales en la partida, que post partida.
         {
             // Construcción
-            TipoEvento.Construccion_Estructura => $"{evento.Jugador} {Texto_Estructura(evento.Estructura_Vertice)} en la posición {evento.Id_Posicion_construccion}",
-            TipoEvento.Construccion_Carretera => $"{evento.Jugador} construyó una Carretera en la arista {evento.Id_Posicion_construccion}",
+            case TipoEvento.Construccion_Estructura:
+                textoResultado = $"{evento.Jugador} {Texto_Estructura(evento.Estructura_Vertice)} en la posición {evento.Id_Posicion_construccion}";
+                break;
+
+            case TipoEvento.Construccion_Carretera:
+                textoResultado = $"{evento.Jugador} construyó una Carretera en la arista {evento.Id_Posicion_construccion}";
+                break;
 
             // Turno / Dados
-            TipoEvento.Tirada_Dados => $"{evento.Jugador} tiró los dados y sacó: {evento.Resultado_Dados}",
-            TipoEvento.Fin_De_Turno => $"{evento.Jugador} finalizó su turno",
+            case TipoEvento.Tirada_Dados:
+                textoResultado = $"{evento.Jugador} tiró los dados y sacó: {evento.Resultado_Dados}";
+                break;
+
+            case TipoEvento.Produccion_Recursos:
+                textoResultado = $"{evento.Jugador} recibió: {Texto_Lista_Recursos(evento.Recursos_Recibidos)}";
+                break;
+
+            case TipoEvento.Fin_De_Turno:
+                textoResultado = $"{evento.Jugador} finalizó su turno";
+                break;
 
             // Comercio
-            TipoEvento.Comercio_Banca => $"{evento.Jugador} entregó {evento.Cantidad_Ofrecida}x {Texto_Recurso(evento.Recurso_Ofrecido)} a cambio de {evento.Cantidad_Recibida}x {Texto_Recurso(evento.Recurso_Recibido)}",
-            TipoEvento.Comercio_Jugadores => $"{evento.Jugador} realizó un intercambio comercial con {evento.Jugador_Objetivo}",
+            case TipoEvento.Comercio_Banca:
+                textoResultado = $"{evento.Jugador} entregó {Texto_Lista_Recursos(evento.Recursos_Ofrecidos)} a la banca a cambio de {Texto_Lista_Recursos(evento.Recursos_Recibidos)}";
+                break;
+
+            case TipoEvento.Comercio_Jugadores:
+                textoResultado = $"{evento.Jugador} le dio {Texto_Lista_Recursos(evento.Recursos_Ofrecidos)} a {evento.Jugador_Objetivo} a cambio de {Texto_Lista_Recursos(evento.Recursos_Recibidos)}";
+                break;
 
             // Ladrón
-            TipoEvento.Mover_Ladron => $"{evento.Jugador} movió al Ladrón al hexágono {evento.Id_Posicion_construccion}",
-            TipoEvento.Robar_Recurso => $"{evento.Jugador} le robó una carta de recurso a {evento.Jugador_Objetivo}",
-            TipoEvento.Descarte_Por_Siete => $"{evento.Jugador} tuvo que descartar {evento.Cantidad_Ofrecida} recursos por el 7",
+            case TipoEvento.Mover_Ladron:
+                textoResultado = $"{evento.Jugador} movió al Ladrón al hexágono {evento.Id_Posicion_construccion}";
+                break;
 
             // Cartas de Desarrollo
-            TipoEvento.Comprar_Carta_Desarrollo => $"{evento.Jugador} compró una carta de desarrollo",
-            TipoEvento.Jugar_Carta_Desarrollo => $"{evento.Jugador} jugó la carta {Texto_Carta_Desarrollo(evento.Tipo_Carta_Desarrollo)}",
+            case TipoEvento.Jugar_Carta_Desarrollo:
+                textoResultado = $"{evento.Jugador} jugó la carta {Texto_Carta_Desarrollo(evento.Tipo_Carta_Desarrollo)}";
+                break;
 
             // Logros / Final
-            TipoEvento.Obtener_Gran_Ruta => $"{evento.Jugador} reclamó el título de La Ruta Más Larga",
-            TipoEvento.Obtener_Ejercito => $"{evento.Jugador} reclamó el título de El Gran Ejército",
-            TipoEvento.Victoria => $"¡{evento.Jugador} alcanzó los {evento.Puntos_Victoria} puntos y ganó la partida!",
+            case TipoEvento.Obtener_Gran_Ruta:
+                textoResultado = $"{evento.Jugador} reclamó el título de La Ruta Más Larga";
+                break;
 
-            _ => "Error 404, no se identificó el tipo de evento"
-        };
+            case TipoEvento.Obtener_Ejercito:
+                textoResultado = $"{evento.Jugador} reclamó el título de El Gran Ejército";
+                break;
+
+            case TipoEvento.Victoria:
+                textoResultado = $"¡{evento.Jugador} alcanzó los {evento.Puntos_Victoria} puntos y ganó la partida!";
+                break;
+
+            default:
+                textoResultado = "Error 404, no se identificó el tipo de evento";
+                break;
+        }
+        if(BoardState.Replay == true)
+        {
+            switch (evento.Tipo)
+            {
+                case TipoEvento.Robar_Recurso:
+                textoResultado = $"{evento.Jugador} le robó una carta de recurso a {evento.Jugador_Objetivo}";
+                break;
+                case TipoEvento.Descarte_Por_Siete:
+                    textoResultado = $"{evento.Jugador} tuvo que descartar la mitad de sus recursos por el 7";
+                    break;
+                case TipoEvento.Comprar_Carta_Desarrollo:
+                    textoResultado = $"{evento.Jugador} compró una carta de desarrollo";
+                    break;
+            }
+        }
+        else
+        {
+            switch (evento.Tipo)
+            {
+                case TipoEvento.Robar_Recurso:
+                    textoResultado = $"{evento.Jugador} le robó {Texto_Lista_Recursos(evento.Recursos_Recibidos)} a {evento.Jugador_Objetivo}";
+                    break;
+                case TipoEvento.Comprar_Carta_Desarrollo:
+                    textoResultado = $"{evento.Jugador} compró una carta de desarrollo de {evento.Tipo_Carta_Desarrollo}";
+                    break;
+                case TipoEvento.Descarte_Por_Siete:
+                    textoResultado = $"{evento.Jugador} tuvo que descartar {Texto_Lista_Recursos(evento.Recursos_Ofrecidos)} por el 7";
+                    break;
+            }
+        }
+        return textoResultado;
     }
 
+    private string Texto_Lista_Recursos(Dictionary<ResourceType, int>? recursos)
+    {
+        if (recursos == null || recursos.Count == 0)
+            return "nada";
+
+        return string.Join(", ", recursos.Select(r => $"{r.Value}x {Texto_Recurso(r.Key)}"));
+    }
     private string Texto_Estructura(StructureType? structure)
     {
         return structure switch

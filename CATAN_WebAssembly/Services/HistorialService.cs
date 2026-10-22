@@ -9,6 +9,7 @@ public enum TipoEvento
 
     // Dados y Fases
     Tirada_Dados,
+    Produccion_Recursos, // cuando reciben los jugadores recursos por sus pueblos/ciudades adyacentes a las casillas
     Fin_De_Turno,
 
     // Comercio
@@ -37,19 +38,17 @@ public record HistorialEvento
 
     // Evalúa DateTime.Now automáticamente al instanciar
     public DateTime Momento { get; init; } = DateTime.Now;
-    public bool Mostrar_en_partida { get; init; } = true;
-
     // Campos opcionales
     public int? Resultado_Dados { get; init; }
     public int? Id_Posicion_construccion { get; init; }
     public StructureType? Estructura_Vertice { get; init; }
     public string? Jugador_Objetivo { get; init; }
-    public ResourceType? Recurso_Ofrecido { get; init; }
-    public ResourceType? Recurso_Recibido { get; init; }
-    public int? Cantidad_Ofrecida { get; init; }
-    public int? Cantidad_Recibida { get; init; }
     public TiposCartasDesarrollo? Tipo_Carta_Desarrollo { get; init; }
     public int? Puntos_Victoria { get; init; }
+
+    // Listas/Diccionarios para soportar múltiples recursos en una sola acción
+    public Dictionary<ResourceType, int>? Recursos_Ofrecidos { get; init; }
+    public Dictionary<ResourceType, int>? Recursos_Recibidos { get; init; }
 }
 namespace CATAN_WebAssembly.Services
 {

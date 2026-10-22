@@ -21,10 +21,10 @@ builder.Services.AddScoped<ArduinoSerialService>();
 
 builder.Services.AddSingleton<CatanBoardState>();
 builder.Services.AddMudServices();
-builder.Services.AddSingleton<ArduinoReceptor>();
-// ...
-var host = builder.Build();
-host.Services.GetRequiredService<ArduinoReceptor>();
-await host.RunAsync();
+//builder.Services.AddSingleton<ArduinoReceptor>();
+//// ...
+//var host = builder.Build();
+//host.Services.GetRequiredService<ArduinoReceptor>();
+//await host.RunAsync();
 await builder.Build().RunAsync();
 

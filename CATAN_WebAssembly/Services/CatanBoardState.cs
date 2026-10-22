@@ -9,5 +9,6 @@ namespace CATAN_WebAssembly.Services
         public List<HexEdge> Edges { get; set; } = new();
         public List<HexPort> Ports { get; set; } = new();
         public bool Inicializado { get; set; } = false;
+        public bool Replay { get; set; } = false;
     }
 }
