@@ -3,15 +3,39 @@
 @using CATAN_WebAssembly.Pages.Partida
 @using CATAN_WebAssembly.Pages.Partida.Panel_Tablero
 @inject HistorialService Historial_
+@inject Jugador_Class Jugador_
 @inject CatanBoardState BoardState
+@inject PartidaService PartidaService_
 
+@if(BoardState.Replay == true)
+{
+    <div class="d-inline-flex" style="gap: 10px; height:fit-content">
+        <button style="scale: 2" class="bi bi-caret-left" @onclick="() => Historial_.Anterior_Evento()"></button>
+        <button style="scale: 2" class="bi bi-play-fill" onclick=""></button>
+        <button style="scale: 2" class="bi bi-caret-right" @onclick="() => Historial_.Siguiente_Evento()"></button>
+        <button style="scale: 2; margin-left: auto" class="bi bi-gear" onclick=""></button>
+    </div>
+}
 <div class="panel-historial-contenido">
-    @foreach( HistorialEvento evento in Historial_.Historial.AsEnumerable().Reverse() )
+    @if(BoardState.Replay == true)
     {
-        <div class="contenedor-evento">
-            <span class="texto-evento"> @Texto_evento(evento) </span>
-            <div class="contenedor-momento"> @evento.Momento</div>
-        </div>
+        @foreach( HistorialEvento evento in Historial_.Historial_Mostrar.AsEnumerable().Reverse() )
+        {
+            <div class="contenedor-evento">
+                <span class="texto-evento"> @Texto_evento(evento) </span>
+                <div class="contenedor-momento"> @evento.Momento</div>
+            </div>
+        }
+    } 
+    else
+    {
+        @foreach (HistorialEvento evento in Historial_.Historial.AsEnumerable().Reverse())
+        {
+            <div class="contenedor-evento">
+                <span class="texto-evento"> @Texto_evento(evento) </span>
+                <div class="contenedor-momento"> @evento.Momento</div>
+            </div>
+        }
     }
 </div>
 @code {
@@ -21,7 +45,7 @@
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Construccion_Estructura,
-            Jugador = "percha",
+            Jugador = Jugador_.ListaJugadores[0].Nombre,
             Id_Posicion_construccion = 10,
             Estructura_Vertice = StructureType.Settlement
         });
@@ -30,7 +54,7 @@
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Construccion_Carretera,
-            Jugador = "Carlos",
+            Jugador = Jugador_.ListaJugadores[1].Nombre,
             Id_Posicion_construccion = 14
         });
 
@@ -38,7 +62,7 @@
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Tirada_Dados,
-            Jugador = "Santiago",
+            Jugador = Jugador_.ListaJugadores[2].Nombre,
             Resultado_Dados = 8
         });
 
@@ -46,7 +70,7 @@
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Produccion_Recursos,
-            Jugador = "percha",
+            Jugador = Jugador_.ListaJugadores[1].Nombre,
             Recursos_Recibidos = new Dictionary<ResourceType, int>
     {
         { ResourceType.Wood, 1 },
@@ -58,14 +82,14 @@
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Fin_De_Turno,
-            Jugador = "Carlos"
+            Jugador = Jugador_.ListaJugadores[1].Nombre
         });
 
         // 6. Comercio con la Banca / Puerto
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Comercio_Banca,
-            Jugador = "Santiago",
+            Jugador = Jugador_.ListaJugadores[2].Nombre,
             Recursos_Ofrecidos = new Dictionary<ResourceType, int>
     {
         { ResourceType.Wood, 4 }
@@ -81,7 +105,7 @@
         {
             Tipo = TipoEvento.Comercio_Jugadores,
             Jugador = "Santiago",
-            Jugador_Objetivo = "percha",
+            Jugador_Objetivo = Jugador_.ListaJugadores[0].Nombre,
             Recursos_Ofrecidos = new Dictionary<ResourceType, int>
     {
         { ResourceType.Brick, 2 },
@@ -97,7 +121,7 @@
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Mover_Ladron,
-            Jugador = "Carlos",
+            Jugador = Jugador_.ListaJugadores[1].Nombre,
             Id_Posicion_construccion = 5 // ID del hexágono
         });
 
@@ -106,7 +130,7 @@
         {
             Tipo = TipoEvento.Robar_Recurso,
             Jugador = "Carlos",
-            Jugador_Objetivo = "Santiago",
+            Jugador_Objetivo = Jugador_.ListaJugadores[2].Nombre,
             Recursos_Recibidos = new Dictionary<ResourceType, int>
     {
         { ResourceType.Wood, 1 }
@@ -117,7 +141,7 @@
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Descarte_Por_Siete,
-            Jugador = "percha",
+            Jugador = Jugador_.ListaJugadores[2].Nombre,
             Recursos_Ofrecidos = new Dictionary<ResourceType, int>
     {
         { ResourceType.Wood, 1 },
@@ -132,14 +156,14 @@
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Comprar_Carta_Desarrollo,
-            Jugador = "Santiago"
+            Jugador = Jugador_.ListaJugadores[1].Nombre
         });
 
         // 12. Jugar Carta de Desarrollo
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Jugar_Carta_Desarrollo,
-            Jugador = "Santiago",
+            Jugador = Jugador_.ListaJugadores[0].Nombre,
             Tipo_Carta_Desarrollo = TiposCartasDesarrollo.Caballero
         });
 
@@ -147,21 +171,21 @@
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Obtener_Gran_Ruta,
-            Jugador = "Carlos"
+            Jugador = Jugador_.ListaJugadores[1].Nombre
         });
 
         // 14. Obtener Ejército (Ejército Más Grande)
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Obtener_Ejercito,
-            Jugador = "Santiago"
+            Jugador = Jugador_.ListaJugadores[0].Nombre
         });
 
         // 15. Victoria
         Historial_.AgregarEvento(new HistorialEvento
         {
             Tipo = TipoEvento.Victoria,
-            Jugador = "Santiago",
+            Jugador = Jugador_.ListaJugadores[1].Nombre,
             Puntos_Victoria = 10
         });
 
@@ -183,6 +207,7 @@
 
     private string Texto_evento(HistorialEvento evento)
     {
+        PartidaService_.Aplicar(evento);
         string textoResultado;
 
         switch (evento.Tipo) //textos generales, se ven iguales en la partida, que post partida.

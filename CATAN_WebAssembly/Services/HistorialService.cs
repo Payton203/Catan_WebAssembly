@@ -56,6 +56,7 @@ namespace CATAN_WebAssembly.Services
     {
 
         public List<HistorialEvento> Historial { get; private set; } = new List<HistorialEvento>();
+        public List<HistorialEvento> Historial_Mostrar { get; private set; } = new List<HistorialEvento>();
 
         public event Action? OnAccion;
         /// <summary>
@@ -70,6 +71,22 @@ namespace CATAN_WebAssembly.Services
         public void EliminarHistorial()
         {
             Historial.RemoveRange(0, Historial.Count);
+        }
+        //
+        public void Siguiente_Evento() 
+        {
+            if (Historial_Mostrar.Count < Historial.Count)
+            {
+                Historial_Mostrar.Add(Historial[Historial_Mostrar.Count]);
+            }
+        }
+
+        public void Anterior_Evento()
+        {
+            if (Historial_Mostrar.Count > 0)
+            {
+                Historial_Mostrar.RemoveAt(Historial_Mostrar.Count - 1); // o borrar usando la referencia al último
+            }
         }
     }
 }

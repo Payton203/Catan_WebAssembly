@@ -26,9 +26,9 @@
                     @for (int i = 0; i < 4; i++)
                     {
                         int jugador = i;
-                        if (jugador < 1 || ((Jugador_.ListaJugadores[jugador - 1].Nombre) != ""))
+                        if (jugador < 1 || ((Parametros_Iniciales_.Nombre_Jugadores[jugador-1]) != ""))
                         {
-                            <MudTextField @bind-Value="Jugador_.ListaJugadores[jugador].Nombre" Label="@($"Jugador {jugador + 1}")" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@Bloqueado(nameof(Parametros_Iniciales.Asignacion_Numeros))"/>
+                            <MudTextField @bind-Value="Parametros_Iniciales_.Nombre_Jugadores[jugador]" Label="@($"Jugador {jugador + 1}")" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@Bloqueado(nameof(Parametros_Iniciales.Asignacion_Numeros))"/>
                         }
                     }
                 </div>
@@ -201,6 +201,11 @@
         //     return;
         // }
         Config.Flag_partida_activa = true;
+        @for (int i = 0; i < 4; i++)
+        {
+            Jugador_.ListaJugadores[i].Nombre = Parametros_Iniciales_.Nombre_Jugadores[i];
+        }
+
         Nav.NavigateTo(RutaPartida);
     }
 
