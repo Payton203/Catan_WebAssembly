@@ -10,184 +10,796 @@
 @if(BoardState.Replay == true)
 {
     <div class="d-inline-flex" style="gap: 10px; height:fit-content">
-        <button style="scale: 2" class="bi bi-caret-left" @onclick="() => Historial_.Anterior_Evento()"></button>
-        <button style="scale: 2" class="bi bi-play-fill" onclick=""></button>
-        <button style="scale: 2" class="bi bi-caret-right" @onclick="() => Historial_.Siguiente_Evento()"></button>
+        <button style="scale: 2" class="bi bi-caret-left-fill" @onclick="() => Historial_.Anterior_Evento(PartidaService_)"></button>
+        <button style="scale: 2" class="bi @(_estaReproduciendo ? "bi-pause-fill" : "bi-play-fill")"
+                @onclick="ToggleReplay">
+        </button>
+        <button style="scale: 2" class="bi bi-caret-right-fill" @onclick="() => Historial_.Siguiente_Evento(PartidaService_)"></button>
         <button style="scale: 2; margin-left: auto" class="bi bi-gear" onclick=""></button>
     </div>
 }
 <div class="panel-historial-contenido">
-    @if(BoardState.Replay == true)
+    @{
+        // Selecciona qué lista mostrar según el modo
+        var listaEventos = BoardState.Replay
+            ? Historial_.Historial_Mostrar.AsEnumerable().Reverse()
+            : Historial_.Historial.AsEnumerable().Reverse();
+    }
+
+    @foreach (HistorialEvento evento in listaEventos)
     {
-        @foreach( HistorialEvento evento in Historial_.Historial_Mostrar.AsEnumerable().Reverse() )
-        {
-            <div class="contenedor-evento">
-                <span class="texto-evento"> @Texto_evento(evento) </span>
-                <div class="contenedor-momento"> @evento.Momento</div>
-            </div>
-        }
-    } 
-    else
-    {
-        @foreach (HistorialEvento evento in Historial_.Historial.AsEnumerable().Reverse())
-        {
-            <div class="contenedor-evento">
-                <span class="texto-evento"> @Texto_evento(evento) </span>
-                <div class="contenedor-momento"> @evento.Momento</div>
-            </div>
-        }
+        <div class="contenedor-evento">
+            <span class="texto-evento">@Texto_evento(evento)</span>
+            <div class="contenedor-momento">@evento.Momento.ToString("HH:mm:ss")</div>
+        </div>
     }
 </div>
 @code {
-
     protected override void OnInitialized()
     {
-        Historial_.AgregarEvento(new HistorialEvento
+        Console.WriteLine($"BoardState.Inicializado: {BoardState.Partida_Cargada}");
+        if (BoardState.Partida_Cargada == false)
         {
-            Tipo = TipoEvento.Construccion_Estructura,
-            Jugador = Jugador_.ListaJugadores[0].Nombre,
-            Id_Posicion_construccion = 10,
-            Estructura_Vertice = StructureType.Settlement
-        });
+            partida1();
+            BoardState.Partida_Cargada = true;
+        }
+        Console.WriteLine($"BoardState.Inicializado: {BoardState.Partida_Cargada}");
+        //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Construccion_Estructura,
+    //         Jugador = Jugador_.ListaJugadores[0].Nombre,
+    //         Id_Posicion_construccion = 10,
+    //         Estructura_Vertice = StructureType.Settlement
+    //     });
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Produccion_Recursos,
+    //         Jugador = Jugador_.ListaJugadores[0].Nombre,
+    //         Recursos_Recibidos = new Dictionary<ResourceType, int>
+    //         {
+    //             { ResourceType.Wood, 1 },
+    //             { ResourceType.Wheat, 2 }
+    //         }
+    //     });
 
-        // 2. Construcción de Carretera
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Construccion_Carretera,
-            Jugador = Jugador_.ListaJugadores[1].Nombre,
-            Id_Posicion_construccion = 14
-        });
+    //     // 2. Construcción de Carretera
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Construccion_Carretera,
+    //         Jugador = Jugador_.ListaJugadores[1].Nombre,
+    //         Id_Posicion_construccion = 14
+    //     });
 
-        // 3. Tirada de Dados
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Tirada_Dados,
-            Jugador = Jugador_.ListaJugadores[2].Nombre,
-            Resultado_Dados = 8
-        });
+    //     // 3. Tirada de Dados
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Tirada_Dados,
+    //         Jugador = Jugador_.ListaJugadores[2].Nombre,
+    //         Resultado_Dados = 8
+    //     });
 
-        // 4. Producción de Recursos
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Produccion_Recursos,
-            Jugador = Jugador_.ListaJugadores[1].Nombre,
-            Recursos_Recibidos = new Dictionary<ResourceType, int>
-    {
-        { ResourceType.Wood, 1 },
-        { ResourceType.Wheat, 2 }
-    }
-        });
+    //     // 4. Producción de Recursos
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Produccion_Recursos,
+    //         Jugador = Jugador_.ListaJugadores[1].Nombre,
+    //         Recursos_Recibidos = new Dictionary<ResourceType, int>
+    // {
+    //     { ResourceType.Wood, 1 },
+    //     { ResourceType.Wheat, 2 }
+    // }
+    //     });
 
-        // 5. Fin de Turno
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Fin_De_Turno,
-            Jugador = Jugador_.ListaJugadores[1].Nombre
-        });
+    //     // 5. Fin de Turno
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Fin_De_Turno,
+    //         Jugador = Jugador_.ListaJugadores[1].Nombre
+    //     });
 
-        // 6. Comercio con la Banca / Puerto
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Comercio_Banca,
-            Jugador = Jugador_.ListaJugadores[2].Nombre,
-            Recursos_Ofrecidos = new Dictionary<ResourceType, int>
-    {
-        { ResourceType.Wood, 4 }
-    },
-            Recursos_Recibidos = new Dictionary<ResourceType, int>
-    {
-        { ResourceType.Rock, 1 }
-    }
-        });
+    //     // 6. Comercio con la Banca / Puerto
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Comercio_Banca,
+    //         Jugador = Jugador_.ListaJugadores[2].Nombre,
+    //         Recursos_Ofrecidos = new Dictionary<ResourceType, int>
+    // {
+    //     { ResourceType.Wood, 4 }
+    // },
+    //         Recursos_Recibidos = new Dictionary<ResourceType, int>
+    // {
+    //     { ResourceType.Rock, 1 }
+    // }
+    //     });
 
-        // 7. Comercio entre Jugadores
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Comercio_Jugadores,
-            Jugador = "Santiago",
-            Jugador_Objetivo = Jugador_.ListaJugadores[0].Nombre,
-            Recursos_Ofrecidos = new Dictionary<ResourceType, int>
-    {
-        { ResourceType.Brick, 2 },
-        { ResourceType.Sheep, 1 }
-    },
-            Recursos_Recibidos = new Dictionary<ResourceType, int>
-    {
-        { ResourceType.Rock, 1 }
-    }
-        });
+    //     // 7. Comercio entre Jugadores
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Comercio_Jugadores,
+    //         Jugador = Jugador_.ListaJugadores[1].Nombre,
+    //         Jugador_Objetivo = Jugador_.ListaJugadores[0].Nombre,
+    //         Recursos_Ofrecidos = new Dictionary<ResourceType, int>
+    // {
+    //     { ResourceType.Brick, 2 },
+    //     { ResourceType.Sheep, 1 }
+    // },
+    //         Recursos_Recibidos = new Dictionary<ResourceType, int>
+    // {
+    //     { ResourceType.Rock, 1 }
+    // }
+    //     });
 
-        // 8. Mover el Ladrón
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Mover_Ladron,
-            Jugador = Jugador_.ListaJugadores[1].Nombre,
-            Id_Posicion_construccion = 5 // ID del hexágono
-        });
+    //     // 8. Mover el Ladrón
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Mover_Ladron,
+    //         Jugador = Jugador_.ListaJugadores[1].Nombre,
+    //         Id_Posicion_construccion = 5 // ID del hexágono
+    //     });
 
-        // 9. Robar Recurso a un Jugador
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Robar_Recurso,
-            Jugador = "Carlos",
-            Jugador_Objetivo = Jugador_.ListaJugadores[2].Nombre,
-            Recursos_Recibidos = new Dictionary<ResourceType, int>
-    {
-        { ResourceType.Wood, 1 }
-    }
-        });
+    //     // 9. Robar Recurso a un Jugador
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Robar_Recurso,
+    //         Jugador = "Carlos",
+    //         Jugador_Objetivo = Jugador_.ListaJugadores[2].Nombre,
+    //         Recursos_Recibidos = new Dictionary<ResourceType, int>
+    // {
+    //     { ResourceType.Wood, 1 }
+    // }
+    //     });
 
-        // 10. Descarte por un 7
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Descarte_Por_Siete,
-            Jugador = Jugador_.ListaJugadores[2].Nombre,
-            Recursos_Ofrecidos = new Dictionary<ResourceType, int>
-    {
-        { ResourceType.Wood, 1 },
-        { ResourceType.Brick, 1 },
-        { ResourceType.Sheep, 1 },
-        { ResourceType.Wheat, 1 },
-        { ResourceType.Rock, 1 }
-    }
-        });
+    //     // 10. Descarte por un 7
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Descarte_Por_Siete,
+    //         Jugador = Jugador_.ListaJugadores[2].Nombre,
+    //         Recursos_Ofrecidos = new Dictionary<ResourceType, int>
+    // {
+    //     { ResourceType.Wood, 1 },
+    //     { ResourceType.Brick, 1 },
+    //     { ResourceType.Sheep, 1 },
+    //     { ResourceType.Wheat, 1 },
+    //     { ResourceType.Rock, 1 }
+    // }
+    //     });
 
-        // 11. Comprar Carta de Desarrollo
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Comprar_Carta_Desarrollo,
-            Jugador = Jugador_.ListaJugadores[1].Nombre
-        });
+    //     // 11. Comprar Carta de Desarrollo
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Comprar_Carta_Desarrollo,
+    //         Jugador = Jugador_.ListaJugadores[1].Nombre
+    //     });
 
-        // 12. Jugar Carta de Desarrollo
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Jugar_Carta_Desarrollo,
-            Jugador = Jugador_.ListaJugadores[0].Nombre,
-            Tipo_Carta_Desarrollo = TiposCartasDesarrollo.Caballero
-        });
+    //     // 12. Jugar Carta de Desarrollo
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Jugar_Carta_Desarrollo,
+    //         Jugador = Jugador_.ListaJugadores[0].Nombre,
+    //         Tipo_Carta_Desarrollo = TiposCartasDesarrollo.Caballero
+    //     });
 
-        // 13. Obtener Gran Ruta (Ruta Más Larga)
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Obtener_Gran_Ruta,
-            Jugador = Jugador_.ListaJugadores[1].Nombre
-        });
+    //     // 13. Obtener Gran Ruta (Ruta Más Larga)
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Obtener_Gran_Ruta,
+    //         Jugador = Jugador_.ListaJugadores[1].Nombre
+    //     });
 
-        // 14. Obtener Ejército (Ejército Más Grande)
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Obtener_Ejercito,
-            Jugador = Jugador_.ListaJugadores[0].Nombre
-        });
+    //     // 14. Obtener Ejército (Ejército Más Grande)
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Obtener_Ejercito,
+    //         Jugador = Jugador_.ListaJugadores[0].Nombre
+    //     });
 
-        // 15. Victoria
-        Historial_.AgregarEvento(new HistorialEvento
-        {
-            Tipo = TipoEvento.Victoria,
-            Jugador = Jugador_.ListaJugadores[1].Nombre,
-            Puntos_Victoria = 10
-        });
+    //     // 15. Victoria
+    //     Historial_.AgregarEvento(new HistorialEvento
+    //     {
+    //         Tipo = TipoEvento.Victoria,
+    //         Jugador = Jugador_.ListaJugadores[1].Nombre,
+    //         Puntos_Victoria = 10
+    //     });
+    // --- FASE INICIAL DE PLACEMENT ---
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Construccion_Estructura,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre, // Erasme
+    //     Estructura_Vertice = StructureType.Settlement
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Construccion_Carretera,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre // Erasme
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Construccion_Estructura,
+    //     Jugador = Jugador_.ListaJugadores[1].Nombre, // Seleta
+    //     Estructura_Vertice = StructureType.Settlement
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Construccion_Carretera,
+    //     Jugador = Jugador_.ListaJugadores[1].Nombre // Seleta
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Construccion_Estructura,
+    //     Jugador = Jugador_.ListaJugadores[2].Nombre, // Berreky
+    //     Estructura_Vertice = StructureType.Settlement
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Construccion_Carretera,
+    //     Jugador = Jugador_.ListaJugadores[2].Nombre // Berreky
+    // });
+
+    // // --- RONDAS DE JUEGO ---
+
+    // // Turno de Berreky
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Tirada_Dados,
+    //     Jugador = Jugador_.ListaJugadores[2].Nombre, // Berreky
+    //     Resultado_Dados = 8
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Produccion_Recursos,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre, // Erasme
+    //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Brick, 1 } }
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Produccion_Recursos,
+    //     Jugador = Jugador_.ListaJugadores[1].Nombre, // Seleta
+    //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wood, 1 } }
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Fin_De_Turno,
+    //     Jugador = Jugador_.ListaJugadores[2].Nombre // Berreky
+    // });
+
+    // // Turno de Erasme
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Tirada_Dados,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre, // Erasme
+    //     Resultado_Dados = 7
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Mover_Ladron,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre // Erasme
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Robar_Recurso,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre, // Erasme
+    //     Jugador_Objetivo = Jugador_.ListaJugadores[2].Nombre, // Berreky
+    //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Sheep, 1 } }
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Comercio_Banca,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre, // Erasme
+    //     Recursos_Ofrecidos = new Dictionary<ResourceType, int> { { ResourceType.Brick, 4 } },
+    //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wheat, 1 } }
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Comprar_Carta_Desarrollo,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre // Erasme
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Construccion_Carretera,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre // Erasme
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Obtener_Gran_Ruta,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre // Erasme
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Fin_De_Turno,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre // Erasme
+    // });
+
+    // // Turno de Seleta
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Tirada_Dados,
+    //     Jugador = Jugador_.ListaJugadores[1].Nombre, // Seleta
+    //     Resultado_Dados = 7
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Mover_Ladron,
+    //     Jugador = Jugador_.ListaJugadores[1].Nombre // Seleta
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Robar_Recurso,
+    //     Jugador = Jugador_.ListaJugadores[1].Nombre, // Seleta
+    //     Jugador_Objetivo = Jugador_.ListaJugadores[0].Nombre, // Erasme
+    //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Rock, 1 } }
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Comercio_Jugadores,
+    //     Jugador = Jugador_.ListaJugadores[1].Nombre, // Seleta
+    //     Jugador_Objetivo = Jugador_.ListaJugadores[2].Nombre, // Berreky
+    //     Recursos_Ofrecidos = new Dictionary<ResourceType, int> { { ResourceType.Wood, 1 } },
+    //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wheat, 1 } }
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Construccion_Estructura,
+    //     Jugador = Jugador_.ListaJugadores[1].Nombre, // Seleta
+    //     Estructura_Vertice = StructureType.Settlement
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Fin_De_Turno,
+    //     Jugador = Jugador_.ListaJugadores[1].Nombre // Seleta
+    // });
+
+    // // Turno de Berreky
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Tirada_Dados,
+    //     Jugador = Jugador_.ListaJugadores[2].Nombre, // Berreky
+    //     Resultado_Dados = 7
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Descarte_Por_Siete,
+    //     Jugador = Jugador_.ListaJugadores[3].Nombre, // Oliva#1164
+    //     Recursos_Ofrecidos = new Dictionary<ResourceType, int>
+    //     {
+    //         { ResourceType.Wood, 2 },
+    //         { ResourceType.Brick, 2 }
+    //     }
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Mover_Ladron,
+    //     Jugador = Jugador_.ListaJugadores[2].Nombre // Berreky
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Robar_Recurso,
+    //     Jugador = Jugador_.ListaJugadores[2].Nombre, // Berreky
+    //     Jugador_Objetivo = Jugador_.ListaJugadores[0].Nombre, // Erasme
+    //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wheat, 1 } }
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Construccion_Estructura,
+    //     Jugador = Jugador_.ListaJugadores[2].Nombre, // Berreky
+    //     Estructura_Vertice = StructureType.City
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Fin_De_Turno,
+    //     Jugador = Jugador_.ListaJugadores[2].Nombre // Berreky
+    // });
+
+    // // Turno de Erasme (Uso de Cartas y Títulos)
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Jugar_Carta_Desarrollo,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre, // Erasme
+    //     Tipo_Carta_Desarrollo = TiposCartasDesarrollo.Caballero
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Obtener_Ejercito,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre // Erasme
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Tirada_Dados,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre, // Erasme
+    //     Resultado_Dados = 9
+    // });
+
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Produccion_Recursos,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre, // Erasme
+    //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wheat, 2 } }
+    // });
+
+    // // Cierre de Partida
+    // Historial_.AgregarEvento(new HistorialEvento
+    // {
+    //     Tipo = TipoEvento.Victoria,
+    //     Jugador = Jugador_.ListaJugadores[0].Nombre, // Erasme
+    //     Puntos_Victoria = 10
+    // });
+        // ==========================================
+        // FASE 1: COLOCACIÓN INICIAL (SNAKE DRAFT)
+        // ==========================================
+
+  
+
+
+
+
+
+
+
+
+        // Turno Jugador 0
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Resultado_Dados = 6
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wheat, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[2].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wood, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[0].Nombre });
+
+        // // Turno Jugador 1
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[1].Nombre,
+        //     Resultado_Dados = 8
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[1].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wood, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[3].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Sheep, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[1].Nombre });
+
+        // // Turno Jugador 2
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[2].Nombre,
+        //     Resultado_Dados = 9
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[2].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Brick, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wood, 1 } }
+        // });
+        // // Comercio lógico: Jugador 2 cambia Brick por Sheep que necesita con Jugador 3
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Comercio_Jugadores,
+        //     Jugador = Jugador_.ListaJugadores[2].Nombre,
+        //     Jugador_Objetivo = Jugador_.ListaJugadores[3].Nombre,
+        //     Recursos_Ofrecidos = new Dictionary<ResourceType, int> { { ResourceType.Brick, 1 } },
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Sheep, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[2].Nombre });
+
+        // // Turno Jugador 3
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[3].Nombre,
+        //     Resultado_Dados = 10
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[3].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Brick, 1 }, {ResourceType.Wood, 1} }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Sheep, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Construccion_Carretera,
+        //     Jugador = Jugador_.ListaJugadores[3].Nombre,
+        //     Id_Posicion_pieza = 47
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[3].Nombre });
+
+        // // Turno Jugador 0 - Desarrollo y expansión
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Resultado_Dados = 5
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wheat, 1 },
+        //                                                              { ResourceType.Sheep, 1 },
+        //                                                              { ResourceType.Rock, 1 }}
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Comprar_Carta_Desarrollo,
+        //     Tipo_Carta_Desarrollo = TiposCartasDesarrollo.Caballero,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[0].Nombre });
+
+        // // Turno Jugador 1 - Ladrón por 7
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[1].Nombre,
+        //     Resultado_Dados = 7
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Mover_Ladron,
+        //     Jugador = Jugador_.ListaJugadores[1].Nombre,
+        //     Id_Posicion_pieza = 6 // Mueve al hexágono de Trigo 6
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Robar_Recurso,
+        //     Jugador = Jugador_.ListaJugadores[1].Nombre,
+        //     Jugador_Objetivo = Jugador_.ListaJugadores[0].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wheat, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[1].Nombre });
+
+        // // Turno Jugador 2 - Avance de Carreteras
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[2].Nombre,
+        //     Resultado_Dados = 4
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[2].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wood, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Construccion_Carretera,
+        //     Jugador = Jugador_.ListaJugadores[2].Nombre,
+        //     Id_Posicion_pieza = 65
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[2].Nombre });
+
+        // // Turno Jugador 3 - Construcción de Poblado
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[3].Nombre,
+        //     Resultado_Dados = 8
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[3].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Sheep, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Construccion_Estructura,
+        //     Jugador = Jugador_.ListaJugadores[3].Nombre,
+        //     Id_Posicion_pieza = 36,
+        //     Estructura_Vertice = StructureType.Settlement
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[3].Nombre });
+
+        // // Turno Jugador 0 - Respuesta con Caballero
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Jugar_Carta_Desarrollo,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Tipo_Carta_Desarrollo = TiposCartasDesarrollo.Caballero
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Mover_Ladron,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Id_Posicion_pieza = 8 // Mueve al hexágono 8
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Robar_Recurso,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Jugador_Objetivo = Jugador_.ListaJugadores[1].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wood, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Resultado_Dados = 6
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wheat, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Construccion_Estructura,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Id_Posicion_pieza = 19,
+        //     Estructura_Vertice = StructureType.Settlement
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[0].Nombre });
+
+        // // Turno Jugador 1 - Comercio con la Banca (4x1) y Ciudad
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[1].Nombre,
+        //     Resultado_Dados = 11
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[1].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Rock, 2 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Comercio_Banca,
+        //     Jugador = Jugador_.ListaJugadores[1].Nombre,
+        //     Recursos_Ofrecidos = new Dictionary<ResourceType, int> { { ResourceType.Wood, 4 } },
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Rock, 1 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Construccion_Estructura,
+        //     Jugador = Jugador_.ListaJugadores[1].Nombre,
+        //     Id_Posicion_pieza = 21,
+        //     Estructura_Vertice = StructureType.City
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[1].Nombre });
+
+        // // Turno Jugador 2 - Expansión y Ruta Más Larga
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[2].Nombre,
+        //     Resultado_Dados = 9
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[2].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Brick, 2 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Construccion_Carretera,
+        //     Jugador = Jugador_.ListaJugadores[2].Nombre,
+        //     Id_Posicion_pieza = 67
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Obtener_Gran_Ruta,
+        //     Jugador = Jugador_.ListaJugadores[2].Nombre
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[2].Nombre });
+
+        // // Turno Jugador 3 - Ciudad en 33
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[3].Nombre,
+        //     Resultado_Dados = 5
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[3].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Rock, 2 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Construccion_Estructura,
+        //     Jugador = Jugador_.ListaJugadores[3].Nombre,
+        //     Id_Posicion_pieza = 33,
+        //     Estructura_Vertice = StructureType.City
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento { Tipo = TipoEvento.Fin_De_Turno, Jugador = Jugador_.ListaJugadores[3].Nombre });
+
+        // // Turno Jugador 0 - Cierre y Victoria con Ciudad y Carta de Punto
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Tirada_Dados,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Resultado_Dados = 6
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Produccion_Recursos,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Recursos_Recibidos = new Dictionary<ResourceType, int> { { ResourceType.Wheat, 2 } }
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Construccion_Estructura,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Id_Posicion_pieza = 9,
+        //     Estructura_Vertice = StructureType.City
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Jugar_Carta_Desarrollo,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Tipo_Carta_Desarrollo = TiposCartasDesarrollo.Punto_Victoria
+        // });
+        // Historial_.AgregarEvento(new HistorialEvento
+        // {
+        //     Tipo = TipoEvento.Victoria,
+        //     Jugador = Jugador_.ListaJugadores[0].Nombre,
+        //     Puntos_Victoria = 10
+        // });
 
         Historial_.OnAccion += HandleChange;
         //se suscribe, para que cada vez que algún valor cambie, invoque el metodo HandleChange
@@ -203,22 +815,22 @@
     public void Dispose()
     {
         Historial_.OnAccion -= HandleChange;
+        PausarReplay();
     }
 
     private string Texto_evento(HistorialEvento evento)
     {
-        PartidaService_.Aplicar(evento);
         string textoResultado;
 
         switch (evento.Tipo) //textos generales, se ven iguales en la partida, que post partida.
         {
             // Construcción
             case TipoEvento.Construccion_Estructura:
-                textoResultado = $"{evento.Jugador} {Texto_Estructura(evento.Estructura_Vertice)} en la posición {evento.Id_Posicion_construccion}";
+                textoResultado = $"{evento.Jugador} {Texto_Estructura(evento.Estructura_Vertice)} en la posición {evento.Id_Posicion_pieza}";
                 break;
 
             case TipoEvento.Construccion_Carretera:
-                textoResultado = $"{evento.Jugador} construyó una Carretera en la arista {evento.Id_Posicion_construccion}";
+                textoResultado = $"{evento.Jugador} construyó una Carretera en la arista {evento.Id_Posicion_pieza}";
                 break;
 
             // Turno / Dados
@@ -245,7 +857,7 @@
 
             // Ladrón
             case TipoEvento.Mover_Ladron:
-                textoResultado = $"{evento.Jugador} movió al Ladrón al hexágono {evento.Id_Posicion_construccion}";
+                textoResultado = $"{evento.Jugador} movió al Ladrón al hexágono {evento.Id_Posicion_pieza}";
                 break;
 
             // Cartas de Desarrollo
@@ -340,10 +952,74 @@
         {
             TiposCartasDesarrollo.Caballero => "Caballero",
             TiposCartasDesarrollo.Carreteras => "Construcción de Carreteras",
-            TiposCartasDesarrollo.Invento => "Año de la Abundancia",
+            TiposCartasDesarrollo.Invento => "Invento",
             TiposCartasDesarrollo.Monopolio => "Monopolio",
             TiposCartasDesarrollo.Punto_Victoria => "Punto de Victoria",
             _ => "Carta no identificada"
         };
+    }
+
+    private CancellationTokenSource? _replayCancellationTokenSource;
+    private bool _estaReproduciendo = false;
+
+    // Tiempo de espera entre eventos en milisegundos (ej: 1.5 segundos)
+    private int _intervaloReplayMs = 1500;
+
+    private async Task ToggleReplay()
+    {
+        if (_estaReproduciendo)
+        {
+            PausarReplay();
+        }
+        else
+        {
+            await IniciarReplay();
+        }
+    }
+
+    private async Task IniciarReplay()
+    {
+        if (_estaReproduciendo) return;
+
+        _estaReproduciendo = true;
+        _replayCancellationTokenSource = new CancellationTokenSource();
+        var token = _replayCancellationTokenSource.Token;
+
+        // Ejecutamos la tarea en segundo plano para no bloquear la UI
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                while (!token.IsCancellationRequested && Historial_.Historial_Mostrar.Count < Historial_.Historial.Count)
+                {
+                    // Invocamos el avance en el hilo principal de la UI de Blazor
+                    await InvokeAsync(() =>
+                    {
+                        Historial_.Siguiente_Evento(PartidaService_);
+                        StateHasChanged();
+                    });
+
+                    // Espera el tiempo configurado antes del siguiente evento
+                    await Task.Delay(_intervaloReplayMs, token);
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // La reproducción fue pausada o cancelada normalmente
+            }
+            finally
+            {
+                _estaReproduciendo = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }, token);
+    }
+
+    private void PausarReplay()
+    {
+        _replayCancellationTokenSource?.Cancel();
+        _replayCancellationTokenSource?.Dispose();
+        _replayCancellationTokenSource = null;
+        _estaReproduciendo = false;
     }
 }

@@ -11,6 +11,7 @@
 @inject Personalizacion_Pagina Config
 @inject HistorialService Historial_
 @inject Jugador_Class Jugador_
+@inject PartidaService PartidaService_
 @inject NavigationManager Nav
 @inject CATAN_WebAssembly.Services.CatanBoardState BoardState
 @inject ArduinoSerialService Serial
@@ -115,6 +116,7 @@
 </div>
 
 @code {
+    private int asfdasfg = 10;
     private ElementReference _tableroRef; //referencia para el correcto escalado del tablero
     private const string RutaLobby = "/Lobby";
 
@@ -130,6 +132,7 @@
         Jugador_.Eliminar_todos_los_jugadores();
         Historial_.EliminarHistorial();
         Config.Flag_partida_activa = false;
+        BoardState.Partida_Cargada = false;
         BoardState.Inicializado = false;
         Nav.NavigateTo(RutaLobby);
     }
@@ -264,6 +267,7 @@
     // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
     protected override void OnInitialized() //cuando se renderiza la pagina, este metodo se ejecuta
     {
+        PartidaService_.OnChange += HandleChange;
         Serial.OnMessageReceived += HandleMessage;
         Serial.OnError += HandleError;
         Config.OnChange += HandleChange;
@@ -304,6 +308,9 @@
 
     public void Dispose() 
     {
+        Config.OnChange -= HandleChange;
+        PartidaService_.OnChange -= HandleChange;
+        Serial.OnError -= HandleError;
         Config.OnChange -= HandleChange;
         /*se desuscribe del evento, para que Config.OnChange, para que no quede apuntando a esta pagina,
         permitiendo que se desrenderize completamente, previniendo memory leaks*/
@@ -361,7 +368,7 @@
         Console.WriteLine($"Click - Position_Id: {vertex.Position_Id} - Id: {vertex.Id}");
         vertex.Structure = Config.Structure;
         vertex.PlayerColor = Jugador_.TurnoJugador().Color;
-        Historial_.AgregarEvento(new HistorialEvento {Tipo = TipoEvento.Construccion_Estructura,Id_Posicion_construccion = vertex.Id, Estructura_Vertice = vertex.Structure, Jugador = Jugador_.TurnoJugador().Nombre });
+        Historial_.AgregarEvento(new HistorialEvento {Tipo = TipoEvento.Construccion_Estructura,Id_Posicion_pieza = vertex.Id, Estructura_Vertice = vertex.Structure, Jugador = Jugador_.TurnoJugador().Nombre });
 
         // por ahora vacío, después acá va la lógica de colocar asentamientos
     }
@@ -370,6 +377,7 @@
     {
         Console.WriteLine($"Clickeaste la arista {edge.Id}");
         edge.HasRoad = Config.Has_Road;
+        edge.PlayerColor = Jugador_.TurnoJugador().Color;
         // por ahora vacío, después acá va la lógica de colocar carreteras
     }
 }

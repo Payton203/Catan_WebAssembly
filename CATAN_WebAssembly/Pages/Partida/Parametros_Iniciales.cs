@@ -5,7 +5,7 @@
     {
         public const int CantidadJugadores = 4;
         public Asignacion_Numeros_Catan Asignacion_Numeros { get; set; } = Asignacion_Numeros_Catan.Modo_Clasico;
-        public int Seed { get; set; } = 10;
+        public int Seed { get; set; } = 543456789;
 
         private List<string> _nombreJugadores = Enumerable.Repeat("", CantidadJugadores).ToList();
 

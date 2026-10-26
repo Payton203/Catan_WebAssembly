@@ -117,5 +117,37 @@ namespace CATAN_WebAssembly.Pages.Partida
             if ((id + 1) < ListaJugadores.Count) ListaJugadores[id + 1].EsTurno = true;
             else ListaJugadores[0].EsTurno = true;
         }
+
+        public void Pasar_Turno_Inicial(int contadorTurno)
+        {
+            int idActual = ListaJugadores.FindIndex(j => j.EsTurno);
+            if (idActual == -1) return;
+
+            ListaJugadores[idActual].EsTurno = false;
+
+            int siguienteId;
+
+            if (contadorTurno < 4)
+            {
+                // Ronda 1 (Turnos 1 a 4): Avanza normal (0 -> 1 -> 2 -> 3)
+                siguienteId = idActual + 1;
+            }
+            else if (contadorTurno == 4)
+            {
+                // Turno 4 al 5: El último jugador repite turno (3 -> 3)
+                siguienteId = idActual;
+            }
+            else if (contadorTurno < 8)
+            {
+                // Ronda 2 (Turnos 5 a 8): Retrocede (3 -> 2 -> 1 -> 0)
+                siguienteId = idActual - 1;
+            }
+            else
+            {
+                // A partir del Turno 8 al 9: Vuelve a avanzar normal (0 -> 1 -> 2 -> 3)
+                siguienteId = (idActual + 1) % ListaJugadores.Count;
+            }
+            ListaJugadores[siguienteId].EsTurno = true;
+        }
     }
 }

@@ -54,8 +54,13 @@
 }
 
 /* Cuando dados está oculto, tablero ocupa su lugar */
-.partida-grid:not(:has(.panel-dados )) .panel-tablero {
+.partida-grid:not(:has(.panel-dados )) .panel-jugadores {
+    grid-row: 1 / -1;
+}
+
+.partida-grid:not(:has(.panel-dados, .panel-jugadores)) .panel-historial {
     grid-column: 1 / -1;
+    /* Estilos cuando no existe ninguno de los dos */
 }
 
 /*─────────────────────────────────────────────────────────────────────Panel-Tablero────────────────────────────────────────────────────────────────────*/

@@ -40,7 +40,11 @@ public record HistorialEvento
     public DateTime Momento { get; init; } = DateTime.Now;
     // Campos opcionales
     public int? Resultado_Dados { get; init; }
-    public int? Id_Posicion_construccion { get; init; }
+    /// <summary>
+    /// Con pieza, me refiero a lo que en el catan tradicional es una pieza:
+    /// el ladron, las carreteras, los pueblos y las ciudades
+    /// </summary>
+    public int? Id_Posicion_pieza { get; init; }
     public StructureType? Estructura_Vertice { get; init; }
     public string? Jugador_Objetivo { get; init; }
     public TiposCartasDesarrollo? Tipo_Carta_Desarrollo { get; init; }
@@ -49,11 +53,15 @@ public record HistorialEvento
     // Listas/Diccionarios para soportar múltiples recursos en una sola acción
     public Dictionary<ResourceType, int>? Recursos_Ofrecidos { get; init; }
     public Dictionary<ResourceType, int>? Recursos_Recibidos { get; init; }
+
+    //solo para el WebAssembly, para ver si el evento ya fue aplicado
+    public bool aplicado { get; set; } = false;
 }
 namespace CATAN_WebAssembly.Services
 {
-    public class HistorialService
+    public class HistorialService()
     {
+        //jajasndjkasnfjk
 
         public List<HistorialEvento> Historial { get; private set; } = new List<HistorialEvento>();
         public List<HistorialEvento> Historial_Mostrar { get; private set; } = new List<HistorialEvento>();
@@ -71,21 +79,33 @@ namespace CATAN_WebAssembly.Services
         public void EliminarHistorial()
         {
             Historial.RemoveRange(0, Historial.Count);
+            Historial_Mostrar.RemoveRange(0, Historial_Mostrar.Count);
         }
         //
-        public void Siguiente_Evento() 
+        public void Siguiente_Evento(PartidaService partidaService)
         {
             if (Historial_Mostrar.Count < Historial.Count)
             {
-                Historial_Mostrar.Add(Historial[Historial_Mostrar.Count]);
+                var siguiente = Historial[Historial_Mostrar.Count];
+                Historial_Mostrar.Add(siguiente);
+
+                // Aplica solo el nuevo evento que entra en pantalla
+                partidaService.Aplicar(siguiente);
+                OnAccion?.Invoke();
             }
         }
 
-        public void Anterior_Evento()
+        public void Anterior_Evento(PartidaService partidaService)
         {
             if (Historial_Mostrar.Count > 0)
             {
-                Historial_Mostrar.RemoveAt(Historial_Mostrar.Count - 1); // o borrar usando la referencia al último
+                // 1. Quitamos el último evento de la vista
+                Historial_Mostrar.RemoveAt(Historial_Mostrar.Count - 1);
+
+                // 2. Reconstruimos la partida completa al estado exacto del Historial_Mostrar
+                partidaService.ReconstruirEstadoDesdeHistorial(Historial_Mostrar);
+
+                OnAccion?.Invoke();
             }
         }
     }

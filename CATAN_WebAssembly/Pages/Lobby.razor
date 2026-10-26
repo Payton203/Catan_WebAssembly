@@ -112,34 +112,38 @@
     {
         Jugador_.Insertar_jugador(new Jugador_Class
         {
-            Nombre = "",
+            Nombre = "Affre",
             EsTurno = true,
-            PuntosVictoria = 5,
-            Color = "#FF0000"
+            PuntosVictoria = 0,
+            Color = "#00FF00"
         }, 0);
         Jugador_.Insertar_jugador(new Jugador_Class
         {
-            Nombre = "",
+            Nombre = "Gimenez",
             EsTurno = false,
-            PuntosVictoria = 3,
-            Color = "#00FF00"
+            PuntosVictoria = 0,
+            Color = "#FFA500"
         }, 1);
         Jugador_.Insertar_jugador(new Jugador_Class
         {
-            Nombre = "",
+            Nombre = "Monteagudo",
             EsTurno = false,
-            PuntosVictoria = 1,
-            Color = "#0000FF"
+            PuntosVictoria = 0,
+            Color = "#FF0000"
         }, 2);
         Jugador_.Insertar_jugador(new Jugador_Class
         {
-            Nombre = "",
+            Nombre = "Macheta",
             EsTurno = false,
-            PuntosVictoria = 2,
+            PuntosVictoria = 0,
             Color = "#FF00FF"
         }, 3);
         if (flag_Jugadores_inicializados == false)
         { Console.WriteLine("se inserto el jugador 0"); }
+        for (int i = 0; i < 4; i++)
+        {
+             Parametros_Iniciales_.Nombre_Jugadores[i] = Jugador_.ListaJugadores[i].Nombre;
+        }
         flag_Jugadores_inicializados = true;
     }
     // Ruta de la página de la partida: ajustala a la tuya.

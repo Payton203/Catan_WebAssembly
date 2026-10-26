@@ -11,6 +11,8 @@
 @inject Personalizacion_Pagina Config
 @inject Parametros_Iniciales Parametros_Iniciales_
 @inject CatanBoardState BoardState
+@inject PartidaService PartidaService_
+@implements IDisposable
 
 <div class="jugadores-panel-contenido">
     @foreach (Jugador_Class jugador in Jugador_.ListaJugadores)
@@ -18,7 +20,7 @@
         <div class="jugador-card @(jugador.EsTurno ? "jugador-card--turno" : "")">
 
             <div class="jugador-card__header">
-                <span class="jugador-card__nombre">@jugador.Nombre</span>
+                <span class="jugador-card__nombre" style="color: @jugador.Color;">@jugador.Nombre</span>
                 @if (jugador.EsTurno)
                 {
                     <span class="jugador-card__badge">Turno</span>
@@ -134,5 +136,19 @@
     private int ObtenerCantidad(Jugador_Class jugador, ResourceType recurso)
         => jugador.Recursos.TryGetValue(recurso, out var c) ? c : 0;
 
-    protected override void OnInitialized() { }
+    protected override void OnInitialized()
+    {
+        // Suscribirse al evento de PartidaService
+        PartidaService_.OnChange += RefrescarUI;
+    }
+
+    private async void RefrescarUI()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        PartidaService_.OnChange -= RefrescarUI;
+    }
 }
