@@ -1,5 +1,6 @@
-using System.Text.Json;
 using Microsoft.JSInterop;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CATAN_WebAssembly.Services;
 
@@ -120,4 +121,9 @@ public class ArduinoSerialService(IJSRuntime js) : IAsyncDisposable
         _selfRef?.Dispose();
         GC.SuppressFinalize(this);
     }
+    private static readonly JsonSerializerOptions _opcionesEnvio = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 }

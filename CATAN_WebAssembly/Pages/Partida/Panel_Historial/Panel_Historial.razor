@@ -10,11 +10,11 @@
 @if(BoardState.Replay == true)
 {
     <div class="d-inline-flex" style="gap: 10px; height:fit-content">
-        <button style="scale: 2" class="bi bi-caret-left-fill" @onclick="() => Historial_.Anterior_Evento(PartidaService_)"></button>
+        <button style="scale: 2" class="bi bi-caret-left-fill" @onclick="() => Historial_.Anterior_Evento(PartidaService_, BoardState)"></button>
         <button style="scale: 2" class="bi @(_estaReproduciendo ? "bi-pause-fill" : "bi-play-fill")"
                 @onclick="ToggleReplay">
         </button>
-        <button style="scale: 2" class="bi bi-caret-right-fill" @onclick="() => Historial_.Siguiente_Evento(PartidaService_)"></button>
+        <button style="scale: 2" class="bi bi-caret-right-fill" @onclick="() => Historial_.Siguiente_Evento(PartidaService_, BoardState)"></button>
         <button style="scale: 2; margin-left: auto" class="bi bi-gear" onclick=""></button>
     </div>
 }
@@ -995,7 +995,7 @@
                     // Invocamos el avance en el hilo principal de la UI de Blazor
                     await InvokeAsync(() =>
                     {
-                        Historial_.Siguiente_Evento(PartidaService_);
+                        Historial_.Siguiente_Evento(PartidaService_, BoardState);
                         StateHasChanged();
                     });
 

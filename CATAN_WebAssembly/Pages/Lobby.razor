@@ -138,8 +138,8 @@
             PuntosVictoria = 0,
             Color = "#FF00FF"
         }, 3);
-        if (flag_Jugadores_inicializados == false)
-        { Console.WriteLine("se inserto el jugador 0"); }
+        // if (flag_Jugadores_inicializados == false)
+        // { Console.WriteLine("se inserto el jugador 0"); }
         for (int i = 0; i < 4; i++)
         {
              Parametros_Iniciales_.Nombre_Jugadores[i] = Jugador_.ListaJugadores[i].Nombre;
@@ -194,7 +194,7 @@
         _bloqueados.Clear(); // sin Arduino, los campos vuelven a ser editables a mano
     }
 
-    private void IniciarPartida() 
+    private async Task IniciarPartida()
     {
         flag_Jugadores_inicializados = false;
 
@@ -210,6 +210,8 @@
             Jugador_.ListaJugadores[i].Nombre = Parametros_Iniciales_.Nombre_Jugadores[i];
         }
 
+        if (Serial.IsConnected)
+            await Serial.SendJsonAsync(Parametros_Iniciales_);
         Nav.NavigateTo(RutaPartida);
     }
 

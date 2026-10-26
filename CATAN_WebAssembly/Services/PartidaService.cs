@@ -457,4 +457,9 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
         // 4. Notificar a Blazor
         OnChange?.Invoke();
     }
+
+    public void Reset()
+    {
+        ContadorTurnos = 1;
+    }
 }

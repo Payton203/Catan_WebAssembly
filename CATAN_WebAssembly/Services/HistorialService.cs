@@ -67,6 +67,7 @@ namespace CATAN_WebAssembly.Services
         public List<HistorialEvento> Historial_Mostrar { get; private set; } = new List<HistorialEvento>();
 
         public event Action? OnAccion;
+        public event Action<HistorialEvento>? OnEventoMostrado;
         /// <summary>
         /// 
         /// </summary>
@@ -82,7 +83,7 @@ namespace CATAN_WebAssembly.Services
             Historial_Mostrar.RemoveRange(0, Historial_Mostrar.Count);
         }
         //
-        public void Siguiente_Evento(PartidaService partidaService)
+        public void Siguiente_Evento(PartidaService partidaService, CatanBoardState boardState)
         {
             if (Historial_Mostrar.Count < Historial.Count)
             {
@@ -90,12 +91,12 @@ namespace CATAN_WebAssembly.Services
                 Historial_Mostrar.Add(siguiente);
 
                 // Aplica solo el nuevo evento que entra en pantalla
-                partidaService.Aplicar(siguiente);
+                if ((partidaService.Aplicar(siguiente)) && (boardState.Replay == true)) OnEventoMostrado?.Invoke(siguiente);
                 OnAccion?.Invoke();
             }
         }
 
-        public void Anterior_Evento(PartidaService partidaService)
+        public void Anterior_Evento(PartidaService partidaService, CatanBoardState boardState)
         {
             if (Historial_Mostrar.Count > 0)
             {

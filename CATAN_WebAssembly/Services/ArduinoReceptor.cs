@@ -22,6 +22,13 @@ namespace CATAN_WebAssembly.Services
                 if (evento is not null && partida.Aplicar(evento))
                     historial.AgregarEvento(evento);
             };
+            historial.OnEventoMostrado += async e =>
+            {
+                if (!serial.IsConnected) return;
+                try { await serial.SendJsonAsync(e); }
+                catch (Exception) { /* puerto caído: la pantalla sigue sin el Arduino */ }
+            };
         }
+
     }
 }
