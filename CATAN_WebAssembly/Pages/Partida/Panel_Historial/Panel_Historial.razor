@@ -15,9 +15,25 @@
                 @onclick="ToggleReplay">
         </button>
         <button style="scale: 2" class="bi bi-caret-right-fill" @onclick="() => Historial_.Siguiente_Evento(PartidaService_, BoardState)"></button>
-        <button style="scale: 2; margin-left: auto" class="bi bi-gear" onclick=""></button>
+        <button style="scale: 2; margin-left: auto;" class="bi bi-gear" @onclick="ToggleOpciones" title="Configuración">
+        </button>
     </div>
 }
+
+<div class="menu-container">
+    @if (mostrarOpciones)
+    {
+        <div class="popup-menu">
+            <div class="item-left">
+                <MudSlider @bind-Value="_intervaloReplayMs" Step="10" Min="250" Max="10000" Color="Color.Primary" Class="flex-grow-1 mx-2"></MudSlider>
+            </div>
+            <div class="item-right">
+                <span>@($"{_intervaloReplayMs} ms")</span>
+            </div>
+        </div>
+    }
+</div>
+
 <div class="panel-historial-contenido">
     @{
         // Selecciona qué lista mostrar según el modo
@@ -35,6 +51,11 @@
     }
 </div>
 @code {
+    private bool mostrarOpciones = false;
+    private void ToggleOpciones()
+    {
+        mostrarOpciones = !mostrarOpciones;
+    }
     protected override void OnInitialized()
     {
         Console.WriteLine($"BoardState.Inicializado: {BoardState.Partida_Cargada}");
