@@ -1,4 +1,4 @@
-﻿using CATAN_WebAssembly.Pages.Partida;
+using CATAN_WebAssembly.Pages.Partida;
 using CATAN_WebAssembly.Pages.Partida.Panel_Tablero;
 
 namespace CATAN_WebAssembly.Services;
@@ -11,6 +11,11 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
     /// <summary>Se dispara cuando un evento modificó el estado, para que los componentes se re-rendericen.</summary>
     public event Action? OnChange;
     public int ContadorTurnos { get; private set; } = 1;
+    public HistorialEvento? UltimaTirada { get; private set; }
+    private Jugador_Class? _duenoGranRuta;
+    private Jugador_Class? _duenoEjercito;
+    private readonly Dictionary<TiposCartasDesarrollo, int> _compradasEsteTurno = new();
+    private bool _cartaJugadaEsteTurno;
     // Contador temporal para controlar las 2 carreteras gratuitas tras jugar la carta
     private int _carreterasGratisRestantes = 0;
     /// <returns>
@@ -78,7 +83,7 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
         if (!valido) return false;
 
         // --- DISTINCIÓN POR FASE ---
-        if (ContadorTurnos > 8)
+        if (ContadorTurnos > 2 * jugadores.ListaJugadores.Count)
         {
             if (nueva == StructureType.Settlement)
             {
@@ -120,7 +125,7 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
         var arista = tablero.Edges.FirstOrDefault(x => x.Id == idArista);
         if (arista is null || arista.HasRoad) return false;
         // Se cobra solo si estamos en Fase Normal Y no tenemos carreteras gratuitas de la carta
-        bool esGratis = ContadorTurnos <= 8 || _carreterasGratisRestantes > 0;
+        bool esGratis = ContadorTurnos <= 2 * jugadores.ListaJugadores.Count || _carreterasGratisRestantes > 0;
         if (!esGratis)
         {
             var costoCarretera = new Dictionary<ResourceType, int>
@@ -135,11 +140,14 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
 
         arista.HasRoad = true;
         arista.PlayerColor = jugador.Color;
+        if (ContadorTurnos > 2 * jugadores.ListaJugadores.Count && _carreterasGratisRestantes > 0)
+            _carreterasGratisRestantes--;
         return true;
     }
 
     private bool ComprarCartaDesarrollo(HistorialEvento e, Jugador_Class jugador)
     {
+        if (!jugador.EsTurno) return false;
         if (e.Tipo_Carta_Desarrollo is not TiposCartasDesarrollo tipoCarta) return false;
 
         var costoCarta = new Dictionary<ResourceType, int>
@@ -153,13 +161,19 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
         DescontarRecursos(jugador, costoCarta);
 
         jugador.CartasEnMano[tipoCarta]++;
+        _compradasEsteTurno[tipoCarta] = _compradasEsteTurno.GetValueOrDefault(tipoCarta) + 1;
         return true;
     }
 
     private bool ProcesarTiradaDados(HistorialEvento e)
     {
         // Evento informativo del dado; valida que traiga un número de dado legal en Catan (2 a 12)
-        return e.Resultado_Dados is >= 2 and <= 12;
+        if (e.Resultado_Dados is not (>= 2 and <= 12)) return false;
+        if (e.Dado1.HasValue || e.Dado2.HasValue)
+            if (e.Dado1 is not (>= 1 and <= 6) || e.Dado2 is not (>= 1 and <= 6) ||
+                e.Dado1 + e.Dado2 != e.Resultado_Dados) return false;
+        UltimaTirada = e;
+        return true;
     }
 
     private bool ProcesarProduccionRecursos(HistorialEvento e, Jugador_Class jugador)
@@ -275,11 +289,19 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
 
     private bool JugarCartaDesarrollo(HistorialEvento e, Jugador_Class jugador)
     {
+        if (!jugador.EsTurno) return false;
         if (e.Tipo_Carta_Desarrollo is not TiposCartasDesarrollo tipoCarta) return false;
+
+        if (tipoCarta != TiposCartasDesarrollo.Punto_Victoria &&
+            (_cartaJugadaEsteTurno || jugador.CartasEnMano[tipoCarta] <= _compradasEsteTurno.GetValueOrDefault(tipoCarta)))
+            return false;
+        if (tipoCarta == TiposCartasDesarrollo.Punto_Victoria &&
+            jugador.PuntosVictoria + jugador.CartasEnMano[tipoCarta] < 10) return false;
 
         // JugarCarta quita de mano y suma a CartasJugadas
         bool exitoso = jugador.JugarCarta(tipoCarta);
         if (!exitoso) return false;
+        if (tipoCarta != TiposCartasDesarrollo.Punto_Victoria) _cartaJugadaEsteTurno = true;
 
         switch (tipoCarta)
         {
@@ -308,14 +330,20 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
 
     private bool ProcesarTituloRuta(Jugador_Class jugador)
     {
-        // Otorga 2 Puntos de Victoria por la Ruta Más Larga
+        if (_duenoGranRuta == jugador) return false;
+        if (_duenoGranRuta is not null) _duenoGranRuta.PuntosVictoria -= 2;
+        _duenoGranRuta = jugador;
         jugador.PuntosVictoria += 2;
         return true;
     }
 
     private bool ProcesarTituloEjercito(Jugador_Class jugador)
     {
-        // Otorga 2 Puntos de Victoria por el Gran Ejército
+        if (_duenoEjercito == jugador) return false;
+        if (jugador.CaballerosJugados < 3 ||
+            (_duenoEjercito is not null && jugador.CaballerosJugados <= _duenoEjercito.CaballerosJugados)) return false;
+        if (_duenoEjercito is not null) _duenoEjercito.PuntosVictoria -= 2;
+        _duenoEjercito = jugador;
         jugador.PuntosVictoria += 2;
         return true;
     }
@@ -324,9 +352,9 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
     {
         if (!jugador.EsTurno) return false;
 
-        if (ContadorTurnos <= 8)
+        if (ContadorTurnos <= 2 * jugadores.ListaJugadores.Count)
         {
-            // FASE INICIAL (Placement 1 al 8): Maneja el serpenteo (snake draft)
+            // FASE INICIAL: dos colocaciones por jugador, en orden de ida y vuelta.
             jugadores.Pasar_Turno_Inicial(ContadorTurnos);
         }
         else
@@ -336,16 +364,16 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
         }
 
         ContadorTurnos++;
+        _compradasEsteTurno.Clear();
+        _cartaJugadaEsteTurno = false;
+        _carreterasGratisRestantes = 0;
         return true;
     }
 
     private bool ProcesarVictoria(HistorialEvento e, Jugador_Class jugador)
     {
-        if (e.Puntos_Victoria is int puntos && puntos > 0)
-        {
-            jugador.PuntosVictoria = puntos;
-        }
-        return true;
+        return jugador.EsTurno && jugador.PuntosVictoria >= 10 &&
+            (!e.Puntos_Victoria.HasValue || e.Puntos_Victoria == jugador.PuntosVictoria);
     }
 
     // --- MÉTODOS AUXILIARES ---
@@ -415,12 +443,11 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
 
         foreach (var celda in tablero.Celdas)
         {
-            celda.Has_Thief = false; // Se puede reasignar al Desierto por defecto si lo deseas
+            celda.Has_Thief = celda.Recurso == Resource_Cell.Desert;
         }
 
         // 2. Resetear Jugadores
-        ContadorTurnos = 1;
-        _carreterasGratisRestantes = 0;
+        Reset();
 
         foreach (var j in jugadores.ListaJugadores)
         {
@@ -451,7 +478,8 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
         foreach (var e in eventosAMostrar)
         {
             e.aplicado = false; // Forzamos la re-ejecución
-            Aplicar(e);
+            if (!Aplicar(e))
+                throw new InvalidOperationException($"No se pudo reproducir {e.Tipo} de {e.Jugador}.");
         }
 
         // 4. Notificar a Blazor
@@ -461,5 +489,11 @@ public class PartidaService(CatanBoardState tablero, Jugador_Class jugadores)
     public void Reset()
     {
         ContadorTurnos = 1;
+        _carreterasGratisRestantes = 0;
+        _duenoGranRuta = null;
+        _duenoEjercito = null;
+        UltimaTirada = null;
+        _compradasEsteTurno.Clear();
+        _cartaJugadaEsteTurno = false;
     }
 }

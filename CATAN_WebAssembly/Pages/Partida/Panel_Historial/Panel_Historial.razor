@@ -6,17 +6,25 @@
 @inject Jugador_Class Jugador_
 @inject CatanBoardState BoardState
 @inject PartidaService PartidaService_
+@implements IDisposable
 
 @if(BoardState.Replay == true)
 {
+    <div class="replay-status">Evento @Historial_.Historial_Mostrar.Count de @Historial_.Historial.Count ·
+        @(Historial_.Historial_Mostrar.LastOrDefault()?.Turno is > 0 ? $"Turno {Historial_.Historial_Mostrar.Last().Turno}" : "Colocación inicial")</div>
     <div class="d-inline-flex" style="gap: 10px; height:fit-content">
-        <button style="scale: 2" class="bi bi-caret-left-fill" @onclick="() => Historial_.Anterior_Evento(PartidaService_, BoardState)"></button>
-        <button style="scale: 2" class="bi @(_estaReproduciendo ? "bi-pause-fill" : "bi-play-fill")"
+        <button aria-label="Evento anterior" title="Evento anterior" style="scale: 2" class="bi bi-caret-left-fill" @onclick="() => Historial_.Anterior_Evento(PartidaService_, BoardState)"></button>
+        <button aria-label="Reproducir o pausar" title="Reproducir o pausar" style="scale: 2" class="bi @(_estaReproduciendo ? "bi-pause-fill" : "bi-play-fill")"
                 @onclick="ToggleReplay">
         </button>
-        <button style="scale: 2" class="bi bi-caret-right-fill" @onclick="() => Historial_.Siguiente_Evento(PartidaService_, BoardState)"></button>
+        <button aria-label="Evento siguiente" title="Evento siguiente" style="scale: 2" class="bi bi-caret-right-fill" @onclick="() => Historial_.Siguiente_Evento(PartidaService_, BoardState)"></button>
         <button style="scale: 2; margin-left: auto;" class="bi bi-gear" @onclick="ToggleOpciones" title="Configuración">
         </button>
+    </div>
+    <div class="replay-jumps">
+        <button @onclick="() => IrA(0)">Inicio</button>
+        <button @onclick="SiguienteTurno">Siguiente turno</button>
+        <button @onclick="() => IrA(Historial_.Historial.Count)">Ver final</button>
     </div>
 }
 
@@ -46,11 +54,26 @@
     {
         <div class="contenedor-evento">
             <span class="texto-evento">@Texto_evento(evento)</span>
+            @if (!string.IsNullOrWhiteSpace(evento.Comentario))
+            {
+                <small class="comentario-evento">@evento.Comentario</small>
+            }
             <div class="contenedor-momento">@evento.Momento.ToString("HH:mm:ss")</div>
         </div>
     }
 </div>
 @code {
+    private void IrA(int cantidad)
+    {
+        PausarReplay();
+        Historial_.IrAlEvento(cantidad, PartidaService_);
+    }
+    private void SiguienteTurno()
+    {
+        int actual = Historial_.Historial_Mostrar.Count;
+        int fin = Historial_.Historial.FindIndex(actual, e => e.Tipo == TipoEvento.Fin_De_Turno);
+        IrA(fin < 0 ? Historial_.Historial.Count : fin + 1);
+    }
     private bool mostrarOpciones = false;
     private void ToggleOpciones()
     {
@@ -61,7 +84,6 @@
         Console.WriteLine($"BoardState.Inicializado: {BoardState.Partida_Cargada}");
         if (BoardState.Partida_Cargada == false)
         {
-            partida1();
             BoardState.Partida_Cargada = true;
         }
         Console.WriteLine($"BoardState.Inicializado: {BoardState.Partida_Cargada}");

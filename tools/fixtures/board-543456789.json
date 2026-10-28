@@ -1,0 +1,173 @@
+[
+  {
+    "Id": 1,
+    "Label": 12,
+    "BackgroundColor": "#6bb548",
+    "Recurso": "Sheep",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 7
+  },
+  {
+    "Id": 2,
+    "Label": 11,
+    "BackgroundColor": "#d9a72e",
+    "Recurso": "Wheat",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 8
+  },
+  {
+    "Id": 3,
+    "Label": 4,
+    "BackgroundColor": "#d9a72e",
+    "Recurso": "Wheat",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 9
+  },
+  {
+    "Id": 4,
+    "Label": 9,
+    "BackgroundColor": "#e34c0b",
+    "Recurso": "Brick",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 6
+  },
+  {
+    "Id": 5,
+    "Label": 6,
+    "BackgroundColor": "#d9a72e",
+    "Recurso": "Wheat",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 16
+  },
+  {
+    "Id": 6,
+    "Label": 3,
+    "BackgroundColor": "#6bb548",
+    "Recurso": "Sheep",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 17
+  },
+  {
+    "Id": 7,
+    "Label": 8,
+    "BackgroundColor": "#276b34",
+    "Recurso": "Wood",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 10
+  },
+  {
+    "Id": 8,
+    "Label": 10,
+    "BackgroundColor": "#276b34",
+    "Recurso": "Wood",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 5
+  },
+  {
+    "Id": 9,
+    "Label": 5,
+    "BackgroundColor": "#d9a72e",
+    "Recurso": "Wheat",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 15
+  },
+  {
+    "Id": 10,
+    "Label": 11,
+    "BackgroundColor": "#7d8a7f",
+    "Recurso": "Rock",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 18
+  },
+  {
+    "Id": 11,
+    "Label": 10,
+    "BackgroundColor": "#e34c0b",
+    "Recurso": "Brick",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 12
+  },
+  {
+    "Id": 12,
+    "Label": null,
+    "BackgroundColor": "#bcae83",
+    "Recurso": "Desert",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 11
+  },
+  {
+    "Id": 13,
+    "Label": 8,
+    "BackgroundColor": "#6bb548",
+    "Recurso": "Sheep",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 4
+  },
+  {
+    "Id": 14,
+    "Label": 4,
+    "BackgroundColor": "#e34c0b",
+    "Recurso": "Brick",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 14
+  },
+  {
+    "Id": 15,
+    "Label": 9,
+    "BackgroundColor": "#6bb548",
+    "Recurso": "Sheep",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 13
+  },
+  {
+    "Id": 16,
+    "Label": 5,
+    "BackgroundColor": "#7d8a7f",
+    "Recurso": "Rock",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 0
+  },
+  {
+    "Id": 17,
+    "Label": 3,
+    "BackgroundColor": "#7d8a7f",
+    "Recurso": "Rock",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 3
+  },
+  {
+    "Id": 18,
+    "Label": 6,
+    "BackgroundColor": "#276b34",
+    "Recurso": "Wood",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 2
+  },
+  {
+    "Id": 19,
+    "Label": 2,
+    "BackgroundColor": "#276b34",
+    "Recurso": "Wood",
+    "Has_Thief": false,
+    "Externa": false,
+    "Alineacion": 1
+  }
+]

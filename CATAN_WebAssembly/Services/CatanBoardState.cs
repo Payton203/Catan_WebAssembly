@@ -11,5 +11,7 @@ namespace CATAN_WebAssembly.Services
         public bool Inicializado { get; set; } = false;
         public bool Partida_Cargada { get; set; } = false;
         public bool Replay { get; set; } = false;
+        public bool CargarEjemploPendiente { get; set; }
+        public bool EjemploActivo { get; set; }
     }
 }

@@ -13,6 +13,7 @@
 @inject Jugador_Class Jugador_
 @inject PartidaService PartidaService_
 @inject NavigationManager Nav
+@inject HttpClient Http
 @inject CATAN_WebAssembly.Services.CatanBoardState BoardState
 @inject ArduinoSerialService Serial
 @implements IDisposable
@@ -53,6 +54,10 @@
     </YesButton>
 </MudMessageBox>
 
+@if (_errorEjemplo is not null)
+{
+    <MudAlert Severity="Severity.Error">@_errorEjemplo</MudAlert>
+}
 <div class="partida-grid">
     <div class="panel panel-tablero" @ref="_tableroRef">
         <div class="panel-hidden">
@@ -116,6 +121,7 @@
 </div>
 
 @code {
+    private string? _errorEjemplo;
     private ElementReference _tableroRef; //referencia para el correcto escalado del tablero
     private const string RutaLobby = "/Lobby";
 
@@ -132,6 +138,8 @@
         Historial_.EliminarHistorial();
         Config.Flag_partida_activa = false;
         BoardState.Partida_Cargada = false;
+        BoardState.CargarEjemploPendiente = false;
+        BoardState.EjemploActivo = false;
         BoardState.Inicializado = false;
         PartidaService_.Reset();
         Nav.NavigateTo(RutaLobby);
@@ -199,7 +207,7 @@
 
     private bool flag_asignacion = false;
 
-    private void HandleGeometryReady((List<HexVertex> Vertices, List<HexEdge> Edges) tupla)
+    private async Task HandleGeometryReady((List<HexVertex> Vertices, List<HexEdge> Edges) tupla)
     {
         if(flag_asignacion == false)
         {
@@ -212,9 +220,28 @@
             Random random = new Random(Parametros_Iniciales_.Seed);
             Asignar_Recursos_A_Casillas(random);
             Asignar_Cell_Labels(random);
-            Manipular_Vertices();
-            Manipular_Aristas();
+            foreach (var celda in _celdas)
+                celda.Has_Thief = celda.Recurso == Resource_Cell.Desert;
             flag_asignacion = true;
+            if (BoardState.CargarEjemploPendiente)
+            {
+                BoardState.CargarEjemploPendiente = false;
+                try
+                {
+                    var json = await Http.GetStringAsync("data/partida-543456789.json");
+                    var ejemplo = JsonSerializer.Deserialize<PartidaEjemplo>(json, _opciones)
+                        ?? throw new InvalidOperationException("No se pudo leer la partida de ejemplo.");
+                    ejemplo.ValidarTablero(BoardState, Parametros_Iniciales_.Seed,
+                        Parametros_Iniciales_.Asignacion_Numeros.ToString(), Jugador_.ListaJugadores.Select(j => j.Nombre));
+                    Historial_.CargarEjemplo(ejemplo.Eventos);
+                    Historial_.IrAlEvento(0, PartidaService_);
+                    BoardState.Partida_Cargada = true;
+                }
+                catch (Exception ex) when (ex is HttpRequestException or JsonException or InvalidOperationException)
+                {
+                    _errorEjemplo = ex.Message;
+                }
+            }
         }
         Console.WriteLine($"HandleGeometryReady llamado - vertices: {tupla.Vertices.Count}");
     }
@@ -267,8 +294,12 @@
     // ─── Evento cuando cambia algo, respecto a la configuracion ─────────────────────────────────────────────────
     protected override void OnInitialized() //cuando se renderiza la pagina, este metodo se ejecuta
     {
+        // Una recarga reinicia los servicios de WebAssembly y no pasa por el lobby.
+        // Preparar el ejemplo antes de renderizar los paneles y generar el tablero.
+        if (!Config.Flag_partida_activa)
+            PrepararReplayInicial();
+
         PartidaService_.OnChange += HandleChange;
-        Serial.OnMessageReceived += HandleMessage;
         Serial.OnError += HandleError;
         Config.OnChange += HandleChange;
         Jugador_.ListaJugadores.RemoveAll(j => string.IsNullOrWhiteSpace(j.Nombre));
@@ -288,6 +319,33 @@
         // semilla = 42;
         // random = new Random(semilla);
         Console.WriteLine($"OnInitialized - Inicializado: {BoardState.Inicializado} - vertices: {_vertices.Count}");
+    }
+
+    private void PrepararReplayInicial()
+    {
+        Historial_.EliminarHistorial();
+        PartidaService_.Reset();
+        Jugador_.Eliminar_todos_los_jugadores();
+        string[] nombres = { "Affre", "Gimenez", "Monteagudo", "Macheta" };
+        string[] colores = { "#00FF00", "#FFA500", "#FF0000", "#FF00FF" };
+        for (int i = 0; i < nombres.Length; i++)
+        {
+            Parametros_Iniciales_.Nombre_Jugadores[i] = nombres[i];
+            Jugador_.Insertar_jugador(new Jugador_Class
+            {
+                Nombre = nombres[i], Color = colores[i], EsTurno = i == 0
+            }, i);
+        }
+
+        Parametros_Iniciales_.Seed = 543456789;
+        Parametros_Iniciales_.Asignacion_Numeros = Asignacion_Numeros_Catan.Modo_Clasico;
+        BoardState.Inicializado = false;
+        BoardState.Partida_Cargada = false;
+        BoardState.CargarEjemploPendiente = true;
+        BoardState.EjemploActivo = true;
+        BoardState.Replay = true;
+        Config.Flag_partida_activa = true;
+        Config.History_Panel = true;
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -311,7 +369,6 @@
         Config.OnChange -= HandleChange;
         PartidaService_.OnChange -= HandleChange;
         Serial.OnError -= HandleError;
-        Config.OnChange -= HandleChange;
         /*se desuscribe del evento, para que Config.OnChange, para que no quede apuntando a esta pagina,
         permitiendo que se desrenderize completamente, previniendo memory leaks*/
     }
@@ -353,6 +410,7 @@
     // Al hacer click:
     private void HandleCellClick(HexCell cell)
     {
+        if (BoardState.Replay) return;
         Console.WriteLine($"Clickeaste la celda Id:{cell.Id} Alineacion: {cell.Alineacion} Recurso: {cell.Recurso}");
         if (cell.Has_Thief == false) cell.Has_Thief = true;
         else cell.Has_Thief = false;
@@ -365,6 +423,7 @@
     }
     private void HandleVertexClick(HexVertex vertex)
     {
+        if (BoardState.Replay) return;
         Console.WriteLine($"Click - Position_Id: {vertex.Position_Id} - Id: {vertex.Id}");
         vertex.Structure = Config.Structure;
         vertex.PlayerColor = Jugador_.TurnoJugador().Color;
@@ -375,6 +434,7 @@
 
     private void HandleEdgeClick(HexEdge edge)
     {
+        if (BoardState.Replay) return;
         Console.WriteLine($"Clickeaste la arista {edge.Id}");
         edge.HasRoad = Config.Has_Road;
         edge.PlayerColor = Jugador_.TurnoJugador().Color;

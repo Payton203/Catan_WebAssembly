@@ -11,10 +11,11 @@ namespace CATAN_WebAssembly.Services
             Converters = { new JsonStringEnumConverter() }
         };
 
-        public ArduinoReceptor(ArduinoSerialService serial, PartidaService partida, HistorialService historial)
+        public ArduinoReceptor(ArduinoSerialService serial, PartidaService partida, HistorialService historial, CatanBoardState tablero)
         {
             serial.OnMessageReceived += json =>
             {
+                if (tablero.EjemploActivo) return;
                 HistorialEvento? evento;
                 try { evento = JsonSerializer.Deserialize<HistorialEvento>(json, _opciones); }
                 catch (JsonException) { return; } // no es un evento (ej. la seed del lobby): se ignora
@@ -24,7 +25,7 @@ namespace CATAN_WebAssembly.Services
             };
             historial.OnEventoMostrado += async e =>
             {
-                if (!serial.IsConnected) return;
+                if (!serial.IsConnected || tablero.EjemploActivo) return;
                 try { await serial.SendJsonAsync(e); }
                 catch (Exception) { /* puerto caído: la pantalla sigue sin el Arduino */ }
             };

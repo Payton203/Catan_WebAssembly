@@ -71,3 +71,8 @@
     color: rgba(255, 255, 255, 0.7);
     font-size: 13px;
 }
+
+.replay-status { font-size: .75rem; color: #ccc; margin-bottom: 12px; }
+.replay-jumps { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.replay-jumps button { border: 1px solid #666; border-radius: 4px; padding: 4px 8px; color: #eee; background: #292929; }
+.comentario-evento { display: block; color: #aaa; font-size: .7rem; }

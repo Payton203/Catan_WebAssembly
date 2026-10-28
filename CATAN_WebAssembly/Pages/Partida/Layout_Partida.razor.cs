@@ -183,7 +183,7 @@ namespace CATAN_WebAssembly.Pages.Partida
             }
             _celdas[9].Alineacion = 18;
             int numero = 0;
-            for (int i = 0; i <= celdas.Count; i++)
+            for (int i = 0; i < celdas.Count; i++)
             {
                 HexCell celda = celdas.First(c => c.Alineacion == i);
                 if (celda.Recurso == Resource_Cell.Desert) { celda.Label = null; continue; }

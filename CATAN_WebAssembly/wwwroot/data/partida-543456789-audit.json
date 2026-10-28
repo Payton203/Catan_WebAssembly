@@ -1,0 +1,419 @@
+{
+  "Estado": "PASS",
+  "Seed": 543456789,
+  "Eventos": 575,
+  "VerticesVerificados": 54,
+  "AristasVerificadas": 72,
+  "CarreterasConstruidas": 33,
+  "PobladosConstruidos": 21,
+  "CiudadesConstruidas": 4,
+  "CasosIlegalesRechazados": [
+    "carretera duplicada",
+    "carretera inicial desconectada",
+    "poblados adyacentes",
+    "dados inconsistentes",
+    "producción inventada",
+    "canje bancario ilegal",
+    "carta comprada y jugada en el mismo turno",
+    "victoria falsa"
+  ],
+  "Conexiones": [
+    {
+      "Evento": 2,
+      "Jugador": "Affre",
+      "Arista": 17,
+      "Vertices": [
+        15,
+        14
+      ],
+      "ConectaEn": [
+        14
+      ]
+    },
+    {
+      "Evento": 5,
+      "Jugador": "Gimenez",
+      "Arista": 53,
+      "Vertices": [
+        32,
+        41
+      ],
+      "ConectaEn": [
+        41
+      ]
+    },
+    {
+      "Evento": 8,
+      "Jugador": "Monteagudo",
+      "Arista": 38,
+      "Vertices": [
+        25,
+        30
+      ],
+      "ConectaEn": [
+        25
+      ]
+    },
+    {
+      "Evento": 11,
+      "Jugador": "Macheta",
+      "Arista": 43,
+      "Vertices": [
+        34,
+        33
+      ],
+      "ConectaEn": [
+        34
+      ]
+    },
+    {
+      "Evento": 14,
+      "Jugador": "Macheta",
+      "Arista": 24,
+      "Vertices": [
+        20,
+        13
+      ],
+      "ConectaEn": [
+        13
+      ]
+    },
+    {
+      "Evento": 18,
+      "Jugador": "Monteagudo",
+      "Arista": 36,
+      "Vertices": [
+        19,
+        29
+      ],
+      "ConectaEn": [
+        29
+      ]
+    },
+    {
+      "Evento": 22,
+      "Jugador": "Gimenez",
+      "Arista": 21,
+      "Vertices": [
+        18,
+        9
+      ],
+      "ConectaEn": [
+        9
+      ]
+    },
+    {
+      "Evento": 26,
+      "Jugador": "Affre",
+      "Arista": 55,
+      "Vertices": [
+        38,
+        42
+      ],
+      "ConectaEn": [
+        38
+      ]
+    },
+    {
+      "Evento": 61,
+      "Jugador": "Gimenez",
+      "Arista": 26,
+      "Vertices": [
+        18,
+        21
+      ],
+      "ConectaEn": [
+        18
+      ]
+    },
+    {
+      "Evento": 83,
+      "Jugador": "Affre",
+      "Arista": 62,
+      "Vertices": [
+        42,
+        47
+      ],
+      "ConectaEn": [
+        42
+      ]
+    },
+    {
+      "Evento": 135,
+      "Jugador": "Affre",
+      "Arista": 18,
+      "Vertices": [
+        16,
+        15
+      ],
+      "ConectaEn": [
+        15
+      ]
+    },
+    {
+      "Evento": 155,
+      "Jugador": "Macheta",
+      "Arista": 30,
+      "Vertices": [
+        20,
+        24
+      ],
+      "ConectaEn": [
+        20
+      ]
+    },
+    {
+      "Evento": 156,
+      "Jugador": "Macheta",
+      "Arista": 29,
+      "Vertices": [
+        24,
+        23
+      ],
+      "ConectaEn": [
+        24
+      ]
+    },
+    {
+      "Evento": 157,
+      "Jugador": "Macheta",
+      "Arista": 28,
+      "Vertices": [
+        23,
+        22
+      ],
+      "ConectaEn": [
+        23
+      ]
+    },
+    {
+      "Evento": 158,
+      "Jugador": "Macheta",
+      "Arista": 14,
+      "Vertices": [
+        8,
+        13
+      ],
+      "ConectaEn": [
+        13
+      ]
+    },
+    {
+      "Evento": 168,
+      "Jugador": "Gimenez",
+      "Arista": 58,
+      "Vertices": [
+        41,
+        44
+      ],
+      "ConectaEn": [
+        41
+      ]
+    },
+    {
+      "Evento": 173,
+      "Jugador": "Monteagudo",
+      "Arista": 32,
+      "Vertices": [
+        26,
+        25
+      ],
+      "ConectaEn": [
+        25
+      ]
+    },
+    {
+      "Evento": 174,
+      "Jugador": "Monteagudo",
+      "Arista": 52,
+      "Vertices": [
+        26,
+        40
+      ],
+      "ConectaEn": [
+        26
+      ]
+    },
+    {
+      "Evento": 187,
+      "Jugador": "Affre",
+      "Arista": 19,
+      "Vertices": [
+        16,
+        17
+      ],
+      "ConectaEn": [
+        16
+      ]
+    },
+    {
+      "Evento": 193,
+      "Jugador": "Gimenez",
+      "Arista": 66,
+      "Vertices": [
+        44,
+        50
+      ],
+      "ConectaEn": [
+        44
+      ]
+    },
+    {
+      "Evento": 195,
+      "Jugador": "Gimenez",
+      "Arista": 57,
+      "Vertices": [
+        44,
+        43
+      ],
+      "ConectaEn": [
+        44
+      ]
+    },
+    {
+      "Evento": 233,
+      "Jugador": "Affre",
+      "Arista": 20,
+      "Vertices": [
+        17,
+        4
+      ],
+      "ConectaEn": [
+        17
+      ]
+    },
+    {
+      "Evento": 270,
+      "Jugador": "Monteagudo",
+      "Arista": 51,
+      "Vertices": [
+        40,
+        39
+      ],
+      "ConectaEn": [
+        40
+      ]
+    },
+    {
+      "Evento": 299,
+      "Jugador": "Monteagudo",
+      "Arista": 65,
+      "Vertices": [
+        39,
+        49
+      ],
+      "ConectaEn": [
+        39
+      ]
+    },
+    {
+      "Evento": 313,
+      "Jugador": "Affre",
+      "Arista": 3,
+      "Vertices": [
+        4,
+        3
+      ],
+      "ConectaEn": [
+        4
+      ]
+    },
+    {
+      "Evento": 314,
+      "Jugador": "Affre",
+      "Arista": 2,
+      "Vertices": [
+        3,
+        2
+      ],
+      "ConectaEn": [
+        3
+      ]
+    },
+    {
+      "Evento": 329,
+      "Jugador": "Monteagudo",
+      "Arista": 33,
+      "Vertices": [
+        27,
+        26
+      ],
+      "ConectaEn": [
+        26
+      ]
+    },
+    {
+      "Evento": 365,
+      "Jugador": "Affre",
+      "Arista": 1,
+      "Vertices": [
+        2,
+        1
+      ],
+      "ConectaEn": [
+        2
+      ]
+    },
+    {
+      "Evento": 371,
+      "Jugador": "Gimenez",
+      "Arista": 61,
+      "Vertices": [
+        43,
+        46
+      ],
+      "ConectaEn": [
+        43
+      ]
+    },
+    {
+      "Evento": 459,
+      "Jugador": "Gimenez",
+      "Arista": 8,
+      "Vertices": [
+        9,
+        8
+      ],
+      "ConectaEn": [
+        9
+      ]
+    },
+    {
+      "Evento": 485,
+      "Jugador": "Gimenez",
+      "Arista": 7,
+      "Vertices": [
+        8,
+        7
+      ],
+      "ConectaEn": [
+        8
+      ]
+    },
+    {
+      "Evento": 508,
+      "Jugador": "Affre",
+      "Arista": 10,
+      "Vertices": [
+        1,
+        6
+      ],
+      "ConectaEn": [
+        1
+      ]
+    },
+    {
+      "Evento": 559,
+      "Jugador": "Macheta",
+      "Arista": 48,
+      "Vertices": [
+        33,
+        37
+      ],
+      "ConectaEn": [
+        33
+      ]
+    }
+  ],
+  "Alcance": "Verifica este historial sintético; no certifica todas las entradas posibles del motor interactivo."
+}

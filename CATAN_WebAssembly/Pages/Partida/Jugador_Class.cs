@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace CATAN_WebAssembly.Pages.Partida
 {
@@ -127,25 +127,24 @@ namespace CATAN_WebAssembly.Pages.Partida
 
             int siguienteId;
 
-            if (contadorTurno < 4)
+            int cantidadJugadores = ListaJugadores.Count;
+            if (contadorTurno < cantidadJugadores)
             {
-                // Ronda 1 (Turnos 1 a 4): Avanza normal (0 -> 1 -> 2 -> 3)
                 siguienteId = idActual + 1;
             }
-            else if (contadorTurno == 4)
+            else if (contadorTurno == cantidadJugadores)
             {
-                // Turno 4 al 5: El último jugador repite turno (3 -> 3)
+                // El último jugador inicia la segunda vuelta.
                 siguienteId = idActual;
             }
-            else if (contadorTurno < 8)
+            else if (contadorTurno < 2 * cantidadJugadores)
             {
-                // Ronda 2 (Turnos 5 a 8): Retrocede (3 -> 2 -> 1 -> 0)
                 siguienteId = idActual - 1;
             }
             else
             {
-                // A partir del Turno 8 al 9: Vuelve a avanzar normal (0 -> 1 -> 2 -> 3)
-                siguienteId = (idActual + 1) % ListaJugadores.Count;
+                // El primero termina la colocación e inicia la fase normal.
+                siguienteId = 0;
             }
             ListaJugadores[siguienteId].EsTurno = true;
         }

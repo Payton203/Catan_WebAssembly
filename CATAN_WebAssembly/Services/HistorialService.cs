@@ -40,6 +40,10 @@ public record HistorialEvento
     public DateTime Momento { get; init; } = DateTime.Now;
     // Campos opcionales
     public int? Resultado_Dados { get; init; }
+    public int? Dado1 { get; init; }
+    public int? Dado2 { get; init; }
+    public int? Turno { get; init; }
+    public string? Comentario { get; init; }
     /// <summary>
     /// Con pieza, me refiero a lo que en el catan tradicional es una pieza:
     /// el ladron, las carreteras, los pueblos y las ciudades
@@ -81,6 +85,21 @@ namespace CATAN_WebAssembly.Services
         {
             Historial.RemoveRange(0, Historial.Count);
             Historial_Mostrar.RemoveRange(0, Historial_Mostrar.Count);
+            OnAccion?.Invoke();
+        }
+        public void CargarEjemplo(IEnumerable<HistorialEvento> eventos)
+        {
+            Historial = eventos.ToList();
+            Historial_Mostrar.Clear();
+            OnAccion?.Invoke();
+        }
+
+        public void IrAlEvento(int cantidad, PartidaService partidaService)
+        {
+            var destino = Historial.Take(Math.Clamp(cantidad, 0, Historial.Count)).ToList();
+            partidaService.ReconstruirEstadoDesdeHistorial(destino);
+            Historial_Mostrar = destino;
+            OnAccion?.Invoke();
         }
         //
         public void Siguiente_Evento(PartidaService partidaService, CatanBoardState boardState)
@@ -88,10 +107,11 @@ namespace CATAN_WebAssembly.Services
             if (Historial_Mostrar.Count < Historial.Count)
             {
                 var siguiente = Historial[Historial_Mostrar.Count];
-                Historial_Mostrar.Add(siguiente);
-
                 // Aplica solo el nuevo evento que entra en pantalla
-                if ((partidaService.Aplicar(siguiente)) && (boardState.Replay == true)) OnEventoMostrado?.Invoke(siguiente);
+                if (!partidaService.Aplicar(siguiente))
+                    throw new InvalidOperationException($"Evento {Historial_Mostrar.Count + 1} rechazado: {siguiente.Tipo} / {siguiente.Jugador}");
+                Historial_Mostrar.Add(siguiente);
+                if (boardState.Replay) OnEventoMostrado?.Invoke(siguiente);
                 OnAccion?.Invoke();
             }
         }
