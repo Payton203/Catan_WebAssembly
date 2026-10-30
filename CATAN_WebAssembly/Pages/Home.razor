@@ -1,7 +1,181 @@
-﻿@page "/"
+@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Catan electrónico</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="home">
 
-Welcome to your new app.
+    <header class="home-hero">
+        <div class="home-hero__text">
+            <h1>Catan electrónico</h1>
+            <p class="home-hero__lead">
+                Un tablero físico con luces y pantallas, y una página web que registra cada jugada para poder repetirla después.
+            </p>
+        </div>
+
+        @* Mini tablero decorativo: 2-3-2 casillas con los colores de los recursos *@
+        <div class="mini-board" aria-hidden="true">
+            <div class="mini-board__row">
+                <span class="mini-hex mini-hex--trigo"></span>
+                <span class="mini-hex mini-hex--madera"></span>
+            </div>
+            <div class="mini-board__row">
+                <span class="mini-hex mini-hex--oveja"></span>
+                <span class="mini-hex mini-hex--desierto"></span>
+                <span class="mini-hex mini-hex--ladrillo"></span>
+            </div>
+            <div class="mini-board__row">
+                <span class="mini-hex mini-hex--mineral"></span>
+                <span class="mini-hex mini-hex--madera"></span>
+            </div>
+        </div>
+    </header>
+
+    @* ───────────────────────── El juego original ───────────────────────── *@
+    <section class="home-section">
+        <h2>Qué es Catan</h2>
+        <p>
+            Catan, conocido originalmente como Los colonos de Catán, es un juego de mesa de estrategia creado por
+            Klaus Teuber y publicado en 1995. Entre tres y cuatro jugadores se disputan una isla formada por 19 casillas
+            hexagonales. Gana quien primero llega a 10 puntos de victoria construyendo caminos, poblados y ciudades.
+        </p>
+
+        <h3>Cómo funciona</h3>
+        <p>
+            El tablero se arma con 19 hexágonos: cuatro bosques que dan madera, cuatro pastos que dan oveja, cuatro campos
+            que dan trigo, tres colinas que dan ladrillo, tres montañas que dan mineral y un desierto que no produce nada.
+            Cada casilla, salvo el desierto, lleva una ficha con un número del 2 al 12 (el 7 no se usa). Alrededor de la isla
+            hay nueve puertos que permiten intercambiar recursos en mejores condiciones.
+        </p>
+        <p>
+            En cada turno el jugador tira dos dados. La suma indica qué casillas producen: todos los que tengan un poblado
+            o una ciudad en una esquina de esa casilla reciben el recurso, una carta por poblado y dos por ciudad. Si sale 7
+            nadie produce. En cambio se mueve el ladrón a otra casilla, que queda bloqueada, y el jugador que lo movió le
+            roba una carta a alguien que tenga una construcción allí. Además, quien tenga más de 7 cartas en la mano descarta
+            la mitad.
+        </p>
+
+        <h3>Cómo se juega</h3>
+        <p>
+            Cada jugador empieza colocando dos poblados y dos caminos. El segundo poblado entrega los recursos de las casillas
+            que lo rodean. Después, en su turno, el jugador cobra recursos con los dados, puede comerciar con los demás
+            jugadores o con el banco y puede construir:
+        </p>
+        <ul class="home-list">
+            <li><strong>Camino:</strong> una madera y un ladrillo.</li>
+            <li><strong>Poblado:</strong> madera, ladrillo, trigo y oveja. Vale 1 punto.</li>
+            <li><strong>Ciudad:</strong> dos trigo y tres mineral, y reemplaza a un poblado. Vale 2 puntos.</li>
+            <li><strong>Carta de desarrollo:</strong> oveja, trigo y mineral.</li>
+        </ul>
+        <p>
+            Con el banco se cambia 4 recursos iguales por 1 de otro tipo. Con un poblado o ciudad sobre un puerto la relación
+            mejora a 3 por 1, o a 2 por 1 si el puerto es del recurso que se entrega. Las cartas de desarrollo son caballeros,
+            puntos de victoria, construcción de caminos, invento y monopolio. Quien juega más caballeros (mínimo tres) se queda
+            con el Ejército más grande, y quien arma el camino continuo más largo (mínimo cinco tramos) se queda con la Ruta
+            comercial más larga. Cada título vale 2 puntos, y la partida termina cuando alguien llega a 10 en su turno.
+        </p>
+    </section>
+
+    @* ───────────────────────── Nuestro proyecto ───────────────────────── *@
+    <section class="home-section">
+        <h2>Nuestro proyecto</h2>
+        <p>
+            Somos Santiago Affre, Martiniano Monteagudo, Francisco Gimenez y Francisco Macheta, y estamos construyendo una
+            versión electrónica de Catan.
+        </p>
+
+        <h3>La idea</h3>
+        <p>
+            Queremos conservar la experiencia de jugar alrededor de una mesa, pero que el tablero se encargue de lo que
+            normalmente hacen los jugadores a mano: mostrar qué casilla produce, quién construyó cada cosa, cuántos puntos
+            tiene cada uno y qué pasó turno a turno.
+        </p>
+
+        <h3>Cómo funciona</h3>
+        <p>
+            Un Arduino controla el tablero. Enciende las luces de las casillas y de los caminos, actualiza los displays y
+            intercambia información con la página web en ambos sentidos. La página recibe cada acción de la partida, actualiza
+            su propio tablero digital y la guarda en el historial.
+        </p>
+
+        <h3>Ventajas de que sea electrónico</h3>
+        <ul class="home-list">
+            <li>Los puntos, el Ejército más grande y la Ruta comercial más larga se calculan solos, sin recuentos ni discusiones.</li>
+            <li>El estado de la partida no se pierde si alguien golpea la mesa o se mueve una ficha sin querer.</li>
+            <li>El tablero se genera a partir de una semilla, así que se puede armar rápido y repetir la misma disposición cuando se quiera.</li>
+            <li>Toda la partida queda registrada y se puede volver a ver más tarde, jugada por jugada.</li>
+            <li>Quien no está jugando puede seguir la partida desde una computadora o un celular.</li>
+        </ul>
+
+        <h3>Componentes principales</h3>
+        <dl class="home-components">
+            <dt>LEDs WS2812</dt>
+            <dd>
+                Tira SMD de 12 LEDs por casilla. Son direccionables, así que cada LED puede tener su propio color y brillo,
+                y eso permite que una casilla muestre su recurso o se destaque.
+            </dd>
+
+            <dt>LEDs WS2811</dt>
+            <dd>
+                Los mismos LEDs con otro encapsulado, que usamos en los caminos.
+            </dd>
+
+            <dt>Displays gráficos</dt>
+            <dd>
+                Muestran información de la partida. Para ellos diseñamos íconos de 1 bit de los cinco recursos.
+            </dd>
+
+            <dt>Displays de 7 segmentos</dt>
+            <dd>
+                Muestran valores numéricos de forma clara y a la distancia.
+            </dd>
+
+            <dt>Acrílico</dt>
+            <dd>
+                Forma parte de la superficie visible del tablero y deja pasar la luz de los LEDs.
+            </dd>
+
+            <dt>Madera</dt>
+            <dd>
+                Es la base y la estructura que sostiene todo el conjunto.
+            </dd>
+
+            <dt>Diseño</dt>
+            <dd>
+                Reúne la distribución de las 19 casillas, el recorrido de los caminos, la ubicación de cada componente y el
+                aspecto general del tablero.
+            </dd>
+        </dl>
+    </section>
+
+    @* ───────────────────────── La página web ───────────────────────── *@
+    <section class="home-section">
+        <h2>La página web</h2>
+        <p>
+            La página está hecha con Blazor WebAssembly y funciona en el navegador de una computadora o de un celular.
+            Dibuja el tablero digital con sus casillas, caminos, poblados, ciudades, puertos y ladrón, y muestra el panel de
+            jugadores, el último tiro de dados y el historial de la partida.
+        </p>
+
+        <h3>Comunicación con el Arduino</h3>
+        <p>
+            La página se conecta con el Arduino por cable USB. El Arduino envía un mensaje por cada evento de la partida,
+            por ejemplo una construcción o una tirada, y la página lo interpreta y actualiza el tablero. En sentido contrario,
+            la página le manda los parámetros iniciales y cada evento que muestra en pantalla, para que las luces y los displays
+            acompañen lo que se ve en la web. Más adelante queremos sumar una conexión por WiFi para no depender del cable.
+        </p>
+
+        <h3>Guardado y reproducción de partidas</h3>
+        <p>
+            Cada partida se guarda con dos datos: la semilla con la que se generó el tablero y la lista ordenada de eventos
+            que ocurrieron. Con eso alcanza para reconstruirla. La página genera el mismo tablero a partir de la semilla y
+            vuelve a aplicar los eventos uno por uno. Este registro se almacena en una base de datos SQLite, de modo que se
+            pueda volver a ver más tarde.
+        </p>
+        <p>
+            Durante una partida real las cartas de desarrollo en mano permanecen ocultas. En el modo reproducción, en cambio,
+            el panel de jugadores muestra las cartas que cada uno tenía en la mano y las que ya había jugado, para poder
+            analizar la partida completa.
+        </p>
+    </section>
+
+</div>

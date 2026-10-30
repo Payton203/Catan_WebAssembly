@@ -1,0 +1,156 @@
+.home {
+    --home-text: #e8e8e8;
+    --home-muted: #a6a6a6;
+    --home-panel: #1a1a1a;
+    --home-border: #333;
+    --home-rule: #2a2a2a;
+
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 24px 0 48px;
+    color: var(--home-text);
+    line-height: 1.65;
+}
+
+/* ───────── Hero ───────── */
+.home-hero {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 32px;
+    padding-bottom: 32px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--home-border);
+}
+
+.home-hero h1 {
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0 0 12px;
+}
+
+.home-hero__lead {
+    max-width: 34ch;
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--home-muted);
+}
+
+/* ───────── Mini tablero (2-3-2) ───────── */
+.mini-board {
+    --hex: 64px;
+    --gap: 4px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.mini-board__row {
+    display: flex;
+    justify-content: center;
+    /* mismo cálculo que HexGrid: gap * 0.866 - hexSize * 0.2887 */
+    margin-top: calc(var(--gap) * 0.866 - var(--hex) * 0.2887);
+}
+
+.mini-board__row:first-child {
+    margin-top: 0;
+}
+
+.mini-hex {
+    width: var(--hex);
+    aspect-ratio: 1 / 1.1547;
+    margin: 0 calc(var(--gap) / 2);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.mini-hex--madera   { background: #3f7d4a; }
+.mini-hex--oveja    { background: #8fc063; }
+.mini-hex--trigo    { background: #d9aa3a; }
+.mini-hex--ladrillo { background: #c8582a; }
+.mini-hex--mineral  { background: #8a9099; }
+.mini-hex--desierto { background: #e0cf9a; }
+
+/* ───────── Secciones ───────── */
+.home-section {
+    background: var(--home-panel);
+    border: 1px solid var(--home-border);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+}
+
+.home-section h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 12px;
+}
+
+.home-section h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 24px 0 6px;
+}
+
+.home-section p {
+    max-width: 70ch;
+    margin: 0 0 12px;
+}
+
+.home-list {
+    max-width: 70ch;
+    margin: 0 0 12px;
+    padding-left: 1.25rem;
+}
+
+.home-list li {
+    margin-bottom: 6px;
+}
+
+/* ───────── Componentes (lista de definiciones) ───────── */
+.home-components {
+    display: grid;
+    grid-template-columns: 12rem 1fr;
+    margin: 8px 0 0;
+}
+
+.home-components dt,
+.home-components dd {
+    padding: 10px 0;
+    border-top: 1px solid var(--home-rule);
+}
+
+.home-components dt {
+    font-weight: 600;
+}
+
+.home-components dd {
+    margin: 0;
+    color: var(--home-muted);
+}
+
+/* ───────── Mobile ───────── */
+@media (max-width: 640px) {
+    .home-hero {
+        grid-template-columns: 1fr;
+        justify-items: start;
+    }
+
+    .home-section {
+        padding: 20px 16px;
+    }
+
+    .home-components {
+        grid-template-columns: 1fr;
+    }
+
+    .home-components dt {
+        padding-bottom: 0;
+    }
+
+    .home-components dd {
+        border-top: none;
+        padding-top: 2px;
+    }
+}

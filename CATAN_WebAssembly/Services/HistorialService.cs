@@ -72,6 +72,8 @@ namespace CATAN_WebAssembly.Services
 
         public event Action? OnAccion;
         public event Action<HistorialEvento>? OnEventoMostrado;
+        // CAMBIO (tablero): avisa cuando se fue para atras, con los eventos que quedaron
+        public event Action<List<HistorialEvento>>? OnHistorialReconstruido;
         /// <summary>
         /// 
         /// </summary>
@@ -125,6 +127,7 @@ namespace CATAN_WebAssembly.Services
 
                 // 2. Reconstruimos la partida completa al estado exacto del Historial_Mostrar
                 partidaService.ReconstruirEstadoDesdeHistorial(Historial_Mostrar);
+                OnHistorialReconstruido?.Invoke(Historial_Mostrar.ToList());   // CAMBIO (tablero)
 
                 OnAccion?.Invoke();
             }
