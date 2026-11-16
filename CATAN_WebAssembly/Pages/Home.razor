@@ -1,18 +1,18 @@
 @page "/"
 
-<PageTitle>Catan electrónico</PageTitle>
+<PageTitle>Elektronisches Catan</PageTitle>
 
 <div class="home">
 
     <header class="home-hero">
         <div class="home-hero__text">
-            <h1>Catan electrónico</h1>
+            <h1>Elektronisches Catan</h1>
             <p class="home-hero__lead">
-                Un tablero físico con luces y pantallas, y una página web que registra cada jugada para poder repetirla después.
+                Ein physisches Spielbrett mit Lichtern und Displays sowie eine Webseite, die jeden Spielzug aufzeichnet, um ihn später wiederholen zu können.
             </p>
         </div>
 
-        @* Mini tablero decorativo: 2-3-2 casillas con los colores de los recursos *@
+        @* Dekoratives Mini-Spielfeld: 2-3-2 Felder in den Farben der Rohstoffe *@
         <div class="mini-board" aria-hidden="true">
             <div class="mini-board__row">
                 <span class="mini-hex mini-hex--trigo"></span>
@@ -30,151 +30,151 @@
         </div>
     </header>
 
-    @* ───────────────────────── El juego original ───────────────────────── *@
+    @* ───────────────────────── Das Originalspiel ───────────────────────── *@
     <section class="home-section">
-        <h2>Qué es Catan</h2>
+        <h2>Was ist Catan?</h2>
         <p>
-            Catan, conocido originalmente como Los colonos de Catán, es un juego de mesa de estrategia creado por
-            Klaus Teuber y publicado en 1995. Entre tres y cuatro jugadores se disputan una isla formada por 19 casillas
-            hexagonales. Gana quien primero llega a 10 puntos de victoria construyendo caminos, poblados y ciudades.
+            Catan, ursprünglich bekannt als Die Siedler von Catan, ist ein strategisches Brettspiel, das von
+            Klaus Teuber entwickelt und 1995 veröffentlicht wurde. Drei bis vier Spieler wetteifern um eine Insel aus 19
+            sechseckigen Feldern. Es gewinnt, wer zuerst 10 Siegpunkte durch den Bau von Straßen, Siedlungen und Städten erreicht.
         </p>
 
-        <h3>Cómo funciona</h3>
+        <h3>Wie es funktioniert</h3>
         <p>
-            El tablero se arma con 19 hexágonos: cuatro bosques que dan madera, cuatro pastos que dan oveja, cuatro campos
-            que dan trigo, tres colinas que dan ladrillo, tres montañas que dan mineral y un desierto que no produce nada.
-            Cada casilla, salvo el desierto, lleva una ficha con un número del 2 al 12 (el 7 no se usa). Alrededor de la isla
-            hay nueve puertos que permiten intercambiar recursos en mejores condiciones.
+            Das Spielfeld besteht aus 19 Sechsecken: vier Wäldern, die Holz liefern, vier Weiden, die Wolle liefern, vier Äckern,
+            die Getreide liefern, drei Hügeln, die Lehm liefern, drei Gebirgen, die Erz liefern, und einer Wüste, die nichts produziert.
+            Jedes Feld, außer der Wüste, trägt einen Zahlenchip von 2 bis 12 (die 7 wird nicht verwendet). Rund um die Insel
+            gibt es neun Häfen, die den Tausch von Rohstoffen zu besseren Konditionen ermöglichen.
         </p>
         <p>
-            En cada turno el jugador tira dos dados. La suma indica qué casillas producen: todos los que tengan un poblado
-            o una ciudad en una esquina de esa casilla reciben el recurso, una carta por poblado y dos por ciudad. Si sale 7
-            nadie produce. En cambio se mueve el ladrón a otra casilla, que queda bloqueada, y el jugador que lo movió le
-            roba una carta a alguien que tenga una construcción allí. Además, quien tenga más de 7 cartas en la mano descarta
-            la mitad.
+            In jedem Zug würfelt der Spieler mit zwei Würfeln. Die Summe gibt an, welche Felder produzieren: Alle, die eine Siedlung
+            oder eine Stadt an einer Ecke dieses Feldes haben, erhalten den Rohstoff – eine Karte pro Siedlung und zwei pro Stadt. Wird eine 7 gewürfelt,
+            produziert niemand. Stattdessen wird der Räuber auf ein anderes Feld versetzt, das dadurch blockiert wird, und der Spieler, der ihn bewegt hat,
+            zieht eine Karte von einem Mitspieler, der dort ein Bauwerk besitzt. Zudem muss jeder, der mehr als 7 Karten auf der Hand hält,
+            die Hälfte davon abwerfen.
         </p>
 
-        <h3>Cómo se juega</h3>
+        <h3>Spielablauf</h3>
         <p>
-            Cada jugador empieza colocando dos poblados y dos caminos. El segundo poblado entrega los recursos de las casillas
-            que lo rodean. Después, en su turno, el jugador cobra recursos con los dados, puede comerciar con los demás
-            jugadores o con el banco y puede construir:
+            Jeder Spieler beginnt damit, zwei Siedlungen und zwei Straßen zu platzieren. Die zweite Siedlung bringt die Rohstoffe der umliegenden Felder
+            ein. Danach erhält der Spieler in seinem Zug Rohstoffe durch die Würfel, kann mit den anderen
+            Spielern oder der Bank handeln und kann bauen:
         </p>
         <ul class="home-list">
-            <li><strong>Camino:</strong> una madera y un ladrillo.</li>
-            <li><strong>Poblado:</strong> madera, ladrillo, trigo y oveja. Vale 1 punto.</li>
-            <li><strong>Ciudad:</strong> dos trigo y tres mineral, y reemplaza a un poblado. Vale 2 puntos.</li>
-            <li><strong>Carta de desarrollo:</strong> oveja, trigo y mineral.</li>
+            <li><strong>Straße:</strong> ein Holz und ein Lehm.</li>
+            <li><strong>Siedlung:</strong> Holz, Lehm, Getreide und Wolle. Wert: 1 Punkt.</li>
+            <li><strong>Stadt:</strong> zwei Getreide und drei Erz; ersetzt eine Siedlung. Wert: 2 Punkte.</li>
+            <li><strong>Entwicklungskarte:</strong> Wolle, Getreide und Erz.</li>
         </ul>
         <p>
-            Con el banco se cambia 4 recursos iguales por 1 de otro tipo. Con un poblado o ciudad sobre un puerto la relación
-            mejora a 3 por 1, o a 2 por 1 si el puerto es del recurso que se entrega. Las cartas de desarrollo son caballeros,
-            puntos de victoria, construcción de caminos, invento y monopolio. Quien juega más caballeros (mínimo tres) se queda
-            con el Ejército más grande, y quien arma el camino continuo más largo (mínimo cinco tramos) se queda con la Ruta
-            comercial más larga. Cada título vale 2 puntos, y la partida termina cuando alguien llega a 10 en su turno.
+            Mit der Bank werden 4 gleiche Rohstoffe gegen 1 anderen Rohstoff getauscht. Mit einer Siedlung oder Stadt an einem Hafen verbessert sich
+            das Tauschverhältnis auf 3 zu 1 oder auf 2 zu 1, wenn der Hafen dem abgegebenen Rohstoff entspricht. Die Entwicklungskarten sind Ritter,
+            Siegpunkte, Straßenbau, Erfindung und Monopol. Wer die meisten Ritter ausspielt (mindestens drei), erhält
+            die Größte Rittermacht, und wer die längste durchgehende Straße baut (mindestens fünf Abschnitte), erhält die Längste
+            Handelsstraße. Jeder Titel ist 2 Punkte wert, und das Spiel endet, sobald jemand in seinem Zug 10 Punkte erreicht.
         </p>
     </section>
 
-    @* ───────────────────────── Nuestro proyecto ───────────────────────── *@
+    @* ───────────────────────── Unser Projekt ───────────────────────── *@
     <section class="home-section">
-        <h2>Nuestro proyecto</h2>
+        <h2>Unser Projekt</h2>
         <p>
-            Somos Santiago Affre, Martiniano Monteagudo, Francisco Gimenez y Francisco Macheta, y estamos construyendo una
-            versión electrónica de Catan.
+            Wir sind Santiago Affre, Martiniano Monteagudo, Francisco Gimenez und Francisco Macheta und bauen eine
+            elektronische Version von Catan.
         </p>
 
-        <h3>La idea</h3>
+        <h3>Die Idee</h3>
         <p>
-            Queremos conservar la experiencia de jugar alrededor de una mesa, pero que el tablero se encargue de lo que
-            normalmente hacen los jugadores a mano: mostrar qué casilla produce, quién construyó cada cosa, cuántos puntos
-            tiene cada uno y qué pasó turno a turno.
+            Wir möchten das Spielerlebnis rund um einen Tisch bewahren, aber das Brett soll die Aufgaben übernehmen, die
+            die Spieler normalerweise von Hand erledigen: anzeigen, welches Feld produziert, wer was gebaut hat, wie viele Punkte
+            jeder hat und was Zug für Zug passiert ist.
         </p>
 
-        <h3>Cómo funciona</h3>
+        <h3>Wie es funktioniert</h3>
         <p>
-            Un Arduino controla el tablero. Enciende las luces de las casillas y de los caminos, actualiza los displays y
-            intercambia información con la página web en ambos sentidos. La página recibe cada acción de la partida, actualiza
-            su propio tablero digital y la guarda en el historial.
+            Ein Arduino steuert das Spielbrett. Er schaltet die Lichter der Felder und Straßen ein, aktualisiert die Displays und
+            tauscht Informationen in beide Richtungen mit der Webseite aus. Die Seite empfängt jede Spielaktion, aktualisiert
+            ihr eigenes digitales Spielfeld und speichert sie im Verlauf.
         </p>
 
-        <h3>Ventajas de que sea electrónico</h3>
+        <h3>Vorteile der elektronischen Version</h3>
         <ul class="home-list">
-            <li>Los puntos, el Ejército más grande y la Ruta comercial más larga se calculan solos, sin recuentos ni discusiones.</li>
-            <li>El estado de la partida no se pierde si alguien golpea la mesa o se mueve una ficha sin querer.</li>
-            <li>El tablero se genera a partir de una semilla, así que se puede armar rápido y repetir la misma disposición cuando se quiera.</li>
-            <li>Toda la partida queda registrada y se puede volver a ver más tarde, jugada por jugada.</li>
-            <li>Quien no está jugando puede seguir la partida desde una computadora o un celular.</li>
+            <li>Die Punkte, die Größte Rittermacht und die Längste Handelsstraße werden automatisch berechnet – ohne Nachzählen oder Diskussionen.</li>
+            <li>Der Spielstand geht nicht verloren, wenn jemand an den Tisch stößt oder eine Figur aus Versehen verschoben wird.</li>
+            <li>Das Spielfeld wird anhand eines Seeds generiert, sodass es sich schnell aufbauen und dieselbe Anordnung jederzeit wiederholen lässt.</li>
+            <li>Die gesamte Partie wird aufgezeichnet und kann später Zug für Zug noch einmal angesehen werden.</li>
+            <li>Wer nicht mitspielt, kann die Partie vom Computer oder Smartphone aus verfolgen.</li>
         </ul>
 
-        <h3>Componentes principales</h3>
+        <h3>Hauptkomponenten</h3>
         <dl class="home-components">
-            <dt>LEDs WS2812</dt>
+            <dt>WS2812-LEDs</dt>
             <dd>
-                Tira SMD de 12 LEDs por casilla. Son direccionables, así que cada LED puede tener su propio color y brillo,
-                y eso permite que una casilla muestre su recurso o se destaque.
+                SMD-Streifen mit 12 LEDs pro Feld. Sie sind einzeln adressierbar, sodass jede LED ihre eigene Farbe und Helligkeit haben kann,
+                wodurch ein Feld seinen Rohstoff anzeigen oder hervorgehoben werden kann.
             </dd>
 
-            <dt>LEDs WS2811</dt>
+            <dt>WS2811-LEDs</dt>
             <dd>
-                Los mismos LEDs con otro encapsulado, que usamos en los caminos.
+                Dieselben LEDs in einer anderen Bauform, die wir für die Straßen verwenden.
             </dd>
 
-            <dt>Displays gráficos</dt>
+            <dt>Grafikdisplays</dt>
             <dd>
-                Muestran información de la partida. Para ellos diseñamos íconos de 1 bit de los cinco recursos.
+                Zeigen Spielinformationen an. Dafür haben wir 1-Bit-Icons der fünf Rohstoffe entworfen.
             </dd>
 
-            <dt>Displays de 7 segmentos</dt>
+            <dt>7-Segment-Anzeigen</dt>
             <dd>
-                Muestran valores numéricos de forma clara y a la distancia.
+                Zeigen Zahlenwerte klar und auch aus der Entfernung gut lesbar an.
             </dd>
 
-            <dt>Acrílico</dt>
+            <dt>Acrylglas</dt>
             <dd>
-                Forma parte de la superficie visible del tablero y deja pasar la luz de los LEDs.
+                Bildet einen Teil der sichtbaren Oberfläche des Spielbretts und lässt das Licht der LEDs durch.
             </dd>
 
-            <dt>Madera</dt>
+            <dt>Holz</dt>
             <dd>
-                Es la base y la estructura que sostiene todo el conjunto.
+                Bildet die Basis und die Struktur, die das gesamte Konstrukt trägt.
             </dd>
 
-            <dt>Diseño</dt>
+            <dt>Design</dt>
             <dd>
-                Reúne la distribución de las 19 casillas, el recorrido de los caminos, la ubicación de cada componente y el
-                aspecto general del tablero.
+                Vereint die Anordnung der 19 Felder, den Verlauf der Straßen, die Positionierung jeder Komponente und das
+                Gesamterscheinungsbild des Spielbretts.
             </dd>
         </dl>
     </section>
 
-    @* ───────────────────────── La página web ───────────────────────── *@
+    @* ───────────────────────── Die Webseite ───────────────────────── *@
     <section class="home-section">
-        <h2>La página web</h2>
+        <h2>Die Webseite</h2>
         <p>
-            La página está hecha con Blazor WebAssembly y funciona en el navegador de una computadora o de un celular.
-            Dibuja el tablero digital con sus casillas, caminos, poblados, ciudades, puertos y ladrón, y muestra el panel de
-            jugadores, el último tiro de dados y el historial de la partida.
+            Die Seite wurde mit Blazor WebAssembly entwickelt und läuft im Browser eines Computers oder Smartphones.
+            Sie zeichnet das digitale Spielfeld mit seinen Feldern, Straßen, Siedlungen, Städten, Häfen und dem Räuber und zeigt das
+            Spielerpanel, den letzten Würfelwurf sowie den Spielverlauf an.
         </p>
 
-        <h3>Comunicación con el Arduino</h3>
+        <h3>Kommunikation mit dem Arduino</h3>
         <p>
-            La página se conecta con el Arduino por cable USB. El Arduino envía un mensaje por cada evento de la partida,
-            por ejemplo una construcción o una tirada, y la página lo interpreta y actualiza el tablero. En sentido contrario,
-            la página le manda los parámetros iniciales y cada evento que muestra en pantalla, para que las luces y los displays
-            acompañen lo que se ve en la web. Más adelante queremos sumar una conexión por WiFi para no depender del cable.
+            Die Seite verbindet sich per USB-Kabel mit dem Arduino. Der Arduino sendet für jedes Spielereignis eine Nachricht –
+            zum Beispiel einen Bauvorgang oder einen Würfelwurf –, und die Seite wertet sie aus und aktualisiert das Spielfeld. In umgekehrter Richtung
+            sendet die Seite die Startparameter und jedes auf dem Bildschirm angezeigte Ereignis zurück, damit Lichter und Displays
+            das Geschehen auf der Webseite begleiten. Später möchten wir eine WLAN-Verbindung hinzufügen, um nicht auf das Kabel angewiesen zu sein.
         </p>
 
-        <h3>Guardado y reproducción de partidas</h3>
+        <h3>Speichern und Wiedergeben von Partien</h3>
         <p>
-            Cada partida se guarda con dos datos: la semilla con la que se generó el tablero y la lista ordenada de eventos
-            que ocurrieron. Con eso alcanza para reconstruirla. La página genera el mismo tablero a partir de la semilla y
-            vuelve a aplicar los eventos uno por uno. Este registro se almacena en una base de datos SQLite, de modo que se
-            pueda volver a ver más tarde.
+            Jede Partie wird mit zwei Daten gespeichert: dem Seed, mit dem das Spielfeld generiert wurde, und der geordneten Liste der aufgetretenen
+            Ereignisse. Das genügt, um sie zu rekonstruieren. Die Seite generiert dasselbe Spielfeld aus dem Seed und
+            wendet die Ereignisse der Reihe nach wieder an. Diese Aufzeichnung wird in einer SQLite-Datenbank gespeichert, sodass sie
+            später erneut angesehen werden kann.
         </p>
         <p>
-            Durante una partida real las cartas de desarrollo en mano permanecen ocultas. En el modo reproducción, en cambio,
-            el panel de jugadores muestra las cartas que cada uno tenía en la mano y las que ya había jugado, para poder
-            analizar la partida completa.
+            Während einer echten Partie bleiben die Entwicklungskarten auf der Hand verdeckt. Im Wiedergabemodus hingegen
+            zeigt das Spielerpanel sowohl die Karten, die jeder auf der Hand hatte, als auch die bereits gespielten Karten an, um
+            die gesamte Partie analysieren zu können.
         </p>
     </section>
 

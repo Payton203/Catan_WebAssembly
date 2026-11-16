@@ -1,0 +1,518 @@
+@page "/estadisticas"
+@using System.Globalization
+@using System.Net.Http.Json
+@using System.Text
+@using CATAN_WebAssembly.Models
+@inject HttpClient Http
+
+<PageTitle>Estadísticas de la partida</PageTitle>
+
+<div class="stats">
+
+    @if (_error is not null)
+    {
+        <p class="stats-msg">@_error</p>
+    }
+    else if (_est is null)
+    {
+        <p class="stats-msg">Cargando la partida…</p>
+    }
+    else
+    {
+        <header class="stats-head">
+            <h1>Estadísticas de la partida</h1>
+            <p class="stats-sub">
+                Partida de ejemplo generada por simulación. Semilla @Est.Seed, @(Est.Modo.Replace('_', ' ')).
+            </p>
+            <p class="stats-note">@Est.Alcance</p>
+        </header>
+
+        @* ───────── Cifras principales ───────── *@
+        <dl class="stats-strip">
+            <div>
+                <dt>Ganador</dt>
+                <dd>@Est.Ganador</dd>
+                <dd class="stats-strip__sub">@Est.PuntosGanador puntos</dd>
+            </div>
+            <div>
+                <dt>Turnos</dt>
+                <dd>@Est.Turnos</dd>
+            </div>
+            <div>
+                <dt>Eventos registrados</dt>
+                <dd>@Est.Eventos</dd>
+            </div>
+            <div>
+                <dt>Duración</dt>
+                <dd>@((int)Est.Duracion.TotalHours) h @Est.Duracion.Minutes min</dd>
+            </div>
+        </dl>
+
+        @* ───────── Puntos finales ───────── *@
+        <section class="stats-panel">
+            <h2>Puntos finales</h2>
+            <p class="stats-hint">
+                La barra llena son los puntos visibles (construcciones y títulos). La parte rayada son cartas de punto de
+                victoria, que permanecen ocultas. La marca blanca es la meta de 10 puntos.
+            </p>
+            <div class="stats-scroll" tabindex="0">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Jugador</th>
+                            <th class="col-bar">Puntos</th>
+                            <th class="num">Poblados</th>
+                            <th class="num">Ciudades</th>
+                            <th>Títulos</th>
+                            <th class="num">Cartas de punto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var j in PorPuntos)
+                        {
+                            <tr>
+                                <th scope="row">
+                                    <span class="dot" style="background:@ColorDe(j)"></span>@j.Nombre
+                                    @if (j.Nombre == Est.Ganador)
+                                    {
+                                        <span class="tag tag--win">Ganó</span>
+                                    }
+                                </th>
+                                <td class="col-bar">
+                                    <div class="pcell">
+                                        <div class="pbar">
+                                            <span class="pbar__vis" style="width:@(Pct(j.PuntosVisibles, Tope))%; background:@ColorDe(j)"></span>
+                                            <span class="pbar__hid" style="width:@(Pct(j.CartasPuntoVictoria, Tope))%; --c:@ColorDe(j)"></span>
+                                            <i class="pbar__goal" style="left:@(Pct(10, Tope))%"></i>
+                                        </div>
+                                        <span class="pbar__n">@j.PuntosTotales</span>
+                                    </div>
+                                </td>
+                                <td class="num">@j.PobladosActuales</td>
+                                <td class="num">@j.CiudadesConstruidas</td>
+                                <td>
+                                    @if (j.GranRuta)
+                                    {
+                                        <span class="tag">Ruta más larga</span>
+                                    }
+                                    @if (j.Ejercito)
+                                    {
+                                        <span class="tag">Ejército más grande</span>
+                                    }
+                                    @if (!j.GranRuta && !j.Ejercito)
+                                    {
+                                        <span class="muted">Ninguno</span>
+                                    }
+                                </td>
+                                <td class="num">@j.CartasPuntoVictoria</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        @* ───────── Evolución de puntos ───────── *@
+        <section class="stats-panel">
+            <h2>Evolución de los puntos</h2>
+            <p class="stats-hint">
+                Puntos visibles de cada jugador al terminar cada turno. La línea punteada marca los 10 puntos de la victoria.
+                Donde dos jugadores empatan las líneas se superponen.
+            </p>
+            <svg class="chart" viewBox="0 0 @F(LW) @F(LH)" role="img" aria-labelledby="chart-title">
+                <title id="chart-title">Puntos visibles de cada jugador a lo largo de los turnos</title>
+
+                @for (int y = 0; y <= MaxY; y += 2)
+                {
+                    <line x1="@F(LL)" x2="@F(LL + PlotW)" y1="@F(PosY(y))" y2="@F(PosY(y))" class="chart__grid" stroke-width="1" />
+                    @SvgText(F(LL - 8), F(PosY(y) + 4), y.ToString(), anchor: "end", cssClass: "chart__tick")
+                }
+
+                @foreach (var t in TicksX)
+                {
+                    @SvgText(F(PosX(t)), F(LT + PlotH + 20), t.ToString(), anchor: "middle", cssClass: "chart__tick")
+                }
+                @SvgText(F(LL + PlotW), F(LH - 2), "turno", anchor: "end", cssClass: "chart__tick")
+
+                <line x1="@F(LL)" x2="@F(LL + PlotW)" y1="@F(PosY(10))" y2="@F(PosY(10))"
+                      class="chart__goal" stroke-width="1" stroke-dasharray="4 4" />
+
+                @foreach (var j in Est.Jugadores)
+                {
+                    <path d="@Ruta(j.Indice)" fill="none" stroke="@ColorDe(j)"
+                          stroke-width="@F(4 - j.Indice * 0.7)" stroke-linejoin="round" stroke-linecap="round" />
+                    <circle cx="@F(PosX(Est.Turnos))" cy="@F(PosY(j.PuntosVisibles))" r="3.5" fill="@ColorDe(j)" />
+                }
+
+                @foreach (var et in EtiquetasFinales())
+                {
+                    @SvgText(F(LL + PlotW + 12), F(et.Y + 4), $"{et.J.Nombre} {et.J.PuntosVisibles}", cssClass: "chart__label", fill: ColorDe(et.J))
+                }
+            </svg>
+        </section>
+
+        @* ───────── Dados ───────── *@
+        <section class="stats-panel">
+            <h2>Tiradas de dados</h2>
+            <p class="stats-hint">
+                Cantidad de veces que salió cada suma. La línea blanca marca lo que se esperaría con dados equilibrados.
+            </p>
+            <div class="dice" role="img" aria-label="Cantidad de veces que salió cada suma de dados">
+                @for (int s = 2; s <= 12; s++)
+                {
+                    var cuenta = Est.DadosConteo[s];
+                    var esperado = Est.DadosEsperados(s);
+                    <div class="dice__col" style="--h:@(Pct(cuenta, EscalaDados))%; --e:@(Pct(esperado, EscalaDados))%;">
+                        <div class="dice__plot">
+                            <span class="dice__n">@cuenta</span>
+                            <span class="dice__bar"></span>
+                            <span class="dice__exp"></span>
+                        </div>
+                        <span class="dice__s">@s</span>
+                    </div>
+                }
+            </div>
+            <p class="stats-caption">@ResumenDados()</p>
+        </section>
+
+        @* ───────── Producción de recursos ───────── *@
+        <section class="stats-panel">
+            <h2>Recursos producidos</h2>
+            <p class="stats-hint">
+                Recursos que cada jugador recibió por los dados, incluyendo los iniciales del segundo poblado. No cuenta
+                comercios ni robos.
+            </p>
+            <div class="stats-scroll" tabindex="0">
+                <table class="stats-table stats-table--heat">
+                    <thead>
+                        <tr>
+                            <th>Jugador</th>
+                            @foreach (var r in Recursos)
+                            {
+                                <th class="num">@r.Nombre</th>
+                            }
+                            <th class="num">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var j in Est.Jugadores)
+                        {
+                            <tr>
+                                <th scope="row"><span class="dot" style="background:@ColorDe(j)"></span>@j.Nombre</th>
+                                @foreach (var r in Recursos)
+                                {
+                                    var valor = j.Producido.GetValueOrDefault(r.Clave);
+                                    <td class="num heat" style="--c:@(r.Color); --a:@(F(Alfa(valor)))">@valor</td>
+                                }
+                                <td class="num">@j.TotalProducido</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th scope="row">Total</th>
+                            @foreach (var r in Recursos)
+                            {
+                                <td class="num">@(Est.Jugadores.Sum(j => j.Producido.GetValueOrDefault(r.Clave)))</td>
+                            }
+                            <td class="num">@(Est.Jugadores.Sum(j => j.TotalProducido))</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        @* ───────── Acciones por jugador ───────── *@
+        <section class="stats-panel">
+            <h2>Acciones por jugador</h2>
+            <p class="stats-hint">En cada columna el valor más alto aparece resaltado. Pasá el mouse por el título para ver qué cuenta.</p>
+            <div class="stats-scroll" tabindex="0">
+                <table class="stats-table stats-table--actions">
+                    <thead>
+                        <tr>
+                            <th>Jugador</th>
+                            @foreach (var col in Columnas)
+                            {
+                                <th class="num" title="@col.Ayuda">@col.Titulo</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var j in Est.Jugadores)
+                        {
+                            <tr>
+                                <th scope="row"><span class="dot" style="background:@ColorDe(j)"></span>@j.Nombre</th>
+                                @foreach (var col in Columnas)
+                                {
+                                    <td class="num @(EsMaximo(col.Valor, j) ? "is-max" : "")">@col.Valor(j)</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        @* ───────── Cartas de desarrollo ───────── *@
+        <section class="stats-panel">
+            <h2>Cartas de desarrollo</h2>
+            <p class="stats-hint">
+                Cada barra es la cantidad comprada y la parte rellena es la que se llegó a jugar. Las cartas de punto de
+                victoria no se juegan: suman puntos ocultos desde que se compran.
+            </p>
+            <ul class="cards">
+                @foreach (var t in TiposCarta)
+                {
+                    var comp = Est.CartasCompradas.GetValueOrDefault(t.Clave);
+                    var jug = Est.CartasJugadas.GetValueOrDefault(t.Clave);
+                    <li class="cards__row">
+                        <span class="cards__name">@t.Nombre</span>
+                        <span class="cards__lane">
+                            <span class="cards__track" style="width:@(Pct(comp, MaxCompradas))%">
+                                <span class="cards__fill" style="width:@(Pct(jug, comp))%"></span>
+                            </span>
+                        </span>
+                        <span class="cards__n">@jug de @comp</span>
+                    </li>
+                }
+            </ul>
+        </section>
+
+        @* ───────── Auditoría ───────── *@
+        if (_audit is not null)
+        {
+            <section class="stats-panel">
+                <h2>Auditoría de la partida</h2>
+                <p>
+                    <span class="tag @(_audit.Estado == "PASS" ? "tag--ok" : "tag--bad")">@_audit.Estado</span>
+                    <span class="stats-inline">Reglas verificadas: @ReglasVerificadas</span>
+                </p>
+
+                <dl class="audit">
+                    <div><dt>Eventos auditados</dt><dd>@_audit.Eventos</dd></div>
+                    <div><dt>Vértices verificados</dt><dd>@_audit.VerticesVerificados</dd></div>
+                    <div><dt>Aristas verificadas</dt><dd>@_audit.AristasVerificadas</dd></div>
+                    <div><dt>Conexiones de caminos</dt><dd>@_audit.Conexiones.Count</dd></div>
+                    <div><dt>Caminos construidos</dt><dd>@_audit.CarreterasConstruidas</dd></div>
+                    <div><dt>Poblados construidos</dt><dd>@_audit.PobladosConstruidos</dd></div>
+                    <div><dt>Ciudades construidas</dt><dd>@_audit.CiudadesConstruidas</dd></div>
+                </dl>
+
+                @if (_audit.CasosIlegalesRechazados.Count > 0)
+                {
+                    <h3>Jugadas ilegales que el validador rechazó</h3>
+                    <ul class="stats-list">
+                        @foreach (var caso in _audit.CasosIlegalesRechazados)
+                        {
+                            <li>@Cap(caso)</li>
+                        }
+                    </ul>
+                }
+
+                <p class="stats-note">@_audit.Alcance</p>
+            </section>
+        }
+    }
+
+</div>
+
+@code {
+    // ───────── Archivos (dentro de wwwroot/data) ─────────
+    private const string ArchivoPartida = "data/partida-543456789.json";
+    private const string ArchivoAuditoria = "data/partida-543456789-audit.json";
+
+    private EstadisticasPartida? _est;
+    private AuditoriaArchivo? _audit;
+    private string? _error;
+
+    private EstadisticasPartida Est => _est!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var partida = await Http.GetFromJsonAsync<PartidaArchivo>(ArchivoPartida);
+            if (partida is null)
+            {
+                _error = $"El archivo {ArchivoPartida} está vacío.";
+                return;
+            }
+            _est = EstadisticasPartida.Calcular(partida);
+        }
+        catch (Exception ex)
+        {
+            _error = $"No se pudo cargar {ArchivoPartida}: {ex.Message}";
+            return;
+        }
+
+        // La auditoría es opcional: si falta, simplemente no se muestra esa sección.
+        try
+        {
+            _audit = await Http.GetFromJsonAsync<AuditoriaArchivo>(ArchivoAuditoria);
+        }
+        catch
+        {
+            _audit = null;
+        }
+    }
+
+    // ───────── Datos de presentación ─────────
+    private static readonly (string Clave, string Nombre, string Color)[] Recursos =
+    {
+        ("Wood",  "Madera",   "#3f7d4a"),
+        ("Brick", "Ladrillo", "#c8582a"),
+        ("Sheep", "Oveja",    "#8fc063"),
+        ("Wheat", "Trigo",    "#d9aa3a"),
+        ("Rock",  "Mineral",  "#8a9099"),
+    };
+
+    private static readonly string[] ColoresJugador = { "#f2c230", "#4aa3ff", "#e5533d", "#5fcf80" };
+
+    private static string ColorDe(JugadorEstadistica j) => ColoresJugador[j.Indice % ColoresJugador.Length];
+
+    private static readonly (string Clave, string Nombre)[] TiposCarta =
+    {
+        ("Caballero",      "Caballero"),
+        ("Punto_Victoria", "Punto de victoria"),
+        ("Carreteras",     "Construcción de caminos"),
+        ("Invento",        "Invento"),
+        ("Monopolio",      "Monopolio"),
+    };
+
+    private static readonly (string Titulo, string Ayuda, Func<JugadorEstadistica, int> Valor)[] Columnas =
+    {
+        ("Caminos",            "Caminos construidos",                                                  j => j.Caminos),
+        ("Poblados",           "Poblados construidos, incluidos los que luego se mejoraron",           j => j.PobladosConstruidos),
+        ("Ciudades",           "Ciudades construidas",                                                 j => j.CiudadesConstruidas),
+        ("Longitud de ruta",   "Largo del camino continuo más largo al final de la partida",           j => j.LongitudRuta),
+        ("Comercios",          "Intercambios con otros jugadores en los que participó",                j => j.ComerciosJugadores),
+        ("Canjes con banca",   "Intercambios con la banca",                                            j => j.ComerciosBanca),
+        ("Cartas compradas",   "Cartas de desarrollo compradas",                                       j => j.CartasCompradas),
+        ("Cartas jugadas",     "Cartas de desarrollo jugadas",                                         j => j.CartasJugadas),
+        ("Ladrón movido",      "Veces que movió el ladrón",                                            j => j.LadronesMovidos),
+        ("Robos hechos",       "Cartas robadas a otros jugadores",                                     j => j.RobosHechos),
+        ("Robos sufridos",     "Cartas que le robaron",                                                j => j.RobosSufridos),
+        ("Descartes por 7",    "Veces que descartó cartas por tener más de siete",                     j => j.Descartes),
+    };
+
+    // ───────── Helpers de formato ─────────
+    private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
+
+    private static string F(double v) => v.ToString("0.##", Inv);
+
+    private static string Coma(double v) => v.ToString("0.0", Inv).Replace('.', ',');
+
+    private static string Pct(double valor, double maximo) =>
+        F(maximo <= 0 ? 0 : valor / maximo * 100);
+
+    private static string Cap(string s) =>
+        string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0], Inv) + s[1..];
+
+    // Helper para emitir etiquetas <text> de SVG sin entrar en conflicto con la directiva <text> de Razor
+    private static RenderFragment SvgText(string x, string y, string content, string? anchor = null, string? cssClass = null, string? fill = null) => builder =>
+    {
+        builder.OpenElement(0, "text");
+        builder.AddAttribute(1, "x", x);
+        builder.AddAttribute(2, "y", y);
+        if (anchor is not null) builder.AddAttribute(3, "text-anchor", anchor);
+        if (cssClass is not null) builder.AddAttribute(4, "class", cssClass);
+        if (fill is not null) builder.AddAttribute(5, "fill", fill);
+        builder.AddContent(6, content);
+        builder.CloseElement();
+    };
+
+    // ───────── Puntos ─────────
+    private List<JugadorEstadistica> PorPuntos =>
+        Est.Jugadores.OrderByDescending(j => j.PuntosTotales).ThenByDescending(j => j.PuntosVisibles).ToList();
+
+    private double Tope => Math.Max(10, Est.Jugadores.Max(j => j.PuntosTotales));
+
+    // ───────── Gráfico de líneas ─────────
+    private const double LW = 720, LH = 280, LL = 34, LR = 110, LT = 14, LB = 34;
+    private static double PlotW => LW - LL - LR;
+    private static double PlotH => LH - LT - LB;
+
+    private double MaxY
+    {
+        get
+        {
+            var max = Est.Linea.Length == 0 ? 10 : Est.Linea.Max(l => l.Length == 0 ? 0 : l.Max());
+            return Math.Max(10, Math.Ceiling(max / 2.0) * 2);
+        }
+    }
+
+    private double PosX(int turno) => LL + (Est.Turnos == 0 ? 0 : turno / (double)Est.Turnos) * PlotW;
+    private double PosY(double puntos) => LT + PlotH - puntos / MaxY * PlotH;
+
+    private IEnumerable<int> TicksX
+    {
+        get
+        {
+            for (int t = 0; t <= Est.Turnos; t += 10) yield return t;
+        }
+    }
+
+    // Línea escalonada: el valor cambia en el turno en que ocurre el evento.
+    private string Ruta(int indice)
+    {
+        var v = Est.Linea[indice];
+        var sb = new StringBuilder();
+        sb.Append("M ").Append(F(PosX(0))).Append(' ').Append(F(PosY(v[0])));
+        for (int t = 1; t < v.Length; t++)
+        {
+            if (v[t] != v[t - 1])
+                sb.Append(" H ").Append(F(PosX(t))).Append(" V ").Append(F(PosY(v[t])));
+        }
+        sb.Append(" H ").Append(F(PosX(v.Length - 1)));
+        return sb.ToString();
+    }
+
+    // Etiquetas al final de cada línea, separadas para que no se pisen.
+    private List<(JugadorEstadistica J, double Y)> EtiquetasFinales()
+    {
+        var lista = Est.Jugadores
+            .Select(j => (J: j, Y: PosY(j.PuntosVisibles)))
+            .OrderBy(x => x.Y)
+            .ToList();
+
+        for (int i = 1; i < lista.Count; i++)
+        {
+            if (lista[i].Y - lista[i - 1].Y < 15)
+                lista[i] = (lista[i].J, lista[i - 1].Y + 15);
+        }
+        return lista;
+    }
+
+    // ───────── Dados ─────────
+    private double EscalaDados => Math.Max(Est.DadosConteo.Max(), Est.DadosEsperados(7));
+
+    private string ResumenDados()
+    {
+        var d = Est.DadosConteo;
+        int masFrecuente = Enumerable.Range(2, 11).OrderByDescending(s => d[s]).First();
+        return $"La suma más frecuente fue el {masFrecuente} ({d[masFrecuente]} veces). " +
+               $"El 7 salió {d[7]} veces; en {Est.TotalTiradas} tiradas se esperaban {Coma(Est.DadosEsperados(7))}.";
+    }
+
+    // ───────── Recursos ─────────
+    private double MaxCeldaRecurso =>
+        Est.Jugadores.SelectMany(j => Recursos.Select(r => j.Producido.GetValueOrDefault(r.Clave))).DefaultIfEmpty(0).Max();
+
+    // Intensidad del color de fondo de cada celda (0 a 55 %)
+    private double Alfa(int valor) => MaxCeldaRecurso <= 0 ? 0 : valor / MaxCeldaRecurso * 55;
+
+    // ───────── Acciones ─────────
+    private bool EsMaximo(Func<JugadorEstadistica, int> valor, JugadorEstadistica j)
+    {
+        var max = Est.Jugadores.Max(valor);
+        return max > 0 && valor(j) == max;
+    }
+
+    // ───────── Cartas ─────────
+    private double MaxCompradas =>
+        TiposCarta.Select(t => Est.CartasCompradas.GetValueOrDefault(t.Clave)).DefaultIfEmpty(0).Max();
+
+    // ───────── Auditoría ─────────
+    private string ReglasVerificadas =>
+        Est.Auditoria.StartsWith("PASS: ", StringComparison.Ordinal) ? Est.Auditoria[6..] : Est.Auditoria;
+}

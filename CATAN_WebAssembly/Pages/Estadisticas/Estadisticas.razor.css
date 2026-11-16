@@ -1,0 +1,442 @@
+.stats {
+    --text: #e8e8e8;
+    --muted: #a6a6a6;
+    --panel: #1a1a1a;
+    --border: #333;
+    --rule: #2a2a2a;
+
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 0 48px;
+    color: var(--text);
+    line-height: 1.55;
+}
+
+.stats-msg {
+    color: var(--muted);
+    padding: 32px 0;
+}
+
+/* ───────── Encabezado ───────── */
+.stats-head {
+    margin-bottom: 24px;
+}
+
+.stats-head h1 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0 0 10px;
+}
+
+.stats-sub {
+    margin: 0 0 4px;
+}
+
+.stats-note {
+    margin: 0;
+    max-width: 75ch;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+/* ───────── Cifras principales ───────── */
+.stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin: 0 0 20px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.stats-strip > div {
+    padding: 18px 22px;
+}
+
+.stats-strip > div + div {
+    border-left: 1px solid var(--rule);
+}
+
+.stats-strip dt {
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.stats-strip dd {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.stats-strip .stats-strip__sub {
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+/* ───────── Paneles ───────── */
+.stats-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px 26px;
+    margin-bottom: 20px;
+}
+
+.stats-panel h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0 0 6px;
+}
+
+.stats-panel h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 20px 0 6px;
+}
+
+.stats-hint {
+    max-width: 75ch;
+    margin: 0 0 16px;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.stats-caption {
+    margin: 14px 0 0;
+    max-width: 75ch;
+}
+
+.stats-inline {
+    margin-left: 6px;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.stats-list {
+    margin: 0 0 12px;
+    padding-left: 1.25rem;
+}
+
+.stats-list li {
+    margin-bottom: 4px;
+}
+
+/* ───────── Tablas ───────── */
+.stats-scroll {
+    overflow-x: auto;
+}
+
+.stats-scroll:focus-visible {
+    outline: 2px solid #8fa8ff;
+    outline-offset: 2px;
+}
+
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+}
+
+.stats-table th,
+.stats-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-top: 1px solid var(--rule);
+}
+
+.stats-table thead th {
+    border-top: none;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    vertical-align: bottom;
+}
+
+.stats-table tbody th[scope="row"],
+.stats-table tfoot th[scope="row"] {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.stats-table tfoot th,
+.stats-table tfoot td {
+    border-top: 2px solid #3a3a3a;
+    font-weight: 600;
+}
+
+.stats-table .num {
+    text-align: right;
+}
+
+.stats-table--actions .num {
+    min-width: 5.5rem;
+}
+
+.stats-table .is-max {
+    color: #fff;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.09);
+}
+
+.heat {
+    background: color-mix(in srgb, var(--c) calc(var(--a) * 1%), transparent);
+}
+
+.dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+/* ───────── Etiquetas ───────── */
+.tag {
+    display: inline-block;
+    padding: 1px 9px;
+    margin-right: 6px;
+    border: 1px solid #4a4a4a;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: #ddd;
+    white-space: nowrap;
+}
+
+.tag--win {
+    margin-left: 8px;
+    border-color: #d9aa3a;
+    color: #e8c76a;
+}
+
+.tag--ok {
+    border-color: #4c9a5f;
+    color: #7ad08f;
+}
+
+.tag--bad {
+    border-color: #c0504a;
+    color: #ee8c86;
+}
+
+/* ───────── Barra de puntos ───────── */
+.col-bar {
+    min-width: 240px;
+}
+
+.pcell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pbar {
+    position: relative;
+    display: flex;
+    flex: 1;
+    height: 14px;
+    background: #262626;
+    border-radius: 3px;
+}
+
+.pbar__vis,
+.pbar__hid {
+    display: block;
+    height: 100%;
+}
+
+.pbar__vis {
+    border-radius: 3px 0 0 3px;
+}
+
+.pbar__hid {
+    background: repeating-linear-gradient(45deg, var(--c) 0 3px, transparent 3px 6px);
+}
+
+.pbar__goal {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    margin-left: -1px;
+    background: #fff;
+}
+
+.pbar__n {
+    width: 2rem;
+    text-align: right;
+    font-weight: 700;
+}
+
+/* ───────── Gráfico de líneas ───────── */
+.chart {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.chart__grid {
+    stroke: #2a2a2a;
+}
+
+.chart__goal {
+    stroke: #8a8a8a;
+}
+
+.chart__tick {
+    fill: #a6a6a6;
+    font-size: 11px;
+}
+
+.chart__label {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ───────── Dados ───────── */
+.dice {
+    display: flex;
+    gap: 6px;
+}
+
+.dice__col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.dice__plot {
+    position: relative;
+    height: 170px;
+}
+
+.dice__bar {
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: 0;
+    height: var(--h);
+    background: #7c8aa5;
+    border-radius: 3px 3px 0 0;
+}
+
+.dice__exp {
+    position: absolute;
+    left: 4%;
+    right: 4%;
+    bottom: var(--e);
+    height: 2px;
+    background: #fff;
+    opacity: 0.85;
+}
+
+.dice__n {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(max(var(--h), var(--e)) + 6px);
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.dice__s {
+    margin-top: 6px;
+    text-align: center;
+    color: var(--muted);
+}
+
+/* ───────── Cartas de desarrollo ───────── */
+.cards {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.cards__row {
+    display: grid;
+    grid-template-columns: 12rem 1fr 5rem;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 0;
+    border-top: 1px solid var(--rule);
+}
+
+.cards__row:first-child {
+    border-top: none;
+}
+
+.cards__lane {
+    display: block;
+}
+
+.cards__track {
+    display: block;
+    height: 12px;
+    background: #3a4660;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.cards__fill {
+    display: block;
+    height: 100%;
+    background: #8fa8ff;
+}
+
+.cards__n {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ───────── Auditoría ───────── */
+.audit {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px 24px;
+    margin: 18px 0 4px;
+}
+
+.audit dt {
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.audit dd {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+/* ───────── Mobile ───────── */
+@media (max-width: 640px) {
+    .stats-strip {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stats-strip > div:nth-child(3) {
+        border-left: none;
+    }
+
+    .stats-strip > div:nth-child(n + 3) {
+        border-top: 1px solid var(--rule);
+    }
+
+    .stats-panel {
+        padding: 18px 14px;
+    }
+
+    .cards__row {
+        grid-template-columns: 7.5rem 1fr 3.5rem;
+    }
+
+    .dice__plot {
+        height: 130px;
+    }
+}
